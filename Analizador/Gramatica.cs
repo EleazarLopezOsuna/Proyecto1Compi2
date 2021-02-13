@@ -300,8 +300,8 @@ namespace Proyecto1_Compiladores2.Analizador
             LiteralDeTipoString.Rule = cadena
                 ;
 
-            Llamada.Rule = id
-                | id + "(" + ")"
+            Llamada.Rule = /*id
+                |*/ id + "(" + ")"
                 | id + "(" + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor + ")"
                 | id + "(" + ParametrosActuales + RecursividadParametrosActuales + ")"
                 ;
