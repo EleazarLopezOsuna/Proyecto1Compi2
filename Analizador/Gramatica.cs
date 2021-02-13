@@ -171,7 +171,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | case_res + Expresion + of_res + Caso + RecursividadCaso + else_res + Sentencia + end_res
                 ;
 
-            AlternativaSimple.Rule = if_res + Condicion + then_res + Sentencia
+            AlternativaSimple.Rule = if_res + Condicion + then_res + Sentencia + ";"
                 ;
 
             BucleConNumeroFijoDeIteraciones.Rule = for_res + SentenciaDeAsignacion + to_res + Expresion + do_res + Sentencia
@@ -299,7 +299,7 @@ namespace Proyecto1_Compiladores2.Analizador
             LiteralDeTipoString.Rule = cadena
                 ;
 
-            Llamada.Rule =  id + "(" + ")"
+            Llamada.Rule = id + "(" + ")"
                 | id + "(" + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor + ")"
                 | id + "(" + ParametrosActuales + RecursividadParametrosActuales + ")"
                 ;
@@ -423,7 +423,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | Empty
                 ;
 
-            RecursividadSentencia.Rule =  Sentencia + ";" + RecursividadSentencia
+            RecursividadSentencia.Rule = Sentencia + ";" + RecursividadSentencia
                 | Empty
                 ;
 
