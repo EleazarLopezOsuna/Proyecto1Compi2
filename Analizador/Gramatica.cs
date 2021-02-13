@@ -164,7 +164,7 @@ namespace Proyecto1_Compiladores2.Analizador
             #endregion
 
             #region Gramatica
-            AlternativaDoble.Rule = if_res + Condicion + then_res + Sentencia + else_res + Sentencia
+            AlternativaDoble.Rule = if_res + Condicion + then_res + Sentencia + ";" + else_res + Sentencia
                 ;
 
             AlternativaMultiple.Rule = case_res + Expresion + of_res + Caso + RecursividadCaso + end_res
@@ -239,7 +239,6 @@ namespace Proyecto1_Compiladores2.Analizador
             DeclaracionDeVariables.Rule = id + RecursividadIdentificador + ":" + TipoDeDato
                 | id + RecursividadIdentificador + ":" + id
                 | id + ":" + TipoDeDato + "=" + Expresion
-                //| id + ":" No se para que funciona EquizDe
                 ;
 
             DefinicionDeTipo.Rule = id + "=" + TipoDeDato
@@ -300,8 +299,7 @@ namespace Proyecto1_Compiladores2.Analizador
             LiteralDeTipoString.Rule = cadena
                 ;
 
-            Llamada.Rule = /*id
-                |*/ id + "(" + ")"
+            Llamada.Rule =  id + "(" + ")"
                 | id + "(" + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor + ")"
                 | id + "(" + ParametrosActuales + RecursividadParametrosActuales + ")"
                 ;
