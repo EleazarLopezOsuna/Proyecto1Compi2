@@ -168,8 +168,8 @@ namespace Proyecto1_Compiladores2.Analizador
             AlternativaDoble.Rule = if_res + Condicion + then_res + Sentencia + else_res + Sentencia
                 ;
 
-            AlternativaMultiple.Rule = case_res + Expresion + of_res + Caso + RecursividadCaso + end_res
-                | case_res + Expresion + of_res + Caso + RecursividadCaso + else_res + Sentencia + end_res
+            AlternativaMultiple.Rule = case_res + Expresion + of_res + Caso + RecursividadCaso + else_res + Sentencia + end_res
+                | case_res + Expresion + of_res + Caso + RecursividadCaso  + end_res
                 ;
 
             AlternativaSimple.Rule = if_res + Condicion + then_res + Sentencia
@@ -202,6 +202,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             Caso.Rule = RangoDeLiterales + ":" + Sentencia
+                | Empty
                 ;
 
             Condicion.Rule = Expresion
@@ -238,8 +239,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             DeclaracionDeVariables.Rule = id + RecursividadIdentificador + ":" + TipoDeDato
-                | id + RecursividadIdentificador + ":" + id
                 | id + ":" + TipoDeDato + "=" + Expresion
+                | id + ":" + TipoDeDato
                 ;
 
             DefinicionDeTipo.Rule = id + "=" + TipoDeDato
@@ -426,7 +427,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             RecursividadSentencia.Rule = ";" + Sentencia + RecursividadSentencia
-                | Empty
+                | ";"
                 ;
 
             RecursividadTipoIndice.Rule = "," + TipoIndice + RecursividadTipoIndice
@@ -458,6 +459,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | array_res + "[" + TipoIndice + RecursividadTipoIndice + "]" + of_res + TipoDeDato
                 | record_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
                 | object_res + var_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
+                | id
                 ;
 
             TipoElemental.Rule = TipoSimple
