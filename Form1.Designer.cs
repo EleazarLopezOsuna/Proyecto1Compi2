@@ -87,6 +87,7 @@ namespace Proyecto1_Compiladores2
             this.runButton.TabIndex = 2;
             this.runButton.Text = "Run";
             this.runButton.UseVisualStyleBackColor = true;
+            this.runButton.Click += new System.EventHandler(this.runButton_Click);
             // 
             // code_textbox
             // 

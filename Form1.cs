@@ -58,7 +58,7 @@ namespace Proyecto1_Compiladores2
         private void translateButton_Click(object sender, EventArgs e)
         {
             resultadoAnalisis = null;
-            resultadoAnalisis = Sintactico.Analizar(code_textbox.Text);
+            resultadoAnalisis = SintacticoTraductor.Analizar(code_textbox.Text);
             error_table.Rows.Clear();
             symbol_table.Rows.Clear();
 
@@ -70,7 +70,7 @@ namespace Proyecto1_Compiladores2
                     symbol_table.Visible = true;
                     error_table.Visible = false;
 
-                    Sintactico.crearImagen(resultadoAnalisis.Root, null, 0);
+                    SintacticoTraductor.crearImagen(resultadoAnalisis.Root, null, 0);
                     Thread.Sleep(1000);
                     var p = new Process();
                     p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\Arbol.png")
@@ -93,13 +93,61 @@ namespace Proyecto1_Compiladores2
                             mensajeTraducido = error.Message.Replace("Syntax error, expected: ", "Se esperaba el token: ");
                         else
                             mensajeTraducido = "No se encontro simbolo para finalizar la cadena";
-                        error_table.Rows.Add("Sintactico", mensajeTraducido, error.Location.Line, error.Location.Column);
+                        error_table.Rows.Add("Sintactico", mensajeTraducido, error.Location.Line + 1, error.Location.Column + 1);
                     }
                 }
             }
             else
             {
                 
+            }
+        }
+
+        private void runButton_Click(object sender, EventArgs e)
+        {
+            resultadoAnalisis = null;
+            resultadoAnalisis = SintacticoInterprete.Analizar(code_textbox.Text);
+            error_table.Rows.Clear();
+            symbol_table.Rows.Clear();
+
+            if (resultadoAnalisis != null)
+            {
+                if (resultadoAnalisis.ParserMessages.Count == 0)
+                {
+                    table_label.Text = "Symbol Table";
+                    symbol_table.Visible = true;
+                    error_table.Visible = false;
+
+                    SintacticoTraductor.crearImagen(resultadoAnalisis.Root, null, 0);
+                    Thread.Sleep(1000);
+                    var p = new Process();
+                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\Arbol.png")
+                    {
+                        UseShellExecute = true
+                    };
+                    p.Start();
+                }
+                else
+                {
+                    table_label.Text = "Error Table";
+                    symbol_table.Visible = false;
+                    error_table.Visible = true;
+
+                    string mensajeTraducido = "";
+
+                    foreach (Irony.LogMessage error in resultadoAnalisis.ParserMessages)
+                    {
+                        if (error.Message.Contains("expected"))
+                            mensajeTraducido = error.Message.Replace("Syntax error, expected: ", "Se esperaba el token: ");
+                        else
+                            mensajeTraducido = "No se encontro simbolo para finalizar la cadena";
+                        error_table.Rows.Add("Sintactico", mensajeTraducido, error.Location.Line + 1, error.Location.Column + 1);
+                    }
+                }
+            }
+            else
+            {
+
             }
         }
     }

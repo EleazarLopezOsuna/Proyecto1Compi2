@@ -6,9 +6,9 @@ using Irony.Parsing;
 
 namespace Proyecto1_Compiladores2.Analizador
 {
-    class Gramatica : Grammar
+    class GramaticaTraductor : Grammar
     {
-        public Gramatica() : base(caseSensitive: false)
+        public GramaticaTraductor() : base(caseSensitive: false)
         {
             #region Palabras Reservadas
             var tipo_string = ToTerm("string");
@@ -37,14 +37,6 @@ namespace Proyecto1_Compiladores2.Analizador
             var while_res = ToTerm("while");
             var if_res = ToTerm("if");
             var downto_res = ToTerm("downto");
-            var record_res = ToTerm("record");
-
-            var continue_res = ToTerm("continue");
-            var break_res = ToTerm("break");
-            var exit_res = ToTerm("exit");
-            var write_res = ToTerm("write");
-            var writeln_res = ToTerm("writeln");
-            var graficar_res = ToTerm("graficar_ts");
 
             var logicoOR = "or";
             var logicoAND = "and";
@@ -133,7 +125,6 @@ namespace Proyecto1_Compiladores2.Analizador
             NonTerminal RecursividadIdentificador = new NonTerminal("RecursividadIdentificador");
             NonTerminal RecursividadObjetoCampo = new NonTerminal("RecursividadObjetoCampo");
             NonTerminal RecursividadParametrosActuales = new NonTerminal("RecursividadParametrosActuales");
-            NonTerminal RecursividadParametrosActualesPorValor = new NonTerminal("RecursividadParametrosActualesPorValor");
             NonTerminal RecursividadParametrosFormales = new NonTerminal("RecursividadParametrosFormales");
             NonTerminal RecursividadParametrosFormalesPorValor = new NonTerminal("RecursividadParametrosFormalesPorValor");
             NonTerminal RecursividadRangoDeLiterales = new NonTerminal("RecursividadRangoDeLiterales");
@@ -151,7 +142,6 @@ namespace Proyecto1_Compiladores2.Analizador
             NonTerminal TipoOrdinal = new NonTerminal("TipoOrdinal");
             NonTerminal TipoOrdinalPredefinido = new NonTerminal("TipoOrdinalPredefinido");
             NonTerminal TipoReal = new NonTerminal("TipoReal");
-            NonTerminal TipoRegistro = new NonTerminal("TipoRegistro");
             NonTerminal TipoSimple = new NonTerminal("TipoSimple");
             NonTerminal TipoString = new NonTerminal("TipoString");
             NonTerminal TipoSubrango = new NonTerminal("TipoSubrango");
@@ -169,7 +159,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             AlternativaMultiple.Rule = case_res + Expresion + of_res + Caso + RecursividadCaso + else_res + Sentencia + end_res
-                | case_res + Expresion + of_res + Caso + RecursividadCaso  + end_res
+                | case_res + Expresion + of_res + Caso + RecursividadCaso + end_res
                 ;
 
             AlternativaSimple.Rule = if_res + Condicion + then_res + Sentencia
@@ -220,12 +210,17 @@ namespace Proyecto1_Compiladores2.Analizador
             CuerpoDePrograma.Rule = SentenciaCompuesta
                 ;
 
-            DeclaracionDeCampos.Rule = id + RecursividadIdentificador + ":" + id
+            DeclaracionDeCampos.Rule = var_res + id + RecursividadIdentificador + ":" + id
+                | var_res + id + RecursividadIdentificador + ":" + TipoElemental
+                | id + RecursividadIdentificador + ":" + id
                 | id + RecursividadIdentificador + ":" + TipoElemental
+                | const_res + id + ":" + id + "=" + Expresion
+                | const_res + id + ":" + TipoElemental + "=" + Expresion
+                | id + "=" + Expresion
                 ;
 
-            DeclaracionDeConstante.Rule = id + "=" + Literal
-                | id + ":" + id + "=" + Literal
+            DeclaracionDeConstante.Rule = id + "=" + Expresion
+                | id + ":" + id + "=" + Expresion
                 ;
 
             DeclaracionDeFuncion.Rule = CabeceraDeFuncion + ZonaDeDeclaraciones + CuerpoDeFuncion
@@ -255,6 +250,8 @@ namespace Proyecto1_Compiladores2.Analizador
 
             ElementoDeRegistro.Rule = id + "." + id + RecursividadObjetoCampo
                 | id + "." + ElementoDeArray + RecursividadObjetoCampo
+                | Llamada + "." + RecursividadObjetoCampo
+                | Llamada + "." + ElementoDeArray + RecursividadObjetoCampo
                 ;
 
             EstructuraAlternativa.Rule = AlternativaSimple
@@ -303,7 +300,6 @@ namespace Proyecto1_Compiladores2.Analizador
 
             Llamada.Rule = id
                 | id + "(" + ")"
-                | id + "(" + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor + ")"
                 | id + "(" + ParametrosActuales + RecursividadParametrosActuales + ")"
                 ;
 
@@ -349,8 +345,8 @@ namespace Proyecto1_Compiladores2.Analizador
             Programa.Rule = CabeceraDePrograma + ZonaDeDeclaraciones + CuerpoDePrograma + "."
                 ;
 
-            RangoDeLiterales.Rule = Literal
-                | Literal + ".." + Literal
+            RangoDeLiterales.Rule = Expresion
+                | Expresion + ".." + Expresion
                 | RangoDeLiterales + RecursividadRangoDeLiterales
                 ;
 
@@ -395,16 +391,11 @@ namespace Proyecto1_Compiladores2.Analizador
 
             RecursividadObjetoCampo.Rule = "." + id + RecursividadObjetoCampo
                 | "." + ElementoDeArray + RecursividadObjetoCampo
+                | "." + Llamada + RecursividadObjetoCampo
                 | Empty
                 ;
 
-            RecursividadParametrosActuales.Rule = ";" + ParametrosActuales + RecursividadParametrosActuales
-                | "," + ParametrosActuales + RecursividadParametrosActuales
-                | Empty
-                ;
-
-            RecursividadParametrosActualesPorValor.Rule = ";" + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor
-                | "," + ParametrosActualesPorValor + RecursividadParametrosActualesPorValor
+            RecursividadParametrosActuales.Rule = "," + ParametrosActuales + RecursividadParametrosActuales
                 | Empty
                 ;
 
@@ -427,7 +418,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             RecursividadSentencia.Rule = ";" + Sentencia + RecursividadSentencia
-                | ";"
+                | Empty
                 ;
 
             RecursividadTipoIndice.Rule = "," + TipoIndice + RecursividadTipoIndice
@@ -457,8 +448,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | tipo_real
                 | tipo_string
                 | array_res + "[" + TipoIndice + RecursividadTipoIndice + "]" + of_res + TipoDeDato
-                | record_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
-                | object_res + var_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
+                | object_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
                 | id
                 ;
 
@@ -467,7 +457,6 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             TipoEstructurado.Rule = TipoArray
-                | TipoRegistro
                 | TipoString
                 ;
 
@@ -485,10 +474,6 @@ namespace Proyecto1_Compiladores2.Analizador
             TipoReal.Rule = tipo_real
                 ;
 
-            TipoRegistro.Rule = id
-                | record_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
-                ;
-
             TipoSimple.Rule = TipoOrdinal
                 | TipoReal
                 ;
@@ -497,7 +482,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             TipoSubrango.Rule = id
-                | Literal + ".." + Literal
+                | Expresion + ".." + Expresion
                 ;
 
             Variable.Rule = id

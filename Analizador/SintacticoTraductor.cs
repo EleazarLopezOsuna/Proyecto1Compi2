@@ -10,11 +10,11 @@ using Proyecto1_Compiladores2.Modelos;
 
 namespace Proyecto1_Compiladores2.Analizador
 {
-    class Sintactico : Grammar
+    class SintacticoTraductor : Grammar
     {
         public static ParseTree Analizar(String cadena)
         {
-            Gramatica gramatica = new Gramatica();
+            GramaticaTraductor gramatica = new GramaticaTraductor();
             LanguageData lenguaje = new LanguageData(gramatica);
             Parser parser = new Parser(lenguaje);
             ParseTree arbol = parser.Parse(cadena);
