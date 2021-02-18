@@ -29,7 +29,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 // Create the file.
                 if (tipo == 0)
                 {
-                    using (FileStream fs = File.Create(@"C:\compiladores2\Arbol.dot"))
+                    using (FileStream fs = File.Create(@"C:\compiladores2\ArbolIrony.dot"))
                     {
                         Byte[] info = new UTF8Encoding(true).GetBytes(grafoDot);
                         fs.Write(info, 0, info.Length);
@@ -37,7 +37,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else if (tipo == 1)
                 {
-                    using (FileStream fs = File.Create(@"C:\compiladores2\Arbol.dot"))
+                    using (FileStream fs = File.Create(@"C:\compiladores2\ArbolModificado.dot"))
                     {
                         Byte[] info = new UTF8Encoding(true).GetBytes(grafoDot);
                         fs.Write(info, 0, info.Length);
@@ -47,7 +47,14 @@ namespace Proyecto1_Compiladores2.Analizador
                 ProcessStartInfo startInfo = new ProcessStartInfo();
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 startInfo.FileName = "cmd.exe";
-                startInfo.Arguments = "/C dot -Tpng C:/compiladores2/Arbol.dot -o C:/compiladores2/Arbol.png";
+                if (tipo == 0)
+                {
+                    startInfo.Arguments = "/C dot -Tpng C:/compiladores2/ArbolIrony.dot -o C:/compiladores2/ArbolIrony.png";
+                }
+                else
+                {
+                    startInfo.Arguments = "/C dot -Tpng C:/compiladores2/ArbolModificado.dot -o C:/compiladores2/ArbolModificado.png";
+                }
                 process.StartInfo = startInfo;
                 process.Start();
 

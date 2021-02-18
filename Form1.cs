@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using Irony.Ast;
 using Irony.Parsing;
 using Proyecto1_Compiladores2.Analizador;
+using Proyecto1_Compiladores2.Graficador;
 
 namespace Proyecto1_Compiladores2
 {
@@ -70,10 +71,26 @@ namespace Proyecto1_Compiladores2
                     symbol_table.Visible = true;
                     error_table.Visible = false;
 
+                    //Graficar Arbol Modificado
+                    TransformadorArbol transformar = new TransformadorArbol();
+                    transformar.generarArbol(resultadoAnalisis.Root);
+                    SintacticoTraductor.crearImagen(null, transformar.arbolTraducido, 1);
+
+                    //Graficar Arbol Irony
                     SintacticoTraductor.crearImagen(resultadoAnalisis.Root, null, 0);
+
                     Thread.Sleep(1000);
                     var p = new Process();
-                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\Arbol.png")
+
+                    //Abrir imagen Modificada
+                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\ArbolModificado.png")
+                    {
+                        UseShellExecute = true
+                    };
+                    p.Start();
+
+                    //Abrir imagen Irony
+                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\ArbolIrony.png")
                     {
                         UseShellExecute = true
                     };
@@ -118,10 +135,26 @@ namespace Proyecto1_Compiladores2
                     symbol_table.Visible = true;
                     error_table.Visible = false;
 
-                    SintacticoTraductor.crearImagen(resultadoAnalisis.Root, null, 0);
+                    //Graficar Arbol Modificado
+                    TransformadorArbol transformar = new TransformadorArbol();
+                    transformar.generarArbol(resultadoAnalisis.Root);
+                    SintacticoInterprete.crearImagen(null, transformar.arbolTraducido, 1);
+
+                    //Graficar Arbol Irony
+                    SintacticoInterprete.crearImagen(resultadoAnalisis.Root, null, 0);
+
                     Thread.Sleep(1000);
                     var p = new Process();
-                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\Arbol.png")
+
+                    //Abrir imagen Modificada
+                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\ArbolModificado.png")
+                    {
+                        UseShellExecute = true
+                    };
+                    p.Start();
+
+                    //Abrir imagen Irony
+                    p.StartInfo = new ProcessStartInfo(@"C:\compiladores2\ArbolIrony.png")
                     {
                         UseShellExecute = true
                     };

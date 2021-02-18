@@ -37,10 +37,6 @@ namespace Proyecto1_Compiladores2.Analizador
             var while_res = ToTerm("while");
             var if_res = ToTerm("if");
             var downto_res = ToTerm("downto");
-
-            var logicoOR = "or";
-            var logicoAND = "and";
-            var logicoNOT = "not";
             #endregion
 
             #region Expresiones Regulares
@@ -58,252 +54,179 @@ namespace Proyecto1_Compiladores2.Analizador
             base.NonGrammarTerminals.Add(comentarioBloque2);
             #endregion
 
-            #region Presedencia
-            this.RegisterOperators(4, Associativity.Neutral, "=", "<>");
-            this.RegisterOperators(5, Associativity.Neutral, ">", ">=", "<", "<=");
-            this.RegisterOperators(6, Associativity.Left, "+", "-", logicoOR);
-            this.RegisterOperators(7, Associativity.Left, "*", "/", "%", logicoAND);
-            this.RegisterOperators(9, Associativity.Right, logicoNOT);
-            #endregion
-
             #region No Terminales
-            NonTerminal AlternativaDoble = new NonTerminal("AlternativaDoble");
-            NonTerminal AlternativaMultiple = new NonTerminal("AlternativaMultiple");
-            NonTerminal AlternativaSimple = new NonTerminal("AlternativaSimple");
-            NonTerminal BucleConNumeroFijoDeIteraciones = new NonTerminal("BucleConNumeroFijoDeIteraciones");
-            NonTerminal BucleConSalidaAlFinal = new NonTerminal("BucleConSalidaAlFinal");
-            NonTerminal BucleConSalidaAlPrincipio = new NonTerminal("BucleConSalidaAlPrincipio");
-            NonTerminal CabeceraDeFuncion = new NonTerminal("CabeceraDeFuncion");
-            NonTerminal CabeceraDeProcedimiento = new NonTerminal("CabeceraDeProcedimiento");
-            NonTerminal CabeceraDePrograma = new NonTerminal("CabeceraDePrograma");
-            NonTerminal Caso = new NonTerminal("Caso");
-            NonTerminal Condicion = new NonTerminal("Condicion");
-            NonTerminal ConversionDeTipo = new NonTerminal("ConversionDeTipo");
-            NonTerminal CuerpoDeFuncion = new NonTerminal("CuerpoDeFuncion");
-            NonTerminal CuerpoDeProcedimiento = new NonTerminal("CuerpoDeProcedimiento");
-            NonTerminal CuerpoDePrograma = new NonTerminal("CuerpoDePrograma");
-            NonTerminal DeclaracionDeCampos = new NonTerminal("DeclaracionDeCampos");
-            NonTerminal DeclaracionDeConstante = new NonTerminal("DeclaracionDeConstante");
-            NonTerminal DeclaracionDeFuncion = new NonTerminal("DeclaracionDeFuncion");
-            NonTerminal DeclaracionDeProcedimiento = new NonTerminal("DeclaracionDeProcedimiento");
-            NonTerminal DeclaracionDeSubprograma = new NonTerminal("DeclaracionDeSubprograma");
-            NonTerminal DeclaracionDeVariables = new NonTerminal("DeclaracionDeVariables");
-            NonTerminal DefinicionDeTipo = new NonTerminal("DefinicionDeTipo");
-            NonTerminal ElementoDeArray = new NonTerminal("ElementoDeArray");
-            NonTerminal ElementoDeEstructura = new NonTerminal("ElementoDeEstructura");
-            NonTerminal ElementoDeRegistro = new NonTerminal("ElementoDeRegistro");
-            NonTerminal EstructuraAlternativa = new NonTerminal("EstructuraAlternativa");
-            NonTerminal EstructuraDeControl = new NonTerminal("EstructuraDeControl");
-            NonTerminal EstructuraIterativa = new NonTerminal("EstructuraIterativa");
-            NonTerminal Expresion = new NonTerminal("Expresion");
-            NonTerminal ExpresionBinaria = new NonTerminal("ExpresionBinaria");
-            NonTerminal ExpresionUnaria = new NonTerminal("ExpresionUnaria");
-            NonTerminal Literal = new NonTerminal("Literal");
-            NonTerminal LiteralDeTipoBoolean = new NonTerminal("LiteralDeTipoBoolean");
-            NonTerminal LiteralDeTipoEntero = new NonTerminal("LiteralDeTipoEntero");
-            NonTerminal LiteralDeTipoReal = new NonTerminal("LiteralDeTipoReal");
-            NonTerminal LiteralDeTipoString = new NonTerminal("LiteralDeTipoString");
-            NonTerminal Llamada = new NonTerminal("Llamada");
-            NonTerminal OperadorBinario = new NonTerminal("OperadorBinario");
-            NonTerminal OperadorUnario = new NonTerminal("OperadorUnario");
-            NonTerminal ParametrosActuales = new NonTerminal("ParametrosActuales");
-            NonTerminal ParametrosActualesPorValor = new NonTerminal("ParametrosActualesPorValor");
-            NonTerminal ParametrosActualesPorVariable = new NonTerminal("ParametrosActualesPorVariable");
-            NonTerminal ParametrosFormales = new NonTerminal("ParametrosFormales");
-            NonTerminal ParametrosFormalesPorValor = new NonTerminal("ParametrosFormalesPorValor");
-            NonTerminal ParametrosFormalesPorVariable = new NonTerminal("ParametrosFormalesPorVariable");
-            NonTerminal Programa = new NonTerminal("Programa");
-            NonTerminal RangoDeLiterales = new NonTerminal("RangoDeLiterales");
-            NonTerminal RangoDeValores = new NonTerminal("RangoDeValores");
-            NonTerminal RecursividadCaso = new NonTerminal("RecursividadCaso");
-            NonTerminal RecursividadDeclaracionDeCampos = new NonTerminal("RecursividadDeclaracionDeCampos");
-            NonTerminal RecursividadDeclaracionDeConstante = new NonTerminal("RecursividadDeclaracionDeConstante");
-            NonTerminal RecursividadDeclaracionDeSubprograma = new NonTerminal("RecursividadDeclaracionDeSubprograma");
-            NonTerminal RecursividadDeclaracionDeVariables = new NonTerminal("RecursividadDeclaracionDeVariables");
-            NonTerminal RecursividadDefinicionDeTipo = new NonTerminal("RecursividadDefinicionDeTipo");
-            NonTerminal RecursividadExpresion = new NonTerminal("RecursividadExpresion");
-            NonTerminal RecursividadIdentificador = new NonTerminal("RecursividadIdentificador");
-            NonTerminal RecursividadObjetoCampo = new NonTerminal("RecursividadObjetoCampo");
-            NonTerminal RecursividadParametrosActuales = new NonTerminal("RecursividadParametrosActuales");
-            NonTerminal RecursividadParametrosFormales = new NonTerminal("RecursividadParametrosFormales");
-            NonTerminal RecursividadParametrosFormalesPorValor = new NonTerminal("RecursividadParametrosFormalesPorValor");
-            NonTerminal RecursividadRangoDeLiterales = new NonTerminal("RecursividadRangoDeLiterales");
-            NonTerminal RecursividadRangoDeValores = new NonTerminal("RecursividadRangoDeValores");
-            NonTerminal RecursividadSentencia = new NonTerminal("RecursividadSentencia");
-            NonTerminal RecursividadTipoIndice = new NonTerminal("RecursividadTipoIndice");
-            NonTerminal Sentencia = new NonTerminal("Sentencia");
-            NonTerminal SentenciaCompuesta = new NonTerminal("SentenciaCompuesta");
-            NonTerminal SentenciaDeAsignacion = new NonTerminal("SentenciaDeAsignacion");
-            NonTerminal TipoArray = new NonTerminal("TipoArray");
-            NonTerminal TipoDeDato = new NonTerminal("TipoDeDato");
-            NonTerminal TipoElemental = new NonTerminal("TipoElemental");
-            NonTerminal TipoEstructurado = new NonTerminal("TipoEstructurado");
-            NonTerminal TipoIndice = new NonTerminal("TipoIndice");
-            NonTerminal TipoOrdinal = new NonTerminal("TipoOrdinal");
-            NonTerminal TipoOrdinalPredefinido = new NonTerminal("TipoOrdinalPredefinido");
-            NonTerminal TipoReal = new NonTerminal("TipoReal");
-            NonTerminal TipoSimple = new NonTerminal("TipoSimple");
-            NonTerminal TipoString = new NonTerminal("TipoString");
-            NonTerminal TipoSubrango = new NonTerminal("TipoSubrango");
-            NonTerminal Variable = new NonTerminal("Variable");
-            NonTerminal ZonaDeDeclaracionDeConstantes = new NonTerminal("ZonaDeDeclaracionDeConstantes");
-            NonTerminal ZonaDeDeclaracionDeSubprogramas = new NonTerminal("ZonaDeDeclaracionDeSubprogramas");
-            NonTerminal ZonaDeDeclaracionDeVariables = new NonTerminal("ZonaDeDeclaracionDeVariables");
-            NonTerminal ZonaDeDeclaraciones = new NonTerminal("ZonaDeDeclaraciones");
-            NonTerminal ZonaDeDefinicionDeTipos = new NonTerminal("ZonaDeDefinicionDeTipos");
+            NonTerminal IF_D = new NonTerminal("IF");
+            NonTerminal CASE = new NonTerminal("CASE");
+            NonTerminal IF_S = new NonTerminal("IF");
+            NonTerminal FOR = new NonTerminal("FOR");
+            NonTerminal ABAJO = new NonTerminal("ABAJO");
+            NonTerminal ARRIBA = new NonTerminal("ARRIBA");
+            NonTerminal REPEAT = new NonTerminal("REPEAT");
+            NonTerminal WHILE = new NonTerminal("WHILE");
+            NonTerminal FUNCION_HEAD = new NonTerminal("FUNCION_HEAD");
+            NonTerminal PROCEDIMIENTO_HEAD = new NonTerminal("PROCEDIMIENTO_HEAD");
+            NonTerminal OPCION_CASE = new NonTerminal("OPCION_CASE");
+            NonTerminal DECLARACION_CAMPOS_TYPE = new NonTerminal("DECLARACION_CAMPOS_TYPE");
+            NonTerminal D_CONSTANTE = new NonTerminal("D_CONSTANTE");
+            NonTerminal FUNCION = new NonTerminal("FUNCION");
+            NonTerminal PROCEDIMIENTO = new NonTerminal("PROCEDIMIENTO");
+            NonTerminal SUBPROGRAMA = new NonTerminal("SUBPROGRAMA");
+            NonTerminal D_VARIABLE = new NonTerminal("D_VARIABLE");
+            NonTerminal ESTRUCTURA = new NonTerminal("ESTRUCTURA");
+            NonTerminal CONTROLADOR = new NonTerminal("CONTROLADOR");
+            NonTerminal EXPRESION = new NonTerminal("EXPRESION");
+            NonTerminal EB = new NonTerminal("EXPRESION");
+            NonTerminal EU = new NonTerminal("EXPRESION");
+            NonTerminal VALOR = new NonTerminal("VALOR");
+            NonTerminal LLAMADA = new NonTerminal("LLAMADA");
+            NonTerminal OB = new NonTerminal("OPERADOR");
+            NonTerminal OU = new NonTerminal("OPERADOR");
+            NonTerminal PA = new NonTerminal("PA");
+            NonTerminal PF = new NonTerminal("PF");
+            NonTerminal PFVL = new NonTerminal("PFVL"); //Parametros Formales por VaLor
+            NonTerminal PFVR = new NonTerminal("PFVR"); //Parametros Formales por VARIABLE
+            NonTerminal PROGRAMA = new NonTerminal("PROGRAMA");
+            NonTerminal RANGO = new NonTerminal("RANGO");
+            NonTerminal R_OPCION_CASE = new NonTerminal("OPCION_CASE");
+            NonTerminal R_DECLARACION_CAMPOS_TYPE = new NonTerminal("DECLARACION_CAMPOS_TYPE");
+            NonTerminal R_CONSTANTE = new NonTerminal("D_CONSTANTE");
+            NonTerminal R_SUBPROGRAMA = new NonTerminal("SUBPROGRAMA");
+            NonTerminal R_VARIABLE = new NonTerminal("D_VARIABLE");
+            NonTerminal R_TYPE = new NonTerminal("Z_TIPOS");
+            NonTerminal R_EXPRESION = new NonTerminal("EXPRESION");
+            NonTerminal R_ID = new NonTerminal("R_ID");
+            NonTerminal R_OBJETO_CAMPO = new NonTerminal("ESTRUCTURA");
+            NonTerminal R_PA = new NonTerminal("PA");
+            NonTerminal R_PF = new NonTerminal("PF");
+            NonTerminal R_PFVL = new NonTerminal("PFVL");
+            NonTerminal R_RANGO = new NonTerminal("RANGO");
+            NonTerminal R_SENTENCIA = new NonTerminal("SENTENCIA");
+            NonTerminal R_INDICE = new NonTerminal("INDICE");
+            NonTerminal SENTENCIA = new NonTerminal("SENTENCIA");
+            NonTerminal BEGIN_END = new NonTerminal("BEGIN_END");
+            NonTerminal ASIGNACION = new NonTerminal("ASIGNACION");
+            NonTerminal T_DATO = new NonTerminal("T_DATO");
+            NonTerminal T_ELEMENTAL = new NonTerminal("T_ELEMENTAL");
+            NonTerminal T_ESTRUCTURADO = new NonTerminal("T_ESTRUCTURADO");
+            NonTerminal T_ORDINAL = new NonTerminal("T_ORDINAL");
+            NonTerminal VARIABLE = new NonTerminal("VARIABLE");
+            NonTerminal Z_CONSTANTES = new NonTerminal("Z_CONSTANTES");
+            NonTerminal Z_SUBPROGRAMAS = new NonTerminal("Z_SUBPROGRAMAS");
+            NonTerminal Z_VARIABLES = new NonTerminal("Z_VARIABLES");
+            NonTerminal Z_DECLARACIONES = new NonTerminal("Z_DECLARACIONES");
+            NonTerminal Z_TIPOS = new NonTerminal("Z_TIPOS");
             #endregion
 
             #region Gramatica
 
-            AlternativaDoble.Rule = if_res + Condicion + then_res + Sentencia + else_res + Sentencia
+            IF_D.Rule = if_res + EXPRESION + then_res + SENTENCIA + else_res + SENTENCIA
                 ;
 
-            AlternativaMultiple.Rule = case_res + Expresion + of_res + Caso + RecursividadCaso + else_res + Sentencia + end_res
-                | case_res + Expresion + of_res + Caso + RecursividadCaso + end_res
+            CASE.Rule = case_res + EXPRESION + of_res + OPCION_CASE + R_OPCION_CASE + else_res + SENTENCIA + end_res
+                | case_res + EXPRESION + of_res + OPCION_CASE + R_OPCION_CASE + end_res
                 ;
 
-            AlternativaSimple.Rule = if_res + Condicion + then_res + Sentencia
+            IF_S.Rule = if_res + EXPRESION + then_res + SENTENCIA
                 ;
 
-            BucleConNumeroFijoDeIteraciones.Rule = for_res + SentenciaDeAsignacion + to_res + Expresion + do_res + Sentencia
-                | for_res + SentenciaDeAsignacion + downto_res + Expresion + do_res + Sentencia
+            FOR.Rule = for_res + ASIGNACION + ARRIBA + SENTENCIA
+                | for_res + ASIGNACION + ABAJO + SENTENCIA
                 ;
 
-            BucleConSalidaAlFinal.Rule = repeat_res + Sentencia + RecursividadSentencia + until_res + Condicion
+            ABAJO.Rule = downto_res + EXPRESION + do_res
                 ;
 
-            BucleConSalidaAlPrincipio.Rule = while_res + Condicion + do_res + Sentencia
+            ARRIBA.Rule = to_res + EXPRESION + do_res
                 ;
 
-            CabeceraDeFuncion.Rule = function_res + id + ":" + id + ";"
-                | function_res + id + ":" + TipoElemental + ";"
-                | function_res + id + "(" + ParametrosFormalesPorValor + RecursividadParametrosFormalesPorValor + ")" + ":" + id + ";"
-                | function_res + id + "(" + ParametrosFormalesPorValor + RecursividadParametrosFormalesPorValor + ")" + ":" + TipoElemental + ";"
+            REPEAT.Rule = repeat_res + SENTENCIA + R_SENTENCIA + until_res + EXPRESION
+                ;
+
+            WHILE.Rule = while_res + EXPRESION + do_res + SENTENCIA
+                ;
+
+            FUNCION_HEAD.Rule = function_res + id + ":" + id + ";"
+                | function_res + id + ":" + T_ELEMENTAL + ";"
+                | function_res + id + "(" + PFVL + R_PFVL + ")" + ":" + id + ";"
+                | function_res + id + "(" + PFVL + R_PFVL + ")" + ":" + T_ELEMENTAL + ";"
                 | function_res + id + "(" + ")" + ":" + id + ";"
-                | function_res + id + "(" + ")" + ":" + TipoElemental + ";"
+                | function_res + id + "(" + ")" + ":" + T_ELEMENTAL + ";"
                 ;
 
-            CabeceraDeProcedimiento.Rule = procedure_res + id + ";"
-                | procedure_res + id + "(" + ParametrosFormales + RecursividadParametrosFormales + ")" + ";"
+            PROCEDIMIENTO_HEAD.Rule = procedure_res + id + ";"
+                | procedure_res + id + "(" + PF + R_PF + ")" + ";"
                 | procedure_res + id + "(" + ")" + ";"
                 ;
 
-            CabeceraDePrograma.Rule = program_res + id + ";"
-                ;
-
-            Caso.Rule = RangoDeLiterales + ":" + Sentencia
+            OPCION_CASE.Rule = RANGO + ":" + SENTENCIA
                 | Empty
                 ;
 
-            Condicion.Rule = Expresion
+            DECLARACION_CAMPOS_TYPE.Rule = var_res + id + R_ID + ":" + id
+                | var_res + id + R_ID + ":" + T_ELEMENTAL
+                | id + R_ID + ":" + id
+                | id + R_ID + ":" + T_ELEMENTAL
+                | const_res + id + ":" + id + "=" + EXPRESION
+                | const_res + id + ":" + T_ELEMENTAL + "=" + EXPRESION
+                | id + "=" + EXPRESION
                 ;
 
-            ConversionDeTipo.Rule = id + "(" + Expresion + ")"
+            D_CONSTANTE.Rule = id + "=" + EXPRESION
+                | id + ":" + id + "=" + EXPRESION
                 ;
 
-            CuerpoDeFuncion.Rule = SentenciaCompuesta
+            FUNCION.Rule = FUNCION_HEAD + Z_DECLARACIONES + BEGIN_END
                 ;
 
-            CuerpoDeProcedimiento.Rule = SentenciaCompuesta
+            PROCEDIMIENTO.Rule = PROCEDIMIENTO_HEAD + Z_DECLARACIONES + BEGIN_END
                 ;
 
-            CuerpoDePrograma.Rule = SentenciaCompuesta
+            SUBPROGRAMA.Rule = FUNCION
+                | PROCEDIMIENTO
                 ;
 
-            DeclaracionDeCampos.Rule = var_res + id + RecursividadIdentificador + ":" + id
-                | var_res + id + RecursividadIdentificador + ":" + TipoElemental
-                | id + RecursividadIdentificador + ":" + id
-                | id + RecursividadIdentificador + ":" + TipoElemental
-                | const_res + id + ":" + id + "=" + Expresion
-                | const_res + id + ":" + TipoElemental + "=" + Expresion
-                | id + "=" + Expresion
+            D_VARIABLE.Rule = id + R_ID + ":" + T_DATO
+                | id + ":" + T_DATO + "=" + EXPRESION
+                | id + ":" + T_DATO
                 ;
 
-            DeclaracionDeConstante.Rule = id + "=" + Expresion
-                | id + ":" + id + "=" + Expresion
+            ESTRUCTURA.Rule = id + "[" + EXPRESION + R_EXPRESION + "]"
+                | id + R_OBJETO_CAMPO
+                | LLAMADA + R_OBJETO_CAMPO
                 ;
 
-            DeclaracionDeFuncion.Rule = CabeceraDeFuncion + ZonaDeDeclaraciones + CuerpoDeFuncion
+            CONTROLADOR.Rule = IF_S
+                | IF_D
+                | CASE
+                | WHILE
+                | REPEAT
+                | FOR
                 ;
 
-            DeclaracionDeProcedimiento.Rule = CabeceraDeProcedimiento + ZonaDeDeclaraciones + CuerpoDeProcedimiento
+            EXPRESION.Rule = VALOR
+                | VARIABLE
+                | EU
+                | EB
+                | LLAMADA
+                | id + "(" + EXPRESION + ")"
+                | "(" + EXPRESION + ")"
                 ;
 
-            DeclaracionDeSubprograma.Rule = DeclaracionDeFuncion
-                | DeclaracionDeProcedimiento
+            EB.Rule = EXPRESION + OB + EXPRESION
                 ;
 
-            DeclaracionDeVariables.Rule = id + RecursividadIdentificador + ":" + TipoDeDato
-                | id + ":" + TipoDeDato + "=" + Expresion
-                | id + ":" + TipoDeDato
+            EU.Rule = OU + EXPRESION
                 ;
 
-            DefinicionDeTipo.Rule = id + "=" + TipoDeDato
+            VALOR.Rule = N_entero | N_real | boleano | cadena
                 ;
 
-            ElementoDeArray.Rule = id + "[" + Expresion + RecursividadExpresion + "]"
-                ;
-
-            ElementoDeEstructura.Rule = ElementoDeArray
-                | ElementoDeRegistro
-                ;
-
-            ElementoDeRegistro.Rule = id + "." + id + RecursividadObjetoCampo
-                | id + "." + ElementoDeArray + RecursividadObjetoCampo
-                | Llamada + "." + RecursividadObjetoCampo
-                | Llamada + "." + ElementoDeArray + RecursividadObjetoCampo
-                ;
-
-            EstructuraAlternativa.Rule = AlternativaSimple
-                | AlternativaDoble
-                | AlternativaMultiple
-                ;
-
-            EstructuraDeControl.Rule = EstructuraAlternativa
-                | EstructuraIterativa
-                ;
-
-            EstructuraIterativa.Rule = BucleConSalidaAlPrincipio
-                | BucleConSalidaAlFinal
-                | BucleConNumeroFijoDeIteraciones
-                ;
-
-            Expresion.Rule = Literal
-                | Variable
-                | ExpresionUnaria
-                | ExpresionBinaria
-                | Llamada
-                | ConversionDeTipo
-                | "(" + Expresion + ")"
-                ;
-
-            ExpresionBinaria.Rule = Expresion + OperadorBinario + Expresion
-                ;
-
-            ExpresionUnaria.Rule = OperadorUnario + Expresion
-                ;
-
-            Literal.Rule = LiteralDeTipoEntero | LiteralDeTipoReal | LiteralDeTipoBoolean | LiteralDeTipoString
-                ;
-
-            LiteralDeTipoBoolean.Rule = boleano
-                ;
-
-            LiteralDeTipoEntero.Rule = N_entero
-                ;
-
-            LiteralDeTipoReal.Rule = N_real
-                ;
-
-            LiteralDeTipoString.Rule = cadena
-                ;
-
-            Llamada.Rule = id
+            LLAMADA.Rule = id
                 | id + "(" + ")"
-                | id + "(" + ParametrosActuales + RecursividadParametrosActuales + ")"
+                | id + "(" + PA + R_PA + ")"
                 ;
 
-            OperadorBinario.Rule = ToTerm("+")
+            OB.Rule = ToTerm("+")
                 | ToTerm("-")
                 | ToTerm("*")
                 | ToTerm("%")
@@ -318,207 +241,168 @@ namespace Proyecto1_Compiladores2.Analizador
                 | ToTerm(">=")
                 ;
 
-            OperadorUnario.Rule = ToTerm("not")
+            OU.Rule = ToTerm("not")
                 | ToTerm("-")
                 ;
 
-            ParametrosActuales.Rule = ParametrosActualesPorValor
-                | ParametrosActualesPorVariable
+            PA.Rule = EXPRESION
+                | VARIABLE
                 ;
 
-            ParametrosActualesPorValor.Rule = Expresion
+            PF.Rule = PFVL
+                | PFVR
                 ;
 
-            ParametrosActualesPorVariable.Rule = Variable
+            PFVL.Rule = id + R_ID + ":" + id
                 ;
 
-            ParametrosFormales.Rule = ParametrosFormalesPorValor
-                | ParametrosFormalesPorVariable
+            PFVR.Rule = var_res + id + R_ID + ":" + id
                 ;
 
-            ParametrosFormalesPorValor.Rule = id + RecursividadIdentificador + ":" + id
+            PROGRAMA.Rule = program_res + id + ";" + Z_DECLARACIONES + BEGIN_END + "."
                 ;
 
-            ParametrosFormalesPorVariable.Rule = var_res + id + RecursividadIdentificador + ":" + id
+            RANGO.Rule = EXPRESION
+                | EXPRESION + ".." + EXPRESION
+                | RANGO + R_RANGO
                 ;
 
-            Programa.Rule = CabeceraDePrograma + ZonaDeDeclaraciones + CuerpoDePrograma + "."
-                ;
-
-            RangoDeLiterales.Rule = Expresion
-                | Expresion + ".." + Expresion
-                | RangoDeLiterales + RecursividadRangoDeLiterales
-                ;
-
-            RangoDeValores.Rule = Expresion
-                | Expresion + ".." + Expresion
-                | RangoDeValores + RecursividadRangoDeValores
-                ;
-
-            RecursividadCaso.Rule = ";" + Caso + RecursividadCaso
+            R_OPCION_CASE.Rule = ";" + OPCION_CASE + R_OPCION_CASE
                 | Empty
                 ;
 
-            RecursividadDeclaracionDeCampos.Rule = ";" + DeclaracionDeCampos + RecursividadDeclaracionDeCampos
-                | DeclaracionDeCampos + RecursividadDeclaracionDeCampos
+            R_DECLARACION_CAMPOS_TYPE.Rule = ";" + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE
+                | DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE
                 | Empty
                 | ";"
                 ;
 
-            RecursividadDeclaracionDeConstante.Rule = ";" + DeclaracionDeConstante + RecursividadDeclaracionDeConstante
+            R_CONSTANTE.Rule = ";" + D_CONSTANTE + R_CONSTANTE
                 | Empty
                 ;
 
-            RecursividadDeclaracionDeSubprograma.Rule = ";" + DeclaracionDeSubprograma + RecursividadDeclaracionDeSubprograma
+            R_SUBPROGRAMA.Rule = ";" + SUBPROGRAMA + R_SUBPROGRAMA
                 | Empty
                 ;
 
-            RecursividadDeclaracionDeVariables.Rule = ";" + DeclaracionDeVariables + RecursividadDeclaracionDeVariables
+            R_VARIABLE.Rule = ";" + D_VARIABLE + R_VARIABLE
                 | Empty
                 ;
 
-            RecursividadDefinicionDeTipo.Rule = ";" + DefinicionDeTipo + RecursividadDefinicionDeTipo
+            R_TYPE.Rule = ";" + id + "=" + T_DATO + R_TYPE
                 | Empty
                 ;
 
-            RecursividadExpresion.Rule = "," + Expresion + RecursividadExpresion
+            R_EXPRESION.Rule = "," + EXPRESION + R_EXPRESION
                 | Empty
                 ;
 
-            RecursividadIdentificador.Rule = "," + id + RecursividadIdentificador
+            R_ID.Rule = "," + id + R_ID
                 | Empty
                 ;
 
-            RecursividadObjetoCampo.Rule = "." + id + RecursividadObjetoCampo
-                | "." + ElementoDeArray + RecursividadObjetoCampo
-                | "." + Llamada + RecursividadObjetoCampo
+            R_OBJETO_CAMPO.Rule = "." + id + R_OBJETO_CAMPO
+                | "." + id + "[" + EXPRESION + R_EXPRESION + "]" + R_OBJETO_CAMPO
+                | "." + LLAMADA + R_OBJETO_CAMPO
                 | Empty
                 ;
 
-            RecursividadParametrosActuales.Rule = "," + ParametrosActuales + RecursividadParametrosActuales
+            R_PA.Rule = "," + PA + R_PA
                 | Empty
                 ;
 
-            RecursividadParametrosFormales.Rule = ";" + ParametrosFormales + RecursividadParametrosFormales
-                | "," + ParametrosFormales + RecursividadParametrosFormales
+            R_PF.Rule = ";" + PF + R_PF
+                | "," + PF + R_PF
                 | Empty
                 ;
 
-            RecursividadParametrosFormalesPorValor.Rule = ";" + ParametrosFormalesPorValor + RecursividadParametrosFormalesPorValor
-                | "," + ParametrosFormalesPorValor + RecursividadParametrosFormalesPorValor
+            R_PFVL.Rule = ";" + PFVL + R_PFVL
+                | "," + PFVL + R_PFVL
                 | Empty
                 ;
 
-            RecursividadRangoDeLiterales.Rule = "," + RangoDeLiterales + RecursividadRangoDeLiterales
+            R_RANGO.Rule = "," + RANGO + R_RANGO
                 | Empty
                 ;
 
-            RecursividadRangoDeValores.Rule = "," + RangoDeValores + RecursividadRangoDeValores
+            R_SENTENCIA.Rule = ";" + SENTENCIA + R_SENTENCIA
                 | Empty
                 ;
 
-            RecursividadSentencia.Rule = ";" + Sentencia + RecursividadSentencia
+            R_INDICE.Rule = "," + T_ORDINAL + R_INDICE
                 | Empty
                 ;
 
-            RecursividadTipoIndice.Rule = "," + TipoIndice + RecursividadTipoIndice
+            SENTENCIA.Rule = ASIGNACION
+                | BEGIN_END
+                | LLAMADA
+                | CONTROLADOR
                 | Empty
                 ;
 
-            Sentencia.Rule = SentenciaDeAsignacion
-                | SentenciaCompuesta
-                | Llamada
-                | EstructuraDeControl
-                | Empty
-                ;
-
-            SentenciaCompuesta.Rule = begin_res + Sentencia + RecursividadSentencia + end_res
+            BEGIN_END.Rule = begin_res + SENTENCIA + R_SENTENCIA + end_res
                 | begin_res + end_res
                 ;
 
-            SentenciaDeAsignacion.Rule = Variable + ":=" + Expresion
+            ASIGNACION.Rule = VARIABLE + ":=" + EXPRESION
                 ;
 
-            TipoArray.Rule = id
-                | array_res + "[" + TipoIndice + RecursividadTipoIndice + "]" + of_res + TipoDeDato
-                ;
-
-            TipoDeDato.Rule = tipo_integer
+            T_DATO.Rule = tipo_integer
                 | tipo_boolean
                 | tipo_real
                 | tipo_string
-                | array_res + "[" + TipoIndice + RecursividadTipoIndice + "]" + of_res + TipoDeDato
-                | object_res + DeclaracionDeCampos + RecursividadDeclaracionDeCampos + end_res
+                | array_res + "[" + T_ORDINAL + R_INDICE + "]" + of_res + T_DATO
+                | object_res + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE + end_res
                 | id
                 ;
 
-            TipoElemental.Rule = TipoSimple
-                | TipoString
+            T_ELEMENTAL.Rule = T_ORDINAL
+                | tipo_real
+                | id
                 ;
 
-            TipoEstructurado.Rule = TipoArray
-                | TipoString
+            T_ESTRUCTURADO.Rule = array_res + "[" + T_ORDINAL + R_INDICE + "]" + of_res + T_DATO
+                | id
                 ;
 
-            TipoIndice.Rule = TipoOrdinal
+            T_ORDINAL.Rule = EXPRESION
+                | EXPRESION + ".." + EXPRESION
                 ;
 
-            TipoOrdinal.Rule = TipoOrdinalPredefinido
-                | Expresion + ".." + Expresion
+            VARIABLE.Rule = id
+                | ESTRUCTURA
                 ;
 
-            TipoOrdinalPredefinido.Rule = N_entero
-                | boleano
+            Z_CONSTANTES.Rule = Empty
+                | const_res + D_CONSTANTE + ";" + R_CONSTANTE + Z_DECLARACIONES
+                | D_CONSTANTE + ";" + R_CONSTANTE + Z_DECLARACIONES
                 ;
 
-            TipoReal.Rule = tipo_real
+            Z_VARIABLES.Rule = Empty
+                | var_res + D_VARIABLE + ";" + R_VARIABLE + Z_DECLARACIONES
+                | D_VARIABLE + ";" + R_VARIABLE + Z_DECLARACIONES
                 ;
 
-            TipoSimple.Rule = TipoOrdinal
-                | TipoReal
-                ;
-
-            TipoString.Rule = id
-                ;
-
-            TipoSubrango.Rule = id
-                | Expresion + ".." + Expresion
-                ;
-
-            Variable.Rule = id
-                | ElementoDeEstructura
-                ;
-
-            ZonaDeDeclaracionDeConstantes.Rule = Empty
-                | const_res + DeclaracionDeConstante + ";" + RecursividadDeclaracionDeConstante + ZonaDeDeclaraciones
-                | DeclaracionDeConstante + ";" + RecursividadDeclaracionDeConstante + ZonaDeDeclaraciones
-                ;
-
-            ZonaDeDeclaracionDeSubprogramas.Rule = Empty
-                | DeclaracionDeSubprograma + ";" + RecursividadDeclaracionDeSubprograma + ZonaDeDeclaraciones
-                ;
-
-            ZonaDeDeclaracionDeVariables.Rule = Empty
-                | var_res + DeclaracionDeVariables + ";" + RecursividadDeclaracionDeVariables + ZonaDeDeclaraciones
-                | DeclaracionDeVariables + ";" + RecursividadDeclaracionDeVariables + ZonaDeDeclaraciones
-                ;
-
-            ZonaDeDeclaraciones.Rule = ZonaDeDeclaracionDeConstantes
-                | ZonaDeDefinicionDeTipos
-                | ZonaDeDeclaracionDeSubprogramas
-                | ZonaDeDeclaracionDeVariables
+            Z_DECLARACIONES.Rule = Z_CONSTANTES
+                | Z_TIPOS
+                | Z_VARIABLES
+                | Z_SUBPROGRAMAS
                 | Empty
                 ;
 
-            ZonaDeDefinicionDeTipos.Rule = Empty
-                | type_res + DefinicionDeTipo + ";" + RecursividadDefinicionDeTipo + ZonaDeDeclaraciones
-                | DefinicionDeTipo + ";" + RecursividadDefinicionDeTipo + ZonaDeDeclaraciones
+            Z_TIPOS.Rule = Empty
+                | type_res + id + "=" + T_DATO + ";" + R_TYPE + Z_DECLARACIONES
+                | id + "=" + T_DATO + ";" + R_TYPE + Z_DECLARACIONES
+                ;
+
+            Z_SUBPROGRAMAS.Rule = Empty
+                | SUBPROGRAMA + ";" + R_SUBPROGRAMA + Z_DECLARACIONES
                 ;
 
             #endregion
 
             #region Preferencias
-            this.Root = Programa;
+            this.Root = PROGRAMA;
             #endregion
         }
     }
