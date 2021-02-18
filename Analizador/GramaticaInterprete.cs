@@ -176,7 +176,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             D_CONSTANTE.Rule = id + "=" + EXPRESION
-                | id + ":" + id + "=" + EXPRESION
+                | id + ":" + T_DATO + "=" + EXPRESION
                 ;
 
             FUNCION.Rule = FUNCION_HEAD + Z_DECLARACIONES + BEGIN_END

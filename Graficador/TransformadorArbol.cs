@@ -36,8 +36,6 @@ namespace Proyecto1_Compiladores2.Graficador
         {
             NodoSintactico nuevo = new NodoSintactico("TIPO", contadorNodos++);
             nuevo.addHijo(buscarOperacion(root.ChildNodes[0]));
-
-            //nuevo.setValor(padre.ChildNodes[0].ToString().Replace(" (Keyword)", "").Replace(" (id)", ""));
             return nuevo;
         }
         public void convertirArbol(NodoSintactico padre, ParseTreeNode root)
@@ -64,12 +62,48 @@ namespace Proyecto1_Compiladores2.Graficador
                 case "CONTROLADOR":
                     break;
                 case "D_CONSTANTE":
+                    if (padre.getHijos().Count == 0)
+                    {
+                        nuevo = new NodoSintactico("D_CONSTANTE", contadorNodos++);
+                        nuevo2 = new NodoSintactico("CONSTANTE", contadorNodos++);
+                        nuevo3 = new NodoSintactico("ASIGNACION", contadorNodos++);
+                        nuevo.addHijo(nuevo2);
+                        nuevo.addHijo(nuevo3);
+                        padre.addHijo(nuevo);
+                        if (root.ChildNodes.Count == 5) //Asignacion con tipo
+                        {
+                            tmp = nuevo.getHijos();
+                            ((NodoSintactico)tmp[0]).addHijo(buscarOperacion(root.ChildNodes[0]));
+                            ((NodoSintactico)tmp[1]).addHijo(getTipo(root.ChildNodes[2]));
+
+                            convertirArbol((NodoSintactico)tmp[1], root.ChildNodes[4]);
+
+                            nuevo.setHijos(tmp);
+                        }
+                        else if(root.ChildNodes.Count == 3) //Asingnacion sin tipo
+                        {
+                            tmp = nuevo.getHijos();
+                            ((NodoSintactico)tmp[0]).addHijo(buscarOperacion(root.ChildNodes[0]));
+
+                            convertirArbol((NodoSintactico)tmp[1], root.ChildNodes[2]);
+
+                            nuevo.setHijos(tmp);
+                        }
+                    }
+                    else //Elimina la recursividad vacia
+                    {
+                        tmp = padre.getHijos();
+                        foreach (ParseTreeNode hijo in root.ChildNodes)
+                        {
+                            convertirArbol((NodoSintactico)tmp[0], hijo);
+                        }
+                    }
                     break;
                 case "D_VARIABLE":
                     if (padre.getHijos().Count == 0)
                     {
                         nuevo = new NodoSintactico("D_VARIABLE", contadorNodos++);
-                        nuevo2 = new NodoSintactico("VARIABLES", contadorNodos++);
+                        nuevo2 = new NodoSintactico("VARIABLE", contadorNodos++);
                         nuevo3 = new NodoSintactico("ASIGNACION", contadorNodos++);
                         nuevo.addHijo(nuevo2);
                         nuevo.addHijo(nuevo3);
@@ -102,7 +136,7 @@ namespace Proyecto1_Compiladores2.Graficador
                             nuevo.setHijos(tmp);
                         }
                     }
-                    else //No recuerdo para que era
+                    else //Elimina la recursividad vacia
                     {
                         tmp = padre.getHijos();
                         foreach (ParseTreeNode hijo in root.ChildNodes)

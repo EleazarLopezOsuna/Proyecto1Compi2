@@ -172,7 +172,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             D_CONSTANTE.Rule = id + "=" + EXPRESION
-                | id + ":" + id + "=" + EXPRESION
+                | id + ":" + T_DATO + "=" + EXPRESION
                 ;
 
             FUNCION.Rule = FUNCION_HEAD + Z_DECLARACIONES + BEGIN_END
@@ -278,7 +278,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             R_CONSTANTE.Rule = ";" + D_CONSTANTE + R_CONSTANTE
-                | Empty
+                | ";"
                 ;
 
             R_SUBPROGRAMA.Rule = ";" + SUBPROGRAMA + R_SUBPROGRAMA
@@ -286,7 +286,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             R_VARIABLE.Rule = ";" + D_VARIABLE + R_VARIABLE
-                | Empty
+                | ";"
                 ;
 
             R_TYPE.Rule = ";" + id + "=" + T_DATO + R_TYPE
@@ -374,13 +374,13 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             Z_CONSTANTES.Rule = Empty
-                | const_res + D_CONSTANTE + ";" + R_CONSTANTE + Z_DECLARACIONES
-                | D_CONSTANTE + ";" + R_CONSTANTE + Z_DECLARACIONES
+                | const_res + D_CONSTANTE + R_CONSTANTE + Z_DECLARACIONES
+                | D_CONSTANTE + R_CONSTANTE + Z_DECLARACIONES
                 ;
 
             Z_VARIABLES.Rule = Empty
-                | var_res + D_VARIABLE + ";" + R_VARIABLE + Z_DECLARACIONES
-                | D_VARIABLE + ";" + R_VARIABLE + Z_DECLARACIONES
+                | var_res + D_VARIABLE + R_VARIABLE + Z_DECLARACIONES
+                | D_VARIABLE + R_VARIABLE + Z_DECLARACIONES
                 ;
 
             Z_DECLARACIONES.Rule = Z_CONSTANTES
