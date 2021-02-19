@@ -16,27 +16,9 @@ namespace Proyecto1_Compiladores2.Analizador
             var tipo_real = ToTerm("real");
             var tipo_boolean = ToTerm("boolean");
             var object_res = ToTerm("object");
-            var type_res = ToTerm("type");
-            var program_res = ToTerm("program");
-            var var_res = ToTerm("var");
-            var const_res = ToTerm("const");
-            var begin_res = ToTerm("begin");
-            var end_res = ToTerm("end");
             var array_res = ToTerm("array");
-            var of_res = ToTerm("of");
-            var procedure_res = ToTerm("procedure");
-            var function_res = ToTerm("function");
-            var case_res = ToTerm("case");
-            var do_res = ToTerm("do");
-            var else_res = ToTerm("else");
-            var for_res = ToTerm("for");
-            var repeat_res = ToTerm("repeat");
-            var then_res = ToTerm("then");
-            var to_res = ToTerm("to");
-            var until_res = ToTerm("until");
-            var while_res = ToTerm("while");
-            var if_res = ToTerm("if");
-            var downto_res = ToTerm("downto");
+
+
             #endregion
 
             #region Expresiones Regulares
@@ -52,6 +34,16 @@ namespace Proyecto1_Compiladores2.Analizador
             base.NonGrammarTerminals.Add(comentarioBloque);
             base.NonGrammarTerminals.Add(comentarioLinea);
             base.NonGrammarTerminals.Add(comentarioBloque2);
+            #endregion
+
+            #region Presedencia
+            this.RegisterOperators(1, Associativity.Left, "or");
+            this.RegisterOperators(3, Associativity.Left, "and");
+            this.RegisterOperators(4, Associativity.Neutral, "=");
+            this.RegisterOperators(5, Associativity.Neutral, ">", ">=", "<", "<=");
+            this.RegisterOperators(6, Associativity.Left, "+", "-");
+            this.RegisterOperators(7, Associativity.Left, "*", "/", "%");
+            this.RegisterOperators(9, Associativity.Right, "not");
             #endregion
 
             #region No Terminales
@@ -118,61 +110,60 @@ namespace Proyecto1_Compiladores2.Analizador
             #endregion
 
             #region Gramatica
-
-            IF_D.Rule = if_res + EXPRESION + then_res + SENTENCIA + else_res + SENTENCIA
+            IF_D.Rule = ToTerm("if") + EXPRESION + ToTerm("then") + SENTENCIA + ToTerm("else") + SENTENCIA
                 ;
 
-            CASE.Rule = case_res + EXPRESION + of_res + OPCION_CASE + R_OPCION_CASE + else_res + SENTENCIA + end_res
-                | case_res + EXPRESION + of_res + OPCION_CASE + R_OPCION_CASE + end_res
+            CASE.Rule = ToTerm("case") + EXPRESION + ToTerm("of") + OPCION_CASE + R_OPCION_CASE + ToTerm("else") + SENTENCIA + ToTerm("end")
+                | ToTerm("case") + EXPRESION + ToTerm("of") + OPCION_CASE + R_OPCION_CASE + ToTerm("end")
                 ;
 
-            IF_S.Rule = if_res + EXPRESION + then_res + SENTENCIA
+            IF_S.Rule = ToTerm("if") + EXPRESION + ToTerm("then") + SENTENCIA
                 ;
 
-            FOR.Rule = for_res + ASIGNACION + ARRIBA + SENTENCIA
-                | for_res + ASIGNACION + ABAJO + SENTENCIA
+            FOR.Rule = ToTerm("for") + ASIGNACION + ARRIBA + SENTENCIA
+                | ToTerm("for") + ASIGNACION + ABAJO + SENTENCIA
                 ;
 
-            ABAJO.Rule = downto_res + EXPRESION + do_res
+            ABAJO.Rule = ToTerm("to") + EXPRESION + ToTerm("do")
                 ;
 
-            ARRIBA.Rule = to_res + EXPRESION + do_res
+            ARRIBA.Rule = ToTerm("to") + EXPRESION + ToTerm("do")
                 ;
 
-            REPEAT.Rule = repeat_res + SENTENCIA + R_SENTENCIA + until_res + EXPRESION
+            REPEAT.Rule = ToTerm("repeat") + SENTENCIA + R_SENTENCIA + ToTerm("until") + EXPRESION
                 ;
 
-            WHILE.Rule = while_res + EXPRESION + do_res + SENTENCIA
+            WHILE.Rule = ToTerm("while") + EXPRESION + ToTerm("do") + SENTENCIA
                 ;
 
-            FUNCION_HEAD.Rule = function_res + id + ":" + id + ";"
-                | function_res + id + ":" + T_ELEMENTAL + ";"
-                | function_res + id + "(" + PFVL + R_PFVL + ")" + ":" + id + ";"
-                | function_res + id + "(" + PFVL + R_PFVL + ")" + ":" + T_ELEMENTAL + ";"
-                | function_res + id + "(" + ")" + ":" + id + ";"
-                | function_res + id + "(" + ")" + ":" + T_ELEMENTAL + ";"
+            FUNCION_HEAD.Rule = ToTerm("function") + id + ToTerm(":") + id + ToTerm(";")
+                | ToTerm("function") + id + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
+                | ToTerm("function") + id + ToTerm("(") + PFVL + R_PFVL + ToTerm(")") + ToTerm(":") + id + ToTerm(";")
+                | ToTerm("function") + id + ToTerm("(") + PFVL + R_PFVL + ToTerm(")") + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
+                | ToTerm("function") + id + ToTerm("(") + ToTerm(")") + ToTerm(":") + id + ToTerm(";")
+                | ToTerm("function") + id + ToTerm("(") + ToTerm(")") + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
                 ;
 
-            PROCEDIMIENTO_HEAD.Rule = procedure_res + id + ";"
-                | procedure_res + id + "(" + PF + R_PF + ")" + ";"
-                | procedure_res + id + "(" + ")" + ";"
+            PROCEDIMIENTO_HEAD.Rule = ToTerm("procedure") + id + ToTerm(";")
+                | ToTerm("procedure") + id + ToTerm("(") + PF + R_PF + ToTerm(")") + ToTerm(";")
+                | ToTerm("procedure") + id + ToTerm("(") + ToTerm(")") + ToTerm(";")
                 ;
 
-            OPCION_CASE.Rule = RANGO + ":" + SENTENCIA
+            OPCION_CASE.Rule = RANGO + ToTerm(":") + SENTENCIA
                 | Empty
                 ;
 
-            DECLARACION_CAMPOS_TYPE.Rule = var_res + id + R_ID + ":" + id
-                | var_res + id + R_ID + ":" + T_ELEMENTAL
-                | id + R_ID + ":" + id
-                | id + R_ID + ":" + T_ELEMENTAL
-                | const_res + id + ":" + id + "=" + EXPRESION
-                | const_res + id + ":" + T_ELEMENTAL + "=" + EXPRESION
-                | id + "=" + EXPRESION
+            DECLARACION_CAMPOS_TYPE.Rule = ToTerm("var") + id + R_ID + ToTerm(":") + id 
+                | ToTerm("var") + id + R_ID + ToTerm(":") + T_ELEMENTAL
+                | id + R_ID + ToTerm(":") + id
+                | id + R_ID + ToTerm(":") + T_ELEMENTAL
+                | ToTerm("const") + id + ToTerm(":") + id + ToTerm("=") + EXPRESION
+                | ToTerm("const") + id + ToTerm(":") + T_ELEMENTAL + ToTerm("=") + EXPRESION
+                | id + ToTerm("=") + EXPRESION
                 ;
 
-            D_CONSTANTE.Rule = id + "=" + EXPRESION
-                | id + ":" + T_DATO + "=" + EXPRESION
+            D_CONSTANTE.Rule = id + ToTerm("=") + EXPRESION
+                | id + ToTerm(":") + T_DATO + ToTerm("=") + EXPRESION
                 ;
 
             FUNCION.Rule = FUNCION_HEAD + Z_DECLARACIONES + BEGIN_END
@@ -185,12 +176,12 @@ namespace Proyecto1_Compiladores2.Analizador
                 | PROCEDIMIENTO
                 ;
 
-            D_VARIABLE.Rule = id + R_ID + ":" + T_DATO
-                | id + ":" + T_DATO + "=" + EXPRESION
-                | id + ":" + T_DATO
+            D_VARIABLE.Rule = id + R_ID + ToTerm(":") + T_DATO
+                | id + ToTerm(":") + T_DATO + ToTerm("=") + EXPRESION
+                | id + ToTerm(":") + T_DATO
                 ;
 
-            ESTRUCTURA.Rule = id + "[" + EXPRESION + R_EXPRESION + "]"
+            ESTRUCTURA.Rule = id + ToTerm("[") + EXPRESION + R_EXPRESION + ToTerm("]")
                 | id + R_OBJETO_CAMPO
                 | LLAMADA + R_OBJETO_CAMPO
                 ;
@@ -208,8 +199,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 | EU
                 | EB
                 | LLAMADA
-                | id + "(" + EXPRESION + ")"
-                | "(" + EXPRESION + ")"
+                | id + ToTerm("(") + EXPRESION + ToTerm(")")
+                | ToTerm("(") + EXPRESION + ToTerm(")")
                 ;
 
             EB.Rule = EXPRESION + OB + EXPRESION
@@ -222,8 +213,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             LLAMADA.Rule = id
-                | id + "(" + ")"
-                | id + "(" + PA + R_PA + ")"
+                | id + ToTerm("(") + ToTerm(")")
+                | id + ToTerm("(") + PA + R_PA + ToTerm(")")
                 ;
 
             OB.Rule = ToTerm("+")
@@ -233,7 +224,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | ToTerm("/")
                 | ToTerm("and")
                 | ToTerm("or")
-                | ToTerm("=")
+                | "="
                 | ToTerm("<>")
                 | ToTerm("<")
                 | ToTerm(">")
@@ -253,83 +244,85 @@ namespace Proyecto1_Compiladores2.Analizador
                 | PFVR
                 ;
 
-            PFVL.Rule = id + R_ID + ":" + id
+            PFVL.Rule = id + R_ID + ToTerm(":") + id
                 ;
 
-            PFVR.Rule = var_res + id + R_ID + ":" + id
+            PFVR.Rule = ToTerm("var") + id + R_ID + ToTerm(":") + id
                 ;
 
-            PROGRAMA.Rule = program_res + id + ";" + Z_DECLARACIONES + BEGIN_END + "."
+            PROGRAMA.Rule = ToTerm("program") + id + ToTerm(";") + Z_DECLARACIONES + BEGIN_END + ToTerm(".")
                 ;
 
             RANGO.Rule = EXPRESION
-                | EXPRESION + ".." + EXPRESION
+                | EXPRESION + ToTerm("..") + EXPRESION
                 | RANGO + R_RANGO
                 ;
 
-            R_OPCION_CASE.Rule = ";" + OPCION_CASE + R_OPCION_CASE
+            R_OPCION_CASE.Rule = ToTerm(";") + OPCION_CASE + R_OPCION_CASE
                 | Empty
                 ;
 
-            R_DECLARACION_CAMPOS_TYPE.Rule = ";" + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE
+            R_DECLARACION_CAMPOS_TYPE.Rule = ToTerm(";") + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE
                 | DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE
                 | Empty
-                | ";"
+                | ToTerm(";")
+                | MakePlusRule(R_DECLARACION_CAMPOS_TYPE, DECLARACION_CAMPOS_TYPE)
                 ;
 
-            R_CONSTANTE.Rule = ";" + D_CONSTANTE + R_CONSTANTE
-                | ";"
+
+            R_CONSTANTE.Rule = ToTerm(";") + D_CONSTANTE + R_CONSTANTE
+                | ToTerm(";")
                 ;
 
-            R_SUBPROGRAMA.Rule = ";" + SUBPROGRAMA + R_SUBPROGRAMA
+            R_SUBPROGRAMA.Rule = ToTerm(";") + SUBPROGRAMA + R_SUBPROGRAMA
                 | Empty
                 ;
 
-            R_VARIABLE.Rule = ";" + D_VARIABLE + R_VARIABLE
-                | ";"
+            R_VARIABLE.Rule = ToTerm(";") + D_VARIABLE + R_VARIABLE
+                | ToTerm(";")
                 ;
 
-            R_TYPE.Rule = ";" + id + "=" + T_DATO + R_TYPE
+            R_TYPE.Rule = ToTerm(";") + id + ToTerm("=") + T_DATO + R_TYPE
                 | Empty
                 ;
 
-            R_EXPRESION.Rule = "," + EXPRESION + R_EXPRESION
+            R_EXPRESION.Rule = ToTerm(",") + EXPRESION + R_EXPRESION
                 | Empty
                 ;
 
-            R_ID.Rule = "," + id + R_ID
+            R_ID.Rule = ToTerm(",") + id + R_ID
                 | Empty
                 ;
 
-            R_OBJETO_CAMPO.Rule = "." + id + R_OBJETO_CAMPO
-                | "." + id + "[" + EXPRESION + R_EXPRESION + "]" + R_OBJETO_CAMPO
-                | "." + LLAMADA + R_OBJETO_CAMPO
+            R_OBJETO_CAMPO.Rule = ToTerm(".") + id + R_OBJETO_CAMPO
+                | ToTerm(".") + id + ToTerm("[") + EXPRESION + R_EXPRESION + ToTerm("]") + R_OBJETO_CAMPO
+                | ToTerm(".") + LLAMADA + R_OBJETO_CAMPO
                 | Empty
                 ;
 
-            R_PA.Rule = "," + PA + R_PA
+            R_PA.Rule = ToTerm(",") + PA + R_PA
                 | Empty
                 ;
 
-            R_PF.Rule = ";" + PF + R_PF
-                | "," + PF + R_PF
+            R_PF.Rule = ToTerm(";") + PF + R_PF
+                | ToTerm(",") + PF + R_PF
                 | Empty
                 ;
 
-            R_PFVL.Rule = ";" + PFVL + R_PFVL
-                | "," + PFVL + R_PFVL
+            R_PFVL.Rule = ToTerm(";") + PFVL + R_PFVL
+                | ToTerm(",") + PFVL + R_PFVL
                 | Empty
                 ;
 
-            R_RANGO.Rule = "," + RANGO + R_RANGO
+            R_RANGO.Rule = ToTerm(",") + RANGO + R_RANGO
                 | Empty
                 ;
 
-            R_SENTENCIA.Rule = ";" + SENTENCIA + R_SENTENCIA
+            R_SENTENCIA.Rule = ToTerm(";") + SENTENCIA + R_SENTENCIA
                 | Empty
                 ;
 
-            R_INDICE.Rule = "," + T_ORDINAL + R_INDICE
+            R_INDICE.Rule = ToTerm(",") + T_ORDINAL + R_INDICE
                 | Empty
                 ;
 
@@ -340,19 +333,19 @@ namespace Proyecto1_Compiladores2.Analizador
                 | Empty
                 ;
 
-            BEGIN_END.Rule = begin_res + SENTENCIA + R_SENTENCIA + end_res
-                | begin_res + end_res
+            BEGIN_END.Rule = ToTerm("begin") + SENTENCIA + R_SENTENCIA + ToTerm("end")
+                | ToTerm("begin") + ToTerm("end")
                 ;
 
-            ASIGNACION.Rule = VARIABLE + ":=" + EXPRESION
+            ASIGNACION.Rule = VARIABLE + ToTerm(":=") + EXPRESION
                 ;
 
             T_DATO.Rule = tipo_integer
                 | tipo_boolean
                 | tipo_real
                 | tipo_string
-                | array_res + "[" + T_ORDINAL + R_INDICE + "]" + of_res + T_DATO
-                | object_res + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE + end_res
+                | array_res + ToTerm("[") + T_ORDINAL + R_INDICE + ToTerm("]") + ToTerm("of") + T_DATO
+                | object_res + DECLARACION_CAMPOS_TYPE + R_DECLARACION_CAMPOS_TYPE + ToTerm("end")
                 | id
                 ;
 
@@ -361,12 +354,12 @@ namespace Proyecto1_Compiladores2.Analizador
                 | id
                 ;
 
-            T_ESTRUCTURADO.Rule = array_res + "[" + T_ORDINAL + R_INDICE + "]" + of_res + T_DATO
+            T_ESTRUCTURADO.Rule = array_res + ToTerm("[") + T_ORDINAL + R_INDICE + ToTerm("]") + ToTerm("of") + T_DATO
                 | id
                 ;
 
             T_ORDINAL.Rule = EXPRESION
-                | EXPRESION + ".." + EXPRESION
+                | EXPRESION + ToTerm("..") + EXPRESION
                 ;
 
             VARIABLE.Rule = id
@@ -374,12 +367,12 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             Z_CONSTANTES.Rule = Empty
-                | const_res + D_CONSTANTE + R_CONSTANTE + Z_DECLARACIONES
+                | ToTerm("const") + D_CONSTANTE + R_CONSTANTE + Z_DECLARACIONES
                 | D_CONSTANTE + R_CONSTANTE + Z_DECLARACIONES
                 ;
 
             Z_VARIABLES.Rule = Empty
-                | var_res + D_VARIABLE + R_VARIABLE + Z_DECLARACIONES
+                | ToTerm("var") + D_VARIABLE + R_VARIABLE + Z_DECLARACIONES
                 | D_VARIABLE + R_VARIABLE + Z_DECLARACIONES
                 ;
 
@@ -391,18 +384,21 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             Z_TIPOS.Rule = Empty
-                | type_res + id + "=" + T_DATO + ";" + R_TYPE + Z_DECLARACIONES
-                | id + "=" + T_DATO + ";" + R_TYPE + Z_DECLARACIONES
+                | ToTerm("type") + id + ToTerm("=") + T_DATO + ToTerm(";") + R_TYPE + Z_DECLARACIONES
+                | id + ToTerm("=") + T_DATO + ToTerm(";") + R_TYPE + Z_DECLARACIONES
                 ;
 
             Z_SUBPROGRAMAS.Rule = Empty
-                | SUBPROGRAMA + ";" + R_SUBPROGRAMA + Z_DECLARACIONES
+                | SUBPROGRAMA + ToTerm(";") + R_SUBPROGRAMA + Z_DECLARACIONES
                 ;
-
             #endregion
 
             #region Preferencias
             this.Root = PROGRAMA;
+            this.MarkPunctuation(",", "(", ")", "[", "]", ":", ";", ".", "..", ":=", "program");
+            this.MarkPunctuation("type", "program", "var", "const", "begin", "end", "of", "procedure", "function");
+            this.MarkPunctuation("case", "do", "else", "for", "repeat", "then", "until", "while", "if", "to", "downto");
+            this.MarkTransient(VALOR, SUBPROGRAMA, Z_DECLARACIONES, VARIABLE, T_ELEMENTAL, SENTENCIA, PF, PA, OU, OB, CONTROLADOR);
             #endregion
         }
     }
