@@ -17,7 +17,7 @@ namespace Proyecto1_Compiladores2.Modelos
 
         public enum EnumTipo
         {
-            clase, dim1, dim2, dim3, caracter, cadena, entero, doble, boleano, nulo, error, funcion, metodo
+            cadena, entero, real, boleano, nulo, error, funcion, procedimiento
         }
     }
 }
