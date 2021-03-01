@@ -16,8 +16,13 @@ namespace Proyecto1_Compiladores2.Analizador
         private Expresion retornoFuncion;
         private bool parar;
         private bool continuar;
-        
-        public SemanticoInterprete(ParseTreeNode root)
+
+        public SemanticoInterprete()
+        {
+
+        }
+
+        public void iniciarAnalisisSintactico(ParseTreeNode root)
         {
             consola = new ArrayList();
             errores = new ArrayList();
@@ -83,11 +88,128 @@ namespace Proyecto1_Compiladores2.Analizador
 
         }
 
-        private Expresion resolverExpresion(ParseTreeNode root, Entorno ent, String archivo)
+        private Expresion resolverExpresion(ParseTreeNode root, Entorno ent)
         {
+            switch (root.ToString())
+            {
+                case "EXPRESION":
+                    if (root.ChildNodes.Count == 3)//Operador binario
+                    {
+                        if (root.ChildNodes[1].ToString().Contains("and"))
+                        {
+                            return operarAnd(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("="))
+                        {
+                            return operarIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("<>"))
+                        {
+                            return operarDesigual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains(">="))
+                        {
+                            return operarMayorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("<="))
+                        {
+                            return operarMenorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains(">"))
+                        {
+                            return operarMayor(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("<"))
+                        {
+                            return operarMenor(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("+"))
+                        {
+                            return operarSuma(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("-"))
+                        {
+                            return operarResta(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("*"))
+                        {
+                            return operarMultiplicacion(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("/"))
+                        {
+                            return operarDivision(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("%"))
+                        {
+                            return operarModulo(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("or"))
+                        {
+                            return operarOr(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                    }
+                    else if (root.ChildNodes.Count == 2)//Operador unario
+                    {
+                        if (root.ChildNodes[0].ToString().Contains("not"))
+                        {
+                            return operarNot(resolverExpresion(root.ChildNodes[1], ent));
+                        }
+                        else if (root.ChildNodes[0].ToString().Contains("-"))
+                        {
+                            return operarNegativo(resolverExpresion(root.ChildNodes[1], ent));
+                        }
+                    }
+                    return resolverExpresion(root.ChildNodes[0], ent);
+                case "ESTRUCTURA":
+                    return resolverEstructura(root.ChildNodes[0], ent);
+                case "LLAMADA":
+                    return resolverLlamada(root.ChildNodes[0], ent);
+                case "VARIABLE":
+                    return buscarVariable(root.ChildNodes[0], ent);
+                default:
+                    if (root.ToString().Contains("cadena"))
+                    {
+                        return new Expresion(Simbolo.EnumTipo.cadena, root.ToString().Replace(" (cadena)", ""));
+                    }
+                    else if (root.ToString().Contains("entero"))
+                    {
+                        return new Expresion(Simbolo.EnumTipo.entero, root.ToString().Replace(" (entero)", ""));
+                    }
+                    else if (root.ToString().Contains("real"))
+                    {
+                        return new Expresion(Simbolo.EnumTipo.real, root.ToString().Replace(" (real)", ""));
+                    }
+                    else if (root.ToString().Contains("boleano"))
+                    {
+                        return new Expresion(Simbolo.EnumTipo.boleano, root.ToString().Replace(" (boleano)", ""));
+                    }
+                    break;
+            }
             return new Expresion(Simbolo.EnumTipo.error, "ERROR");
         }
-
+        private Expresion resolverEstructura(ParseTreeNode root, Entorno entorno)
+        {
+            return new Expresion(Simbolo.EnumTipo.error, "Error desconocido");
+        }
+        private Expresion operarNegativo(Expresion expresion1)
+        {
+            String exp1 = expresion1.valor.ToString();
+            switch (expresion1.tipo)
+            {
+                case Simbolo.EnumTipo.real:
+                    return new Expresion(Simbolo.EnumTipo.real, 0 - double.Parse(expresion1.valor.ToString()));
+                case Simbolo.EnumTipo.entero:
+                    return new Expresion(Simbolo.EnumTipo.entero, 0 - int.Parse(expresion1.valor.ToString()));
+                case Simbolo.EnumTipo.error:
+                    return expresion1;
+                default:
+                    return new Expresion(Simbolo.EnumTipo.error, "Negativo no definido para el tipo " + expresion1.tipo);
+            }
+        }
+        private Expresion resolverLlamada(ParseTreeNode root, Entorno entorno)
+        {
+            return new Expresion(Simbolo.EnumTipo.error, "Error desconocido");
+        }
         private Expresion buscarVariable(ParseTreeNode root, Entorno entorno)
         {
             return new Expresion(Simbolo.EnumTipo.error, "Error desconocido");
@@ -267,26 +389,25 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             case Simbolo.EnumTipo.entero:
                             case Simbolo.EnumTipo.real:
-                                //real Entero
-                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) / Double.Parse(expresion2.valor.ToString()));
+                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) % Double.Parse(expresion2.valor.ToString()));
                             case Simbolo.EnumTipo.error:
                                 return expresion2;
                             default:
-                                return new Expresion(Simbolo.EnumTipo.error, "Division no definida entre los tipos " + expresion1.tipo + " y " + expresion2.tipo);
+                                return new Expresion(Simbolo.EnumTipo.error, "Modulo no definido entre los tipos " + expresion1.tipo + " y " + expresion2.tipo);
                         }
                     case Simbolo.EnumTipo.entero:
                         switch (expresion2.tipo)
                         {
                             case Simbolo.EnumTipo.entero:
                                 //Entero Entero
-                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) / Double.Parse(expresion2.valor.ToString()));
+                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) % Double.Parse(expresion2.valor.ToString()));
                             case Simbolo.EnumTipo.real:
                                 //Entero real
-                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) / Double.Parse(expresion2.valor.ToString()));
+                                return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) % Double.Parse(expresion2.valor.ToString()));
                             case Simbolo.EnumTipo.error:
                                 return expresion2;
                             default:
-                                return new Expresion(Simbolo.EnumTipo.error, "Division no definida entre los tipos " + expresion1.tipo + " y " + expresion2.tipo);
+                                return new Expresion(Simbolo.EnumTipo.error, "Modulo no definido entre los tipos " + expresion1.tipo + " y " + expresion2.tipo);
                         }
                     case Simbolo.EnumTipo.error:
                         return expresion1;
@@ -682,6 +803,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 Expresion resultado;
                 Entorno nuevoEntorno;
                 ArrayList listaHijos;
+                Simbolo simbolo = null;
+                Expresion expresion;
 
                 switch (root.ToString())
                 {
@@ -754,6 +877,67 @@ namespace Proyecto1_Compiladores2.Analizador
                     case "D_CONSTANTE":
                         break;
                     case "D_VARIABLE":
+                        if (root.ChildNodes.Count != 0)
+                        {
+                            if (root.ChildNodes[0].ToString().Equals("D_VARIABLE"))
+                            {
+                                foreach (ParseTreeNode hijo in root.ChildNodes)
+                                {
+                                    recorrer(hijo, entorno);
+                                }
+                            }
+                            else
+                            {
+                                if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("real"))
+                                {
+                                    simbolo = new Simbolo(Simbolo.EnumTipo.real, 0.0);
+                                }
+                                else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("boolean"))
+                                {
+                                    simbolo = new Simbolo(Simbolo.EnumTipo.boleano, false);
+                                }
+                                else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("integer"))
+                                {
+                                    simbolo = new Simbolo(Simbolo.EnumTipo.entero, 0);
+                                }
+                                else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("string"))
+                                {
+                                    simbolo = new Simbolo(Simbolo.EnumTipo.cadena, "");
+                                }
+                                if (root.ChildNodes.Count == 4)
+                                {
+                                    expresion = resolverExpresion(root.ChildNodes[3], entorno);
+                                    if (expresion.tipo == Simbolo.EnumTipo.error)
+                                    {
+                                        MessageBox.Show(expresion.valor.ToString());
+                                    }
+                                    else
+                                    {
+                                        if (expresion.tipo != simbolo.tipo)
+                                        {
+                                            if (expresion.tipo == Simbolo.EnumTipo.entero && simbolo.tipo == Simbolo.EnumTipo.real)
+                                            {
+                                                simbolo.valor = expresion.valor;
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("Error de tipos");
+                                                simbolo.tipo = Simbolo.EnumTipo.error;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            simbolo.valor = expresion.valor;
+                                        }
+                                    }
+                                }
+                                if (simbolo.tipo != Simbolo.EnumTipo.error)
+                                {
+                                    entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                                    MessageBox.Show("Variable: " + removerExtras(root.ChildNodes[0].ToString()) + "\nTipo: " + simbolo.tipo + "\nValor: " + simbolo.valor);
+                                }
+                            }
+                        }
                         break;
                     case "ESTRUCTURA":
                         break;
@@ -788,7 +972,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     case "VARIABLE":
                         break;
                     default:
-                        MessageBox.Show("Falto agregar " + root.ToString() + " al switch");
+                        if (!root.ToString().Contains(" ("))
+                            MessageBox.Show("Falto agregar " + root.ToString() + " al switch");
                         break;
                 }
             }

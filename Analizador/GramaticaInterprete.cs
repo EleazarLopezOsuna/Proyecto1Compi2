@@ -35,13 +35,10 @@ namespace Proyecto1_Compiladores2.Analizador
             #endregion
 
             #region Presedencia
-            this.RegisterOperators(1, Associativity.Left, "or");
-            this.RegisterOperators(3, Associativity.Left, "and");
-            this.RegisterOperators(4, Associativity.Neutral, "=");
-            this.RegisterOperators(5, Associativity.Neutral, ">", ">=", "<", "<=");
-            this.RegisterOperators(6, Associativity.Left, "+", "-");
-            this.RegisterOperators(7, Associativity.Left, "*", "/", "%");
-            this.RegisterOperators(9, Associativity.Right, "not");
+            this.RegisterOperators(1, Associativity.Neutral, ">", ">=", "<", "<=", "=", "<>");
+            this.RegisterOperators(2, Associativity.Left, "+", "-", "or");
+            this.RegisterOperators(3, Associativity.Left, "*", "/", "%", "and");
+            this.RegisterOperators(4, Associativity.Right, "not");
             #endregion
 
             #region No Terminales

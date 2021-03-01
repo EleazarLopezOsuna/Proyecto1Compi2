@@ -123,10 +123,13 @@ namespace Proyecto1_Compiladores2
                     symbol_table.Visible = true;
                     error_table.Visible = false;
 
+                    SemanticoInterprete semanticoInterprete = new SemanticoInterprete();
+                    semanticoInterprete.iniciarAnalisisSintactico(resultadoAnalisis.Root);
+
                     //Graficar Arbol Irony
                     SintacticoInterprete.crearImagen(resultadoAnalisis.Root, null, 0);
 
-                    Thread.Sleep(1000);
+                    /*Thread.Sleep(1000);
                     var p = new Process();
 
                     //Abrir imagen Irony
@@ -134,7 +137,7 @@ namespace Proyecto1_Compiladores2
                     {
                         UseShellExecute = true
                     };
-                    p.Start();
+                    p.Start();*/
                 }
                 else
                 {

@@ -43,8 +43,6 @@ namespace Proyecto1_Compiladores2.Modelos
                     sim = new Simbolo(Simbolo.EnumTipo.cadena, nuevaCadena);
                 }
             }
-            string n = "s";
-
 
             tabla.Add(nombre, sim);
             return true;
