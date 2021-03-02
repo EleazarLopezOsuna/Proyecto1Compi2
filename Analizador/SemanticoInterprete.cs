@@ -250,15 +250,15 @@ namespace Proyecto1_Compiladores2.Analizador
         {
             switch (expresion1.tipo)
             {
-                case Simbolo.EnumTipo.cadena:
+                /*case Simbolo.EnumTipo.cadena:
                     //Cadena (Entero || real || Caracter || boleano || Cadena)
-                    return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());
+                    return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());*/
                 case Simbolo.EnumTipo.real:
                     switch (expresion2.tipo)
                     {
-                        case Simbolo.EnumTipo.cadena:
+                        /*case Simbolo.EnumTipo.cadena:
                             //real Cadena
-                            return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());
+                            return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());*/
                         case Simbolo.EnumTipo.entero:
                         case Simbolo.EnumTipo.real:
                             //real Entero
@@ -274,9 +274,9 @@ namespace Proyecto1_Compiladores2.Analizador
                         case Simbolo.EnumTipo.entero:
                             //Entero Entero
                             return new Expresion(Simbolo.EnumTipo.entero, int.Parse(expresion1.valor.ToString()) + int.Parse(expresion2.valor.ToString()));
-                        case Simbolo.EnumTipo.cadena:
+                        /*case Simbolo.EnumTipo.cadena:
                             //Entero Cadena
-                            return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());
+                            return new Expresion(Simbolo.EnumTipo.cadena, expresion1.valor.ToString() + expresion2.valor.ToString());*/
                         case Simbolo.EnumTipo.real:
                             //Entero real
                             return new Expresion(Simbolo.EnumTipo.real, Double.Parse(expresion1.valor.ToString()) + Double.Parse(expresion2.valor.ToString()));
