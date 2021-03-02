@@ -136,90 +136,47 @@ namespace Proyecto1_Compiladores2
                                 if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
                                 {
                                     string valor = "";
-                                    foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
+                                    if (((Objeto)variable.Value.valor).arreglo is null)
                                     {
-                                       if(valor == "")
+                                        foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
                                         {
-                                            valor = parametro.Key;
+                                            if (valor == "")
+                                            {
+                                                valor = parametro.Key;
+                                            }
+                                            else
+                                            {
+                                                valor += ", " + parametro.Key;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Objeto tmp = (Objeto)variable.Value.valor;
+                                        if (tmp.tipo != Simbolo.EnumTipo.objeto)
+                                        {
+                                            valor = tmp.tipo + "[" + tmp.arreglo.GetLength(0);
                                         }
                                         else
                                         {
-                                            valor += ", " + parametro.Key;
+                                            valor = tmp.nombreTipo + "[" + tmp.arreglo.GetLength(0);
                                         }
+                                        for(int i = 1; i < tmp.arreglo.Rank; i++)
+                                        {
+                                            valor += ", " + tmp.arreglo.GetLength(i);
+                                        }
+                                        valor += "]";
                                     }
                                     symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
                                 }
                                 else
                                 {
-                                    string tipoArreglo = "";
-                                    Array arr = (Array)variable.Value.valor;
-                                    if (variable.Value.valor.ToString().Contains("ouble"))
-                                    {
-                                        if (variable.Value.valor.ToString().Contains("[,]"))
-                                        {
-                                            tipoArreglo = "real[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
-                                        }
-                                        else
-                                        {
-                                            tipoArreglo = "real[" + arr.Length + "]";
-                                        }
-                                    }
-                                    else if (variable.Value.valor.ToString().Contains("nt"))
-                                    {
-                                        if (variable.Value.valor.ToString().Contains("[,]"))
-                                        {
-                                            tipoArreglo = "entero[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
-                                        }
-                                        else
-                                        {
-                                            tipoArreglo = "entero[" + arr.Length + "]";
-                                        }
-                                    }
-                                    else if (variable.Value.valor.ToString().Contains("ool"))
-                                    {
-                                        if (variable.Value.valor.ToString().Contains("[,]"))
-                                        {
-                                            tipoArreglo = "boleano[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
-                                        }
-                                        else
-                                        {
-                                            tipoArreglo = "boleano[" + arr.Length + "]";
-                                        }
-                                    }
-                                    else if (variable.Value.valor.ToString().Contains("tring"))
-                                    {
-                                        if (variable.Value.valor.ToString().Contains("[,]"))
-                                        {
-                                            tipoArreglo = "cadena[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
-                                        }
-                                        else
-                                        {
-                                            tipoArreglo = "cadena[" + arr.Length + "]";
-                                        }
-                                    }
-                                    else if (variable.Value.valor.ToString().Contains("bjeto"))
-                                    {
-                                        if (variable.Value.valor.ToString().Contains("[,]"))
-                                        {
-                                            Objeto obj = (Objeto)arr.GetValue(0,0);
-                                            tipoArreglo = obj.nombre + "[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
-                                        }
-                                        else
-                                        {
-                                            Objeto obj = (Objeto)arr.GetValue(0);
-                                            tipoArreglo = obj.nombre + "[" + arr.Length + "]";
-                                        }
-                                    }
-                                    else
-                                    {
-                                        tipoArreglo = variable.Value.valor.ToString();
-                                    }
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, tipoArreglo);
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
                                 }
                             }
                         }
                     }
-
+                    
                     //Graficar Arbol Irony
                     SintacticoInterprete.crearImagen(resultadoAnalisis.Root, null, 0);
 
