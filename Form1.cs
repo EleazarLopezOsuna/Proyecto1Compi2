@@ -151,7 +151,70 @@ namespace Proyecto1_Compiladores2
                                 }
                                 else
                                 {
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor);
+                                    string tipoArreglo = "";
+                                    Array arr = (Array)variable.Value.valor;
+                                    if (variable.Value.valor.ToString().Contains("ouble"))
+                                    {
+                                        if (variable.Value.valor.ToString().Contains("[,]"))
+                                        {
+                                            tipoArreglo = "real[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
+                                        }
+                                        else
+                                        {
+                                            tipoArreglo = "real[" + arr.Length + "]";
+                                        }
+                                    }
+                                    else if (variable.Value.valor.ToString().Contains("nt"))
+                                    {
+                                        if (variable.Value.valor.ToString().Contains("[,]"))
+                                        {
+                                            tipoArreglo = "entero[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
+                                        }
+                                        else
+                                        {
+                                            tipoArreglo = "entero[" + arr.Length + "]";
+                                        }
+                                    }
+                                    else if (variable.Value.valor.ToString().Contains("ool"))
+                                    {
+                                        if (variable.Value.valor.ToString().Contains("[,]"))
+                                        {
+                                            tipoArreglo = "boleano[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
+                                        }
+                                        else
+                                        {
+                                            tipoArreglo = "boleano[" + arr.Length + "]";
+                                        }
+                                    }
+                                    else if (variable.Value.valor.ToString().Contains("tring"))
+                                    {
+                                        if (variable.Value.valor.ToString().Contains("[,]"))
+                                        {
+                                            tipoArreglo = "cadena[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
+                                        }
+                                        else
+                                        {
+                                            tipoArreglo = "cadena[" + arr.Length + "]";
+                                        }
+                                    }
+                                    else if (variable.Value.valor.ToString().Contains("bjeto"))
+                                    {
+                                        if (variable.Value.valor.ToString().Contains("[,]"))
+                                        {
+                                            Objeto obj = (Objeto)arr.GetValue(0,0);
+                                            tipoArreglo = obj.nombre + "[" + arr.GetLength(0) + ", " + arr.GetLength(1) + "]";
+                                        }
+                                        else
+                                        {
+                                            Objeto obj = (Objeto)arr.GetValue(0);
+                                            tipoArreglo = obj.nombre + "[" + arr.Length + "]";
+                                        }
+                                    }
+                                    else
+                                    {
+                                        tipoArreglo = variable.Value.valor.ToString();
+                                    }
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, tipoArreglo);
                                 }
                             }
                         }

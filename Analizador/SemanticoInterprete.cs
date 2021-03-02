@@ -83,6 +83,35 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
+        private bool verificarRango(Expresion exp1, Expresion exp2)
+        {
+            if (exp1.tipo != Simbolo.EnumTipo.error)
+            {
+                if (exp2.tipo != Simbolo.EnumTipo.error)
+                {
+                    if (exp1.tipo == Simbolo.EnumTipo.entero)
+                    {
+                        if (exp2.tipo == Simbolo.EnumTipo.entero)
+                        {
+                            if (int.Parse(exp1.valor.ToString()) < int.Parse(exp2.valor.ToString()))
+                            {
+                                return true;
+                            }
+                            //AGREGAR ERROR exp1 debe ser menor a exp2
+                            return false;
+                        }
+                        //AGREGAR ERROR exp2 debe ser entero
+                        return false;
+                    }
+                    //AGREGAR ERROR exp1 debe ser entero
+                    return false;
+                }
+                //AGREGAR ERROR ver error
+                return false;
+            }
+            //AGREGAR ERROR ver error
+            return false;
+        }
         private Expresion resolverExpresion(ParseTreeNode root, Entorno ent)
         {
             switch (root.ToString())
@@ -824,13 +853,15 @@ namespace Proyecto1_Compiladores2.Analizador
                     Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
                     if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                     {
-                        MessageBox.Show(tmp.tipo.ToString());
                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                    }
+                    else if (tmp.tipo == Simbolo.EnumTipo.error)
+                    {
+                        //REPORTAR ERROR
                     }
                     else
                     {
-                        MessageBox.Show(tmp.valor.ToString());
-                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                        //REPORTAR ERROR el id no es de tipo arreglo o tipo objeto, es una variable normal
                     }
                 }
                 Expresion exp = resolverExpresion(root.ChildNodes[3], entorno);
@@ -876,12 +907,10 @@ namespace Proyecto1_Compiladores2.Analizador
                     Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
                     if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                     {
-                        MessageBox.Show(tmp.tipo.ToString());
                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
                     }
                     else
                     {
-                        MessageBox.Show(tmp.valor.ToString());
                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
                     }
                 }
@@ -939,7 +968,7 @@ namespace Proyecto1_Compiladores2.Analizador
                             if (root.ChildNodes[2].ChildNodes[0].ToString().Contains("object"))
                             {
                                 //Es un objeto
-                                Objeto nuevoObjeto = new Objeto();
+                                Objeto nuevoObjeto = new Objeto(nombreTipo);
                                 agregarCamposObjeto(root.ChildNodes[2].ChildNodes[1], nuevoObjeto, entorno);
                                 agregarCamposObjeto(root.ChildNodes[2].ChildNodes[2], nuevoObjeto, entorno);
                                 entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.objeto, nuevoObjeto), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
@@ -947,8 +976,137 @@ namespace Proyecto1_Compiladores2.Analizador
                             else
                             {
                                 //Es un array
+                                ParseTreeNode t_ordinal = root.ChildNodes[2].ChildNodes[1];
+                                ParseTreeNode indice = root.ChildNodes[2].ChildNodes[2];
+                                Expresion exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
+                                Expresion exp2 = resolverExpresion(t_ordinal.ChildNodes[1], entorno);
+                                Array nuevoArreglo = null;
+                                if (indice.ChildNodes.Count == 0)
+                                {
+                                    if (verificarRango(exp1, exp2))
+                                    {
+                                        int index = int.Parse(exp2.valor.ToString());
+                                        if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
+                                        {
+                                            nuevoArreglo = new double[index];
+                                        }
+                                        else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("boolean"))
+                                        {
+                                            nuevoArreglo = new bool[index];
+                                        }
+                                        else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("integer"))
+                                        {
+                                            nuevoArreglo = new int[index];
+                                        }
+                                        else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("string"))
+                                        {
+                                            nuevoArreglo = new string[index];
+                                        }
+                                        else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("id"))
+                                        {
+                                            Expresion tmp = buscarVariable(root.ChildNodes[2].ChildNodes[3].ChildNodes[0], entorno);
+                                            if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
+                                            {
+                                                nuevoArreglo = new Objeto[index];
+                                                for(int i = 0; i < index; i++)
+                                                {
+                                                    nuevoArreglo.SetValue((Objeto)tmp.valor, i);
+                                                }
+                                            }
+                                            else if (tmp.tipo == Simbolo.EnumTipo.error)
+                                            {
+                                                //REPORTAR ERROR ver error
+                                            }
+                                            else
+                                            {
+                                                //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                            }
+                                        }
+                                        if (nuevoArreglo != null)
+                                        {
+                                            entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    t_ordinal = root.ChildNodes[2].ChildNodes[1];
+                                    indice = root.ChildNodes[2].ChildNodes[2];
+                                    exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
+                                    exp2 = resolverExpresion(t_ordinal.ChildNodes[1], entorno);
+                                    nuevoArreglo = null;
+                                    if (indice.ChildNodes.Count == 0)
+                                    {
+                                        if (verificarRango(exp1, exp2))
+                                        {
+                                            int index1 = int.Parse(exp2.valor.ToString());
+                                            t_ordinal = root.ChildNodes[2].ChildNodes[2].ChildNodes[0];
+                                            indice = root.ChildNodes[2].ChildNodes[2].ChildNodes[1];
+                                            exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
+                                            exp2 = resolverExpresion(t_ordinal.ChildNodes[1], entorno);
+                                            if (indice.ChildNodes.Count == 0)
+                                            {
+                                                if (verificarRango(exp1, exp2))
+                                                {
+                                                    int index2 = int.Parse(exp2.valor.ToString());
+                                                    if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
+                                                    {
+                                                        nuevoArreglo = new double[index1, index2];
+                                                    }
+                                                    else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("boolean"))
+                                                    {
+                                                        nuevoArreglo = new bool[index1, index2];
+                                                    }
+                                                    else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("integer"))
+                                                    {
+                                                        nuevoArreglo = new int[index1, index2];
+                                                    }
+                                                    else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("string"))
+                                                    {
+                                                        nuevoArreglo = new string[index1, index2];
+                                                    }
+                                                    else if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("id"))
+                                                    {
+                                                        Expresion tmp = buscarVariable(root.ChildNodes[2].ChildNodes[3].ChildNodes[0], entorno);
+                                                        if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
+                                                        {
+                                                            nuevoArreglo = new Objeto[index1, index2];
+                                                            for (int i = 0; i < index1; i++)
+                                                            {
+                                                                for (int j = 0; j < index2; j++)
+                                                                {
+                                                                    nuevoArreglo.SetValue((Objeto)tmp.valor, i, j);
+                                                                }
+                                                            }
+                                                        }
+                                                        else if (tmp.tipo == Simbolo.EnumTipo.error)
+                                                        {
+                                                            //REPORTAR ERROR ver error
+                                                        }
+                                                        else
+                                                        {
+                                                            //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                                        }
+                                                    }
+                                                    if (nuevoArreglo != null)
+                                                    {
+                                                        entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                                    }
+                                                }
+                                            }
+                                            if (nuevoArreglo != null)
+                                            {
+                                                entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //NO BORRAR
+                                        MessageBox.Show("OJO NO HICE ESTE METODO PARA MAS DE 2 DIMENSIONES, USAR ARRAY DE ARAYYS");
+                                    }
+                                }
                             }
-
                             recorrer(root.ChildNodes[3], entorno);
                             recorrer(root.ChildNodes[4], entorno);
                         }
@@ -1018,12 +1176,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                     Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
                                     if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                                     {
-                                        MessageBox.Show(tmp.tipo.ToString());
                                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
                                     }
                                     else
                                     {
-                                        MessageBox.Show(tmp.valor.ToString());
                                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
                                     }
                                 }
