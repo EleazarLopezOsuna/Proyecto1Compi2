@@ -153,11 +153,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 | Empty
                 ;
 
-            DECLARACION_CAMPOS_TYPE.Rule = ToTerm("var") + id + R_ID + ToTerm(":") + id
-                | ToTerm("var") + id + R_ID + ToTerm(":") + T_ELEMENTAL
-                | id + R_ID + ToTerm(":") + id
+            DECLARACION_CAMPOS_TYPE.Rule = ("var") + id + R_ID + ToTerm(":") + T_ELEMENTAL
                 | id + R_ID + ToTerm(":") + T_ELEMENTAL
-                | ToTerm("const") + id + ToTerm(":") + id + ToTerm("=") + EXPRESION
                 | ToTerm("const") + id + ToTerm(":") + T_ELEMENTAL + ToTerm("=") + EXPRESION
                 | id + ToTerm("=") + EXPRESION
                 ;
@@ -347,7 +344,9 @@ namespace Proyecto1_Compiladores2.Analizador
                 | id
                 ;
 
-            T_ELEMENTAL.Rule = T_ORDINAL
+            T_ELEMENTAL.Rule = /*T_ORDINAL*/ tipo_boolean
+                | tipo_integer
+                | tipo_string
                 | tipo_real
                 | id
                 ;

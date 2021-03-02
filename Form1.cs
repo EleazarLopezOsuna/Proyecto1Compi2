@@ -14,6 +14,7 @@ using Irony.Ast;
 using Irony.Parsing;
 using Proyecto1_Compiladores2.Analizador;
 using Proyecto1_Compiladores2.Graficador;
+using Proyecto1_Compiladores2.Modelos;
 
 namespace Proyecto1_Compiladores2
 {
@@ -125,6 +126,36 @@ namespace Proyecto1_Compiladores2
 
                     SemanticoInterprete semanticoInterprete = new SemanticoInterprete();
                     semanticoInterprete.iniciarAnalisisSintactico(resultadoAnalisis.Root);
+
+                    if (semanticoInterprete.errores.Count == 0)
+                    {
+                        foreach (Entorno entorno in semanticoInterprete.entornos)
+                        {
+                            foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
+                            {
+                                if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
+                                {
+                                    string valor = "";
+                                    foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
+                                    {
+                                       if(valor == "")
+                                        {
+                                            valor = parametro.Key;
+                                        }
+                                        else
+                                        {
+                                            valor += ", " + parametro.Key;
+                                        }
+                                    }
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
+                                }
+                                else
+                                {
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor);
+                                }
+                            }
+                        }
+                    }
 
                     //Graficar Arbol Irony
                     SintacticoInterprete.crearImagen(resultadoAnalisis.Root, null, 0);

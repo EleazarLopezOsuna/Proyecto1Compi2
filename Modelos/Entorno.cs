@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Proyecto1_Compiladores2.Modelos
 {
@@ -8,11 +9,13 @@ namespace Proyecto1_Compiladores2.Modelos
     {
         public Dictionary<String, Simbolo> tabla;
         public Entorno anterior;
+        public string nombreEntorno;
 
-        public Entorno(Entorno anterior)
+        public Entorno(Entorno anterior, string nombreEntorno)
         {
             this.anterior = anterior;
             this.tabla = new Dictionary<String, Simbolo>();
+            this.nombreEntorno = nombreEntorno;
         }
 
         public bool insertar(String nombre, Simbolo sim, int linea, int columna)
@@ -43,7 +46,8 @@ namespace Proyecto1_Compiladores2.Modelos
                     sim = new Simbolo(Simbolo.EnumTipo.cadena, nuevaCadena);
                 }
             }
-
+            sim.fila = linea;
+            sim.columna = columna;
             tabla.Add(nombre, sim);
             return true;
         }

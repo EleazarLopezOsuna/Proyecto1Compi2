@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 using Proyecto1_Compiladores2.Modelos;
 using Irony.Parsing;
@@ -11,29 +12,29 @@ namespace Proyecto1_Compiladores2.Analizador
     {
         public ArrayList consola;
         public ArrayList errores;
+        public ArrayList entornos;
         private ArrayList subProgramas;
         private Entorno entornoGlobal;
         private Expresion retornoFuncion;
         private bool parar;
         private bool continuar;
-
         public SemanticoInterprete()
         {
 
         }
-
         public void iniciarAnalisisSintactico(ParseTreeNode root)
         {
             consola = new ArrayList();
             errores = new ArrayList();
+            entornos = new ArrayList();
             subProgramas = new ArrayList();
-            entornoGlobal = new Entorno(null);
+            entornoGlobal = new Entorno(null, "programa");
+            entornos.Add(entornoGlobal);
             retornoFuncion = null;
             parar = false;
             continuar = false;
             recorrer(root, entornoGlobal);
         }
-
         private string removerExtras(string token)
         {
             token = token.Replace(" (id)", "");
@@ -46,7 +47,6 @@ namespace Proyecto1_Compiladores2.Analizador
 
             return token;
         }
-
         private void ejecutarCase(ParseTreeNode root, Entorno entorno)
         {
 
@@ -75,10 +75,6 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
-        private void ejecutarTipos(ParseTreeNode root, Entorno entorno)
-        {
-
-        }
         private void ejecutarAsignacion(ParseTreeNode root, Entorno entorno)
         {
 
@@ -87,7 +83,6 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
-
         private Expresion resolverExpresion(ParseTreeNode root, Entorno ent)
         {
             switch (root.ToString())
@@ -212,7 +207,15 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private Expresion buscarVariable(ParseTreeNode root, Entorno entorno)
         {
-            return new Expresion(Simbolo.EnumTipo.error, "Error desconocido");
+            Simbolo resultadoBusqueda = entorno.buscar(removerExtras(root.ToString()), root.Token.Location.Line, root.Token.Location.Column);
+            if (resultadoBusqueda is null)
+            {
+                return new Expresion(Simbolo.EnumTipo.error, "Variable no encontrada");
+            }
+            else
+            {
+                return new Expresion(resultadoBusqueda.tipo, resultadoBusqueda.valor);
+            }
         }
         private Expresion operarSuma(Expresion expresion1, Expresion expresion2)
         {
@@ -795,7 +798,106 @@ namespace Proyecto1_Compiladores2.Analizador
                     return new Expresion(Simbolo.EnumTipo.error, "Operacion desigual no definida entre los tipos " + expresion1.tipo + " y " + expresion2.tipo);
             }
         }
-
+        private void agregarCamposObjeto(ParseTreeNode root, Objeto objeto, Entorno entorno)
+        {
+            Simbolo simbolo = null;
+            if(root.ChildNodes.Count == 4)
+            {
+                if (root.ChildNodes[1].ToString().Contains("real"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.real, 0.0);
+                }
+                else if (root.ChildNodes[1].ToString().Contains("boolean"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.boleano, false);
+                }
+                else if (root.ChildNodes[1].ToString().Contains("integer"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.entero, 0);
+                }
+                else if (root.ChildNodes[1].ToString().Contains("string"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.cadena, "");
+                }
+                else if (root.ChildNodes[1].ToString().Contains("id"))
+                {
+                    Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
+                    if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
+                    {
+                        MessageBox.Show(tmp.tipo.ToString());
+                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                    }
+                    else
+                    {
+                        MessageBox.Show(tmp.valor.ToString());
+                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                    }
+                }
+                Expresion exp = resolverExpresion(root.ChildNodes[3], entorno);
+                if (exp.tipo != Simbolo.EnumTipo.error)
+                {
+                    if (exp.tipo == simbolo.tipo)
+                    {
+                        simbolo.valor = exp.valor;
+                        simbolo.constante = true;
+                        objeto.parametros.Add(removerExtras(root.ChildNodes[0].ToString()), simbolo);
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR
+                        simbolo.tipo = Simbolo.EnumTipo.error;
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR
+                }
+            }
+            else if (root.ChildNodes.Count == 3)
+            {
+                if (root.ChildNodes[2].ToString().Contains("real"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.real, 0.0);
+                }
+                else if (root.ChildNodes[2].ToString().Contains("boolean"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.boleano, false);
+                }
+                else if (root.ChildNodes[2].ToString().Contains("integer"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.entero, 0);
+                }
+                else if (root.ChildNodes[2].ToString().Contains("string"))
+                {
+                    simbolo = new Simbolo(Simbolo.EnumTipo.cadena, "");
+                }
+                else if (root.ChildNodes[2].ToString().Contains("id"))
+                {
+                    Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
+                    if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
+                    {
+                        MessageBox.Show(tmp.tipo.ToString());
+                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                    }
+                    else
+                    {
+                        MessageBox.Show(tmp.valor.ToString());
+                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                    }
+                }
+                ParseTreeNode temp = root;
+                while (temp.ChildNodes.Count != 0)
+                {
+                    objeto.parametros.Add(removerExtras(temp.ChildNodes[0].ToString()), simbolo);
+                    temp = temp.ChildNodes[1];
+                }
+            }
+            else if(root.ChildNodes.Count == 2)
+            {
+                agregarCamposObjeto(root.ChildNodes[0], objeto, entorno);
+                agregarCamposObjeto(root.ChildNodes[1], objeto, entorno);
+            }
+        }
         private void recorrer(ParseTreeNode root, Entorno entorno)
         {
             if (!parar && !continuar) //Comprueba si existe un break o continue
@@ -805,48 +907,57 @@ namespace Proyecto1_Compiladores2.Analizador
                 ArrayList listaHijos;
                 Simbolo simbolo = null;
                 Expresion expresion;
-
                 switch (root.ToString())
                 {
                     case "CASE":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarCase(root, nuevoEntorno);
+                        ejecutarCase(root, entorno);
                         break;
                     case "IF":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarIf(root, nuevoEntorno);
+                        ejecutarIf(root, entorno);
                         break;
                     case "REPEAT":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarRepeat(root, nuevoEntorno);
+                        ejecutarRepeat(root, entorno);
                         break;
                     case "WHILE":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarWhile(root, nuevoEntorno);
+                        ejecutarWhile(root, entorno);
                         break;
                     case "FUNCION":
-                        nuevoEntorno = new Entorno(entorno);
+                        nuevoEntorno = new Entorno(entorno, "");
                         ejecutarFuncion(root, nuevoEntorno);
                         break;
                     case "PROCEDIMIENTO":
-                        nuevoEntorno = new Entorno(entorno);
+                        nuevoEntorno = new Entorno(entorno, "");
                         ejecutarProcedimiento(root, nuevoEntorno);
                         break;
                     case "LLAMADA":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarLlamada(root, nuevoEntorno);
+                        ejecutarLlamada(root, entorno);
                         break;
                     case "Z_TIPOS":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarTipos(root, nuevoEntorno);
+                        if(root.ChildNodes.Count != 0)
+                        {
+                            string nombreTipo = removerExtras(root.ChildNodes[0].ToString());
+                            if (root.ChildNodes[2].ChildNodes[0].ToString().Contains("object"))
+                            {
+                                //Es un objeto
+                                Objeto nuevoObjeto = new Objeto();
+                                agregarCamposObjeto(root.ChildNodes[2].ChildNodes[1], nuevoObjeto, entorno);
+                                agregarCamposObjeto(root.ChildNodes[2].ChildNodes[2], nuevoObjeto, entorno);
+                                entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.objeto, nuevoObjeto), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                            }
+                            else
+                            {
+                                //Es un array
+                            }
+
+                            recorrer(root.ChildNodes[3], entorno);
+                            recorrer(root.ChildNodes[4], entorno);
+                        }
                         break;
                     case "ASIGNACION":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarAsignacion(root, nuevoEntorno);
+                        ejecutarAsignacion(root, entorno);
                         break;
                     case "FOR":
-                        nuevoEntorno = new Entorno(entorno);
-                        ejecutarFor(root, nuevoEntorno);
+                        ejecutarFor(root, entorno);
                         break;
                     case "SUBPROGRAMA":
                     case "PROGRAMA":
@@ -861,7 +972,6 @@ namespace Proyecto1_Compiladores2.Analizador
                             recorrer(hijo, entorno);
                         }
                         break;
-
                     case "ABAJO":
                         break;
                     case "ARRIBA":
@@ -903,13 +1013,26 @@ namespace Proyecto1_Compiladores2.Analizador
                                 else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("string"))
                                 {
                                     simbolo = new Simbolo(Simbolo.EnumTipo.cadena, "");
+                                }else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("id"))
+                                {
+                                    Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
+                                    if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
+                                    {
+                                        MessageBox.Show(tmp.tipo.ToString());
+                                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show(tmp.valor.ToString());
+                                        simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                                    }
                                 }
                                 if (root.ChildNodes.Count == 4)
                                 {
                                     expresion = resolverExpresion(root.ChildNodes[3], entorno);
                                     if (expresion.tipo == Simbolo.EnumTipo.error)
                                     {
-                                        MessageBox.Show(expresion.valor.ToString());
+                                        //AGREGAR ERROR
                                     }
                                     else
                                     {
@@ -921,8 +1044,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             else
                                             {
-                                                MessageBox.Show("Error de tipos");
                                                 simbolo.tipo = Simbolo.EnumTipo.error;
+                                                //AGREGAR ERROR
                                             }
                                         }
                                         else
@@ -934,7 +1057,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                 if (simbolo.tipo != Simbolo.EnumTipo.error)
                                 {
                                     entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
-                                    MessageBox.Show("Variable: " + removerExtras(root.ChildNodes[0].ToString()) + "\nTipo: " + simbolo.tipo + "\nValor: " + simbolo.valor);
+                                }
+                                else
+                                {
+                                    //AGREGAR ERROR
                                 }
                             }
                         }
