@@ -931,9 +931,7 @@ namespace Proyecto1_Compiladores2.Analizador
         {
             if (!parar && !continuar) //Comprueba si existe un break o continue
             {
-                Expresion resultado;
                 Entorno nuevoEntorno;
-                ArrayList listaHijos;
                 Simbolo simbolo = null;
                 Expresion expresion;
                 switch (root.ToString())
@@ -1180,9 +1178,83 @@ namespace Proyecto1_Compiladores2.Analizador
                     case "DECLARACION_CAMPOS_TYPE":
                         break;
                     case "D_CONSTANTE":
+                        simbolo = null;
+                        if (root.ChildNodes.Count != 0)
+                        {
+                            if (root.ChildNodes[0].ToString().Equals("D_CONSTANTE"))
+                            {
+                                foreach (ParseTreeNode hijo in root.ChildNodes)
+                                {
+                                    recorrer(hijo, entorno);
+                                }
+                            }
+                            else
+                            {
+                                if (root.ChildNodes.Count == 4)
+                                {
+                                    if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("real"))
+                                    {
+                                        simbolo = new Simbolo(Simbolo.EnumTipo.real, 0.0);
+                                    }
+                                    else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("boolean"))
+                                    {
+                                        simbolo = new Simbolo(Simbolo.EnumTipo.boleano, false);
+                                    }
+                                    else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("integer"))
+                                    {
+                                        simbolo = new Simbolo(Simbolo.EnumTipo.entero, 0);
+                                    }
+                                    else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("string"))
+                                    {
+                                        simbolo = new Simbolo(Simbolo.EnumTipo.cadena, "");
+                                    }
+                                    else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("id"))
+                                    {
+                                        //REPORTAR ERROR las constantes solo pueden ser de datos primitivos
+                                    }
+                                    expresion = resolverExpresion(root.ChildNodes[3], entorno);
+                                    if (expresion.tipo == Simbolo.EnumTipo.error)
+                                    {
+                                        //AGREGAR ERROR
+                                    }
+                                    else
+                                    {
+                                        if (expresion.tipo != simbolo.tipo)
+                                        {
+                                            if (expresion.tipo == Simbolo.EnumTipo.entero && simbolo.tipo == Simbolo.EnumTipo.real)
+                                            {
+                                                simbolo.valor = expresion.valor;
+                                            }
+                                            else
+                                            {
+                                                simbolo.tipo = Simbolo.EnumTipo.error;
+                                                //AGREGAR ERROR
+                                            }
+                                        }
+                                        else
+                                        {
+                                            simbolo.valor = expresion.valor;
+                                        }
+                                    }
+                                    if (simbolo is null)
+                                    {
+                                        //AGREGAR ERROR el error se reporta arriba
+                                    }
+                                    else if(simbolo.tipo != Simbolo.EnumTipo.error)
+                                    {
+                                        simbolo.constante = true;
+                                        entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                                    }
+                                    else
+                                    {
+                                        //AGREGAR ERROR ver error en simbolo
+                                    }
+                                }
+                            }
+                        }
                         break;
                     case "D_VARIABLE":
-                        Objeto tmp_obj = null;
+                        simbolo = null;
                         if (root.ChildNodes.Count != 0)
                         {
                             if (root.ChildNodes[0].ToString().Equals("D_VARIABLE"))
@@ -1252,13 +1324,13 @@ namespace Proyecto1_Compiladores2.Analizador
                                             simbolo.valor = expresion.valor;
                                         }
                                     }
-                                    if (simbolo.tipo != Simbolo.EnumTipo.error)
-                                    {
-                                        entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
-                                    }
-                                    else if(simbolo is null)
+                                    if(simbolo is null)
                                     {
                                         //AGREGAR ERROR el error se reporta arriba
+                                    }
+                                    else if (simbolo.tipo != Simbolo.EnumTipo.error)
+                                    {
+                                        entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
                                     }
                                     else
                                     {
