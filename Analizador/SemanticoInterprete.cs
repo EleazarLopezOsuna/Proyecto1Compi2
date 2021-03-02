@@ -927,6 +927,74 @@ namespace Proyecto1_Compiladores2.Analizador
                 agregarCamposObjeto(root.ChildNodes[1], objeto, entorno);
             }
         }
+        private void ejecutarWriteLn(ParseTreeNode root, Entorno entorno)
+        {
+            if (root.ChildNodes.Count > 1)
+            {
+                string cadena = "";
+                Expresion exp = null;
+                exp = resolverExpresion(root.ChildNodes[1], entorno);
+                if (exp.tipo != Simbolo.EnumTipo.error)
+                {
+                    cadena += exp.valor.ToString();
+                }
+                ParseTreeNode tmp = root.ChildNodes[2];
+                while (tmp.ChildNodes.Count != 0)
+                {
+                    exp = resolverExpresion(tmp.ChildNodes[0], entorno);
+                    if (exp.tipo != Simbolo.EnumTipo.error)
+                    {
+                        cadena += exp.valor.ToString();
+                    }
+                    tmp = tmp.ChildNodes[1];
+                }
+                cadena += "\n";
+                consola.Add(cadena);
+            }
+            else
+            {
+                consola.Add("\n");
+            }
+        }
+        private void ejecutarWrite(ParseTreeNode root, Entorno entorno)
+        {
+            if (root.ChildNodes.Count > 1)
+            {
+                string cadena = "";
+                Expresion exp = null;
+                exp = resolverExpresion(root.ChildNodes[1], entorno);
+                if (exp.tipo != Simbolo.EnumTipo.error)
+                {
+                    cadena += exp.valor.ToString();
+                }
+                ParseTreeNode tmp = root.ChildNodes[2];
+                while (tmp.ChildNodes.Count != 0)
+                {
+                    exp = resolverExpresion(tmp.ChildNodes[0], entorno);
+                    if (exp.tipo != Simbolo.EnumTipo.error)
+                    {
+                        cadena += exp.valor.ToString();
+                    }
+                    tmp = tmp.ChildNodes[1];
+                }
+                consola.Add(cadena);
+            }
+        }
+        private void ejecutarExit(ParseTreeNode root, Entorno entorno)
+        {
+            if (root.ChildNodes[2].ChildNodes.Count == 0)
+            {
+                retornoFuncion = resolverExpresion(root.ChildNodes[1], entorno);
+            }
+            else
+            {
+                //AGREGAR ERROR exit solo puede tener un parametro
+            }
+        }
+        private void ejecutarGraficarTS()
+        {
+
+        }
         private void recorrer(ParseTreeNode root, Entorno entorno)
         {
             if (!parar && !continuar) //Comprueba si existe un break o continue
@@ -957,6 +1025,29 @@ namespace Proyecto1_Compiladores2.Analizador
                         ejecutarProcedimiento(root, nuevoEntorno);
                         break;
                     case "LLAMADA":
+                        if (root.ChildNodes[0].ToString().Contains("writeln"))
+                        {
+                            ejecutarWriteLn(root, entorno);
+                        }else if (root.ChildNodes[0].ToString().ToLower().Contains("write"))
+                        {
+                            ejecutarWrite(root, entorno);
+                        }
+                        else if (root.ChildNodes[0].ToString().ToLower().Contains("break"))
+                        {
+
+                        }
+                        else if (root.ChildNodes[0].ToString().ToLower().Contains("continue"))
+                        {
+
+                        }
+                        else if (root.ChildNodes[0].ToString().ToLower().Contains("graficar_ts"))
+                        {
+                            ejecutarGraficarTS();
+                        }
+                        else if (root.ChildNodes[0].ToString().ToLower().Contains("exit"))
+                        {
+                            ejecutarExit(root, entorno);
+                        }
                         ejecutarLlamada(root, entorno);
                         break;
                     case "Z_TIPOS":

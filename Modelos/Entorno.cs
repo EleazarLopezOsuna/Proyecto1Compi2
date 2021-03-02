@@ -20,6 +20,7 @@ namespace Proyecto1_Compiladores2.Modelos
 
         public bool insertar(String nombre, Simbolo sim, int linea, int columna)
         {
+            nombre = nombre.ToLower();
             if (tabla.ContainsKey(nombre))
             {
                 return false;
@@ -54,6 +55,7 @@ namespace Proyecto1_Compiladores2.Modelos
 
         public Simbolo buscar(String nombre, int linea, int columna)
         {
+            nombre = nombre.ToLower();
             for (Entorno e = this; e != null; e = e.anterior)
             {
                 if (e.tabla.ContainsKey(nombre))
@@ -67,6 +69,7 @@ namespace Proyecto1_Compiladores2.Modelos
 
         public bool modificar(String nombre, Simbolo simbolo)
         {
+            nombre = nombre.ToLower();
             for (Entorno e = this; e != null; e = e.anterior)
             {
                 if (e.tabla.ContainsKey(nombre))

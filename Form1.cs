@@ -115,6 +115,7 @@ namespace Proyecto1_Compiladores2
             resultadoAnalisis = SintacticoInterprete.Analizar(code_textbox.Text);
             error_table.Rows.Clear();
             symbol_table.Rows.Clear();
+            console_textbox.Text = "";
 
             if (resultadoAnalisis != null)
             {
@@ -127,56 +128,57 @@ namespace Proyecto1_Compiladores2
                     SemanticoInterprete semanticoInterprete = new SemanticoInterprete();
                     semanticoInterprete.iniciarAnalisisSintactico(resultadoAnalisis.Root);
 
-                    if (semanticoInterprete.errores.Count == 0)
+                    foreach (Entorno entorno in semanticoInterprete.entornos)
                     {
-                        foreach (Entorno entorno in semanticoInterprete.entornos)
+                        foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
                         {
-                            foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
+                            if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
                             {
-                                if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
+                                string valor = "";
+                                if (((Objeto)variable.Value.valor).arreglo is null)
                                 {
-                                    string valor = "";
-                                    if (((Objeto)variable.Value.valor).arreglo is null)
+                                    foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
                                     {
-                                        foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
+                                        if (valor == "")
                                         {
-                                            if (valor == "")
-                                            {
-                                                valor = parametro.Key;
-                                            }
-                                            else
-                                            {
-                                                valor += ", " + parametro.Key;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        Objeto tmp = (Objeto)variable.Value.valor;
-                                        if (tmp.tipo != Simbolo.EnumTipo.objeto)
-                                        {
-                                            valor = tmp.tipo + "[" + tmp.arreglo.GetLength(0);
+                                            valor = parametro.Key;
                                         }
                                         else
                                         {
-                                            valor = tmp.nombreTipo + "[" + tmp.arreglo.GetLength(0);
+                                            valor += ", " + parametro.Key;
                                         }
-                                        for(int i = 1; i < tmp.arreglo.Rank; i++)
-                                        {
-                                            valor += ", " + tmp.arreglo.GetLength(i);
-                                        }
-                                        valor += "]";
                                     }
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
                                 }
                                 else
                                 {
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
+                                    Objeto tmp = (Objeto)variable.Value.valor;
+                                    if (tmp.tipo != Simbolo.EnumTipo.objeto)
+                                    {
+                                        valor = tmp.tipo + "[" + tmp.arreglo.GetLength(0);
+                                    }
+                                    else
+                                    {
+                                        valor = tmp.nombreTipo + "[" + tmp.arreglo.GetLength(0);
+                                    }
+                                    for (int i = 1; i < tmp.arreglo.Rank; i++)
+                                    {
+                                        valor += ", " + tmp.arreglo.GetLength(i);
+                                    }
+                                    valor += "]";
                                 }
+                                symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
+                            }
+                            else
+                            {
+                                symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
                             }
                         }
                     }
-                    
+                    foreach (string texto in semanticoInterprete.consola)
+                    {
+                        console_textbox.Text += texto;
+                    }
+
                     //Graficar Arbol Irony
                     SintacticoInterprete.crearImagen(resultadoAnalisis.Root, null, 0);
 
