@@ -53,7 +53,58 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarIf(ParseTreeNode root, Entorno entorno)
         {
-
+            Entorno nuevo = new Entorno(entorno, entorno.nombreEntorno);
+            Expresion condicion = resolverExpresion(root.ChildNodes[0], nuevo);
+            if (root.ChildNodes.Count == 2) //IF sentencia
+            {
+                if (condicion.tipo != Simbolo.EnumTipo.error)
+                {
+                    if(condicion.tipo == Simbolo.EnumTipo.boleano)
+                    {
+                        if (bool.Parse(condicion.valor.ToString()))
+                        {
+                            recorrer(root.ChildNodes[1], nuevo);
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR se esperaba tipo boleano
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR ver error
+                }
+            }
+            else if(root.ChildNodes.Count == 3)//IF sentencia ELSE sentencia
+            {
+                if (condicion.tipo != Simbolo.EnumTipo.error)
+                {
+                    if (condicion.tipo == Simbolo.EnumTipo.boleano)
+                    {
+                        if (bool.Parse(condicion.valor.ToString()))
+                        {
+                            recorrer(root.ChildNodes[1], nuevo);
+                        }
+                        else
+                        {
+                            recorrer(root.ChildNodes[2], nuevo);
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR se esperaba tipo boleano
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR ver error
+                }
+            }
+            else
+            {
+                MessageBox.Show("FALTO ALGO DENTRO DEL IF");
+            }
         }
         private void ejecutarRepeat(ParseTreeNode root, Entorno entorno)
         {
