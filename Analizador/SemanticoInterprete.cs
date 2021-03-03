@@ -201,52 +201,187 @@ namespace Proyecto1_Compiladores2.Analizador
                                 obj = (Objeto)tmp.valor; //Se obtiene el objeto
                                 temp = root.ChildNodes[1].ChildNodes[0]; //Se toma el campo
                                 sim = obj.buscar(removerExtras(temp.ToString()), temp.Token.Location.Line, temp.Token.Location.Column); //Se busca si el objeto tiene el campo buscado
-                                if (sim.tipo != Simbolo.EnumTipo.error)
+                                if(sim is null)
                                 {
-                                    //Se encontro el parametro dentro del objeto, empieza la recursividad
-                                    temp = root.ChildNodes[1].ChildNodes[1];
-                                    while (temp.ChildNodes.Count != 0)
+                                    //AGREGAR ERROR no se encontro el parametro
+                                }
+                                else
+                                {
+                                    if (sim.tipo != Simbolo.EnumTipo.error)
                                     {
-                                        if (temp.ChildNodes.Count == 2)//Se espera objeto
+                                        if (sim.tipo == Simbolo.EnumTipo.objeto)
                                         {
-                                            //Comprobamos que el ultimo parametro recibido sea un objeto
-                                            if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                            //Se encontro el parametro dentro del objeto, empieza la recursividad
+                                            temp = root.ChildNodes[1].ChildNodes[1];
+                                            while (temp.ChildNodes.Count != 0)
                                             {
-                                                obj = (Objeto)sim.valor;
-                                                sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
-                                                if (sim.tipo == Simbolo.EnumTipo.error)
+                                                if (temp.ChildNodes.Count == 2)//Se espera objeto
                                                 {
-                                                    //AGREGAR ERROR ver error
+                                                    //Comprobamos que el ultimo parametro recibido sea un objeto
+                                                    if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                                    {
+                                                        obj = (Objeto)sim.valor;
+                                                        sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
+                                                        MessageBox.Show(obj.nombre);
+                                                        if (sim.tipo == Simbolo.EnumTipo.error)
+                                                        {
+                                                            //AGREGAR ERROR ver error
+                                                            break;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //AGREGAR ERROR se esperaba tipo objeto
+                                                        break;
+                                                    }
+                                                    temp = temp.ChildNodes[1];
+                                                }
+                                                else
+                                                {
+                                                    //ES UN ARREGLO
                                                     break;
+                                                }
+                                            }
+                                            return new Expresion(sim.tipo, sim.valor); //Al salir de la recursividad retornamos el ultimo valor
+                                        }
+                                        else if (sim.tipo == Simbolo.EnumTipo.arreglo)
+                                        {
+                                            //Se encontro el parametro dentro del objeto, empieza la recursividad
+                                            temp = root.ChildNodes[1].ChildNodes[2];
+                                            obj = (Objeto)sim.valor; //Obtengo el arreglo
+                                            if (temp.ChildNodes.Count == 0) //Es un arreglo de una dimension
+                                            {
+                                                if (obj.arreglo.Rank == 1)
+                                                {
+                                                    Expresion indice = resolverExpresion(root.ChildNodes[1].ChildNodes[1], ent);
+                                                    if (indice.tipo != Simbolo.EnumTipo.error)
+                                                    {
+                                                        if (indice.tipo == Simbolo.EnumTipo.entero)
+                                                        {
+                                                            if (int.Parse(indice.valor.ToString()) < obj.arreglo.Length)
+                                                            {
+                                                                temp = root.ChildNodes[1].ChildNodes[3];
+                                                                sim = new Simbolo(obj.tipo, obj.arreglo.GetValue(int.Parse(indice.valor.ToString())));
+                                                                while (temp.ChildNodes.Count != 0)
+                                                                {
+                                                                    if (temp.ChildNodes.Count == 2)//Se espera objeto
+                                                                    {
+                                                                        //Comprobamos que el ultimo parametro recibido sea un objeto
+                                                                        if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                                                        {
+                                                                            obj = (Objeto)sim.valor;
+                                                                            sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
+                                                                            if (sim.tipo == Simbolo.EnumTipo.error)
+                                                                            {
+                                                                                //AGREGAR ERROR ver error
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            //AGREGAR ERROR se esperaba tipo objeto
+                                                                            break;
+                                                                        }
+                                                                        temp = temp.ChildNodes[1];
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        //NO SE MANEJAN Objeto.arregloObjeto[indice].parametro
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                return new Expresion(sim.tipo, sim.valor);
+                                                            }
+                                                            //AGREGAR ERROR indice fuera de rango
+                                                        }
+                                                        else
+                                                        {
+                                                            //AGREGAR ERROR error de tipos
+                                                        }
+                                                    }else
+                                                    {
+                                                        //AGREGAR ERROR ver error
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    //AGREGAR ERROR El arreglo es de mas de 1 dimension
                                                 }
                                             }
                                             else
                                             {
-                                                //AGREGAR ERROR se esperaba tipo objeto
-                                                break;
+                                                //Es un arreglo de dos dimensiones
+                                                if (obj.arreglo.Rank == 2)
+                                                {
+                                                    Expresion indice1 = resolverExpresion(root.ChildNodes[1].ChildNodes[1], ent);
+                                                    Expresion indice2 = resolverExpresion(root.ChildNodes[1].ChildNodes[2], ent);
+                                                    if (indice1.tipo != Simbolo.EnumTipo.error || indice2.tipo != Simbolo.EnumTipo.error)
+                                                    {
+                                                        if (indice1.tipo == Simbolo.EnumTipo.entero || indice2.tipo == Simbolo.EnumTipo.entero)
+                                                        {
+                                                            if ((int.Parse(indice1.valor.ToString()) < obj.arreglo.GetLength(0)) && (int.Parse(indice2.valor.ToString()) < obj.arreglo.GetLength(1)))
+                                                            {
+                                                                temp = root.ChildNodes[1].ChildNodes[3];
+                                                                sim = new Simbolo(obj.tipo, obj.arreglo.GetValue(int.Parse(indice1.valor.ToString()), int.Parse(indice1.valor.ToString())));
+                                                                while (temp.ChildNodes.Count != 0)
+                                                                {
+                                                                    if (temp.ChildNodes.Count == 2)//Se espera objeto
+                                                                    {
+                                                                        //Comprobamos que el ultimo parametro recibido sea un objeto
+                                                                        if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                                                        {
+                                                                            obj = (Objeto)sim.valor;
+                                                                            sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
+                                                                            if (sim.tipo == Simbolo.EnumTipo.error)
+                                                                            {
+                                                                                //AGREGAR ERROR ver error
+                                                                                break;
+                                                                            }
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            //AGREGAR ERROR se esperaba tipo objeto
+                                                                            break;
+                                                                        }
+                                                                        temp = temp.ChildNodes[1];
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        //NO SE MANEJAN Objeto.arregloObjeto[indice].parametro
+                                                                        break;
+                                                                    }
+                                                                }
+                                                                return new Expresion(sim.tipo, sim.valor);
+                                                            }
+                                                            //AGREGAR ERROR indice fuera de rango
+                                                        }
+                                                        else
+                                                        {
+                                                            //AGREGAR ERROR error de tipos
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        //AGREGAR ERROR ver error
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    //AGREGAR ERROR El arreglo es de 1 dimension
+                                                }
                                             }
                                         }
-                                        else
-                                        {
-                                            //Se espera arreglo
-                                        }
-                                        temp = temp.ChildNodes[1];
                                     }
-                                    return new Expresion(sim.tipo, sim.valor); //Al salir de la recursividad retornamos el ultimo valor
-                                }
-                                else
-                                {
-                                    //AGREGAR ERROR ver error
+                                    else
+                                    {
+                                        //AGREGAR ERROR ver error
+                                    }
                                 }
                             }
                             else
                             {
                                 //AGREGAR ERROR se esperaba tipo objeto y se encontro tipo arreglo
                             }
-                        }
-                        else //Es un elemento de un arreglo
-                        {
-
                         }
                     }
                     return resolverEstructura(root.ChildNodes[0], ent);
@@ -281,7 +416,6 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private Expresion operarNegativo(Expresion expresion1)
         {
-            String exp1 = expresion1.valor.ToString();
             switch (expresion1.tipo)
             {
                 case Simbolo.EnumTipo.real:

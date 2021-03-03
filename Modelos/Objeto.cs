@@ -40,5 +40,32 @@ namespace Proyecto1_Compiladores2.Modelos
             }
             return false;
         }
+
+        public Simbolo.EnumTipo buscarTipo(string cadena)
+        {
+            switch (cadena)
+            {
+                case "cadena":
+                    return Simbolo.EnumTipo.cadena;
+                case "entero":
+                    return Simbolo.EnumTipo.entero;
+                case "real":
+                    return Simbolo.EnumTipo.real;
+                case "boleano":
+                    return Simbolo.EnumTipo.boleano;
+                case "nulo":
+                    return Simbolo.EnumTipo.nulo;
+                case "funcion":
+                    return Simbolo.EnumTipo.funcion;
+                case "procedimiento":
+                    return Simbolo.EnumTipo.procedimiento;
+                case "objeto":
+                    return Simbolo.EnumTipo.objeto;
+                case "arreglo":
+                    return Simbolo.EnumTipo.arreglo;
+                default:
+                    return Simbolo.EnumTipo.error;
+            }
+        }
     }
 }
