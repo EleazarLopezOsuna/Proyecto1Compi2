@@ -176,7 +176,14 @@ namespace Proyecto1_Compiladores2
                     }
                     foreach (string texto in semanticoInterprete.consola)
                     {
-                        console_textbox.Text += texto;
+                        if (texto.Contains("\n"))
+                        {
+                            console_textbox.Text += texto.Replace("\n", "") + Environment.NewLine;
+                        }
+                        else
+                        {
+                            console_textbox.Text += texto;
+                        }
                     }
 
                     //Graficar Arbol Irony

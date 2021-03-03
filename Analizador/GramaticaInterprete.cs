@@ -178,7 +178,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 | id + ToTerm(":") + T_DATO
                 ;
 
-            ESTRUCTURA.Rule = id + ToTerm("[") + EXPRESION + R_EXPRESION + ToTerm("]")
+            ESTRUCTURA.Rule = id + ToTerm("[") + EXPRESION + R_EXPRESION + ToTerm("]") + R_OBJETO_CAMPO
                 | id + R_OBJETO_CAMPO
                 | LLAMADA + R_OBJETO_CAMPO
                 ;

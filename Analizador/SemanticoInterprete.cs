@@ -114,6 +114,10 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private Expresion resolverExpresion(ParseTreeNode root, Entorno ent)
         {
+            Expresion tmp;
+            ParseTreeNode temp;
+            Objeto obj;
+            Simbolo sim;
             switch (root.ToString())
             {
                 case "EXPRESION":
@@ -185,6 +189,66 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     return resolverExpresion(root.ChildNodes[0], ent);
                 case "ESTRUCTURA":
+                    if (root.ChildNodes.Count != 0)
+                    {
+                        //Se hace la primer iteracion para buscar la variable
+                        if (root.ChildNodes.Count == 2) //Es campo de un objeto
+                        {
+                            temp = root; //temp es el primer "ESTRUCTURA" que se encuentra
+                            tmp = buscarVariable(temp.ChildNodes[0], ent);
+                            if (tmp.tipo == Simbolo.EnumTipo.objeto) //Confirmamos que la variable es de tipo objeto
+                            {
+                                obj = (Objeto)tmp.valor; //Se obtiene el objeto
+                                temp = root.ChildNodes[1].ChildNodes[0]; //Se toma el campo
+                                sim = obj.buscar(removerExtras(temp.ToString()), temp.Token.Location.Line, temp.Token.Location.Column); //Se busca si el objeto tiene el campo buscado
+                                if (sim.tipo != Simbolo.EnumTipo.error)
+                                {
+                                    //Se encontro el parametro dentro del objeto, empieza la recursividad
+                                    temp = root.ChildNodes[1].ChildNodes[1];
+                                    while (temp.ChildNodes.Count != 0)
+                                    {
+                                        if (temp.ChildNodes.Count == 2)//Se espera objeto
+                                        {
+                                            //Comprobamos que el ultimo parametro recibido sea un objeto
+                                            if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                            {
+                                                obj = (Objeto)sim.valor;
+                                                sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
+                                                if (sim.tipo == Simbolo.EnumTipo.error)
+                                                {
+                                                    //AGREGAR ERROR ver error
+                                                    break;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                //AGREGAR ERROR se esperaba tipo objeto
+                                                break;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //Se espera arreglo
+                                        }
+                                        temp = temp.ChildNodes[1];
+                                    }
+                                    return new Expresion(sim.tipo, sim.valor); //Al salir de la recursividad retornamos el ultimo valor
+                                }
+                                else
+                                {
+                                    //AGREGAR ERROR ver error
+                                }
+                            }
+                            else
+                            {
+                                //AGREGAR ERROR se esperaba tipo objeto y se encontro tipo arreglo
+                            }
+                        }
+                        else //Es un elemento de un arreglo
+                        {
+
+                        }
+                    }
                     return resolverEstructura(root.ChildNodes[0], ent);
                 case "LLAMADA":
                     return resolverLlamada(root.ChildNodes[0], ent);
@@ -904,7 +968,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else if (root.ChildNodes[2].ToString().Contains("id"))
                 {
-                    Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
+                    Expresion tmp = buscarVariable(root.ChildNodes[2], entorno);
                     if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                     {
                         simbolo = new Simbolo(tmp.tipo, tmp.valor);
@@ -948,8 +1012,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     tmp = tmp.ChildNodes[1];
                 }
-                cadena += "\n";
-                consola.Add(cadena);
+                consola.Add(cadena + "\n");
             }
             else
             {
@@ -1028,17 +1091,18 @@ namespace Proyecto1_Compiladores2.Analizador
                         if (root.ChildNodes[0].ToString().Contains("writeln"))
                         {
                             ejecutarWriteLn(root, entorno);
-                        }else if (root.ChildNodes[0].ToString().ToLower().Contains("write"))
+                        }
+                        else if (root.ChildNodes[0].ToString().ToLower().Contains("write"))
                         {
                             ejecutarWrite(root, entorno);
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("break"))
                         {
-
+                            
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("continue"))
                         {
-
+                            
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("graficar_ts"))
                         {
@@ -1048,7 +1112,10 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             ejecutarExit(root, entorno);
                         }
-                        ejecutarLlamada(root, entorno);
+                        else
+                        {
+                            ejecutarLlamada(root, entorno);
+                        }
                         break;
                     case "Z_TIPOS":
                         if(root.ChildNodes.Count != 0)
@@ -1238,7 +1305,64 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         break;
                     case "ASIGNACION":
-                        ejecutarAsignacion(root, entorno);
+                        if (root.ChildNodes[0].ToString().Equals("VARIABLE"))
+                        {
+                            expresion = resolverExpresion(root.ChildNodes[1], entorno);
+                            if (expresion.tipo != Simbolo.EnumTipo.error)
+                            {
+                                simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                                if (expresion.tipo == simbolo.tipo)
+                                {
+                                    simbolo = new Simbolo(expresion.tipo, expresion.valor);
+                                    if (entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo))
+                                    {
+
+                                    }
+                                }
+                                else
+                                {
+                                    //AGREGAR ERROR error de tipos
+                                }
+                            }
+                        }
+                        else
+                        {
+                            Expresion tmp;
+                            ParseTreeNode temp;
+                            Objeto obj;
+                            Simbolo sim;
+                            if (root.ChildNodes.Count > 1000)
+                            {
+                                //Se hace la primer iteracion para buscar la variable
+                                if (root.ChildNodes.Count == 2) //Es campo de un objeto
+                                {
+                                    temp = root; //temp es el primer "ESTRUCTURA" que se encuentra
+                                    tmp = buscarVariable(temp.ChildNodes[0], entorno);
+                                    if (tmp.tipo == Simbolo.EnumTipo.objeto) //Confirmamos que la variable es de tipo objeto
+                                    {
+                                        obj = (Objeto)tmp.valor; //Se obtiene el objeto
+                                        temp = root.ChildNodes[1].ChildNodes[0]; //Se toma el campo
+                                        sim = obj.buscar(removerExtras(temp.ToString()), temp.Token.Location.Line, temp.Token.Location.Column); //Se busca si el objeto tiene el campo buscado
+                                        if (sim.tipo != Simbolo.EnumTipo.error)
+                                        {
+                                            tmp = resolverExpresion(root.ChildNodes[1], entorno);
+                                        }
+                                        else
+                                        {
+                                            //AGREGAR ERROR ver error
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //AGREGAR ERROR se esperaba tipo objeto y se encontro tipo arreglo
+                                    }
+                                }
+                                else //Es un elemento de un arreglo
+                                {
+
+                                }
+                            }
+                        }
                         break;
                     case "FOR":
                         ejecutarFor(root, entorno);
@@ -1331,7 +1455,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         //AGREGAR ERROR el error se reporta arriba
                                     }
-                                    else if(simbolo.tipo != Simbolo.EnumTipo.error)
+                                    else if(expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
                                         simbolo.constante = true;
                                         entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
@@ -1419,7 +1543,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         //AGREGAR ERROR el error se reporta arriba
                                     }
-                                    else if (simbolo.tipo != Simbolo.EnumTipo.error)
+                                    else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
                                         entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
                                     }
@@ -1529,10 +1653,10 @@ namespace Proyecto1_Compiladores2.Analizador
                         break;
                     case "VALOR":
                         break;
-                    case "OPERADOR":
+                    /*case "OPERADOR":
                         break;
                     case "PA":
-                        break;
+                        break;*/
                     case "PF":
                         break;
                     case "PFVL":
@@ -1541,14 +1665,14 @@ namespace Proyecto1_Compiladores2.Analizador
                         break;
                     case "RANGO":
                         break;
-                    case "R_ID":
+                    /*case "R_ID":
                         break;
                     case "INDICE":
                         break;
                     case "T_DATO":
                         break;
                     case "T_ELEMENTAL":
-                        break;
+                        break;*/
                     case "T_ESTRUCTURADO":
                         break;
                     case "T_ORDINAL":
