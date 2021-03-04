@@ -239,7 +239,50 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarFor(ParseTreeNode root, Entorno entorno)
         {
-
+            Expresion posicionFinal = resolverExpresion(root.ChildNodes[1].ChildNodes[0], entorno);
+            bool tipo = root.ChildNodes[1].ToString().Equals("ARRIBA") ? true : false;
+            if (posicionFinal.tipo != Simbolo.EnumTipo.error)
+            {
+                if (posicionFinal.tipo == Simbolo.EnumTipo.entero)
+                {
+                    Expresion expresion = buscarVariable(root.ChildNodes[0].ChildNodes[0].ChildNodes[0], entorno);
+                    if (expresion.tipo == Simbolo.EnumTipo.entero)
+                    {
+                        recorrer(root.ChildNodes[0], entorno);
+                        expresion = buscarVariable(root.ChildNodes[0].ChildNodes[0].ChildNodes[0], entorno);
+                        int iterador = int.Parse(expresion.valor.ToString());
+                        int final = int.Parse(posicionFinal.valor.ToString());
+                        if (tipo)
+                        {
+                            for (iterador = iterador; iterador <= final; iterador++)
+                            {
+                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, iterador));
+                                recorrer(root.ChildNodes[2], entorno);
+                            }
+                        }
+                        else
+                        {
+                            for (iterador = iterador; iterador >= final; iterador--)
+                            {
+                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, iterador));
+                                recorrer(root.ChildNodes[2], entorno);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR la variable debe ser de tipo entero
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR se esperaba tipo entero
+                }
+            }
+            else
+            {
+                //AGREGAR ERROR ver error
+            }
         }
         private bool verificarRango(Expresion exp1, Expresion exp2)
         {
