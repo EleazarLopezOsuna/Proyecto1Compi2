@@ -47,14 +47,81 @@ namespace Proyecto1_Compiladores2.Analizador
 
             return token;
         }
+        private bool compararCase(Expresion comparativa, ParseTreeNode root, Entorno entorno, bool ejecutado)
+        {
+            if (root.ChildNodes.Count != 0)
+            {
+                if (root.ChildNodes[0].ToString().Equals("OPCION_CASE"))
+                {
+                    ejecutado = compararCase(comparativa, root.ChildNodes[0], entorno, ejecutado);
+                    compararCase(comparativa, root.ChildNodes[1], entorno, ejecutado);
+                }
+                else
+                {
+                    Expresion expresion = resolverExpresion(root.ChildNodes[0].ChildNodes[0], entorno);
+                    if (expresion.tipo != Simbolo.EnumTipo.error)
+                    {
+                        if (expresion.tipo == comparativa.tipo)
+                        {
+                            if (expresion.valor.ToString().Equals(comparativa.valor.ToString()))
+                            {
+                                if (!ejecutado)
+                                {
+                                    recorrer(root.ChildNodes[1], entorno);
+                                    return true;
+                                }
+                                //AGREGAR ERROR case duplicado
+                            }
+                        }
+                        else
+                        {
+                            //AGREGAR ERROR el tipo del case no coincide con el tipo global
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR ver error
+                        return false;
+                    }
+                }
+            }
+            return false;
+        }
         private void ejecutarCase(ParseTreeNode root, Entorno entorno)
         {
-
+            Expresion comparativa = resolverExpresion(root.ChildNodes[0], entorno);
+            if (comparativa.tipo != Simbolo.EnumTipo.error)
+            {
+                if (comparativa.tipo != Simbolo.EnumTipo.arreglo && comparativa.tipo != Simbolo.EnumTipo.funcion && comparativa.tipo != Simbolo.EnumTipo.nulo && comparativa.tipo != Simbolo.EnumTipo.objeto && comparativa.tipo != Simbolo.EnumTipo.procedimiento)
+                {
+                    //Es de tipo primitivo, se opera
+                    if (compararCase(comparativa, root.ChildNodes[1], entorno, false))
+                    {
+                        //Es el primer case
+                    }
+                    else if(!compararCase(comparativa, root.ChildNodes[2], entorno, false))
+                    {
+                        //No es ningun case
+                        if (root.ChildNodes.Count == 4)
+                        {
+                            recorrer(root.ChildNodes[3], entorno);
+                        }
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR se esperaba tipo primitivo
+                }
+            }
+            else
+            {
+                //AGREGAR ERROR ver error
+            }
         }
         private void ejecutarIf(ParseTreeNode root, Entorno entorno)
         {
-            Entorno nuevo = new Entorno(entorno, entorno.nombreEntorno);
-            Expresion condicion = resolverExpresion(root.ChildNodes[0], nuevo);
+            Expresion condicion = resolverExpresion(root.ChildNodes[0], entorno);
             if (root.ChildNodes.Count == 2) //IF sentencia
             {
                 if (condicion.tipo != Simbolo.EnumTipo.error)
@@ -63,7 +130,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         if (bool.Parse(condicion.valor.ToString()))
                         {
-                            recorrer(root.ChildNodes[1], nuevo);
+                            recorrer(root.ChildNodes[1], entorno);
                         }
                     }
                     else
@@ -84,11 +151,11 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         if (bool.Parse(condicion.valor.ToString()))
                         {
-                            recorrer(root.ChildNodes[1], nuevo);
+                            recorrer(root.ChildNodes[1], entorno);
                         }
                         else
                         {
-                            recorrer(root.ChildNodes[2], nuevo);
+                            recorrer(root.ChildNodes[2], entorno);
                         }
                     }
                     else
@@ -123,10 +190,6 @@ namespace Proyecto1_Compiladores2.Analizador
 
         }
         private void ejecutarLlamada(ParseTreeNode root, Entorno entorno)
-        {
-
-        }
-        private void ejecutarAsignacion(ParseTreeNode root, Entorno entorno)
         {
 
         }
