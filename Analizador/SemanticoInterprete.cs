@@ -201,7 +201,29 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarWhile(ParseTreeNode root, Entorno entorno)
         {
-
+            Expresion expresion = resolverExpresion(root.ChildNodes[0], entorno);
+            bool continuar = true;
+            if (expresion.tipo != Simbolo.EnumTipo.error)
+            {
+                if (expresion.tipo == Simbolo.EnumTipo.boleano)
+                {
+                    continuar = bool.Parse(expresion.valor.ToString());
+                    while (continuar)
+                    {
+                        recorrer(root.ChildNodes[1], entorno);
+                        expresion = resolverExpresion(root.ChildNodes[0], entorno);
+                        continuar = bool.Parse(expresion.valor.ToString());
+                    }
+                }
+                else
+                {
+                    //AGREGAR ERROR se esperaba tipo boleano
+                }
+            }
+            else
+            {
+                //AGREGAR ERROR ver error
+            }
         }
         private void ejecutarFuncion(ParseTreeNode root, Entorno entorno)
         {
