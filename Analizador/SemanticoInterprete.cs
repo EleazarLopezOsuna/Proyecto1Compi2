@@ -410,7 +410,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                 {
                                     if (sim.tipo != Simbolo.EnumTipo.error)
                                     {
-                                        if (sim.tipo == Simbolo.EnumTipo.objeto)
+                                        if (sim.tipo != Simbolo.EnumTipo.arreglo)
                                         {
                                             //Se encontro el parametro dentro del objeto, empieza la recursividad
                                             temp = root.ChildNodes[1].ChildNodes[1];
@@ -445,7 +445,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             return new Expresion(sim.tipo, sim.valor); //Al salir de la recursividad retornamos el ultimo valor
                                         }
-                                        else if (sim.tipo == Simbolo.EnumTipo.arreglo)
+                                        else
                                         {
                                             //Se encontro el parametro dentro del objeto, empieza la recursividad
                                             temp = root.ChildNodes[1].ChildNodes[2];
@@ -1647,6 +1647,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         if (root.ChildNodes[0].ToString().Equals("VARIABLE"))
                         {
                             expresion = resolverExpresion(root.ChildNodes[1], entorno);
+                            MessageBox.Show(expresion.valor.ToString());
                             if (expresion.tipo != Simbolo.EnumTipo.error)
                             {
                                 simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
@@ -1719,16 +1720,16 @@ namespace Proyecto1_Compiladores2.Analizador
                             recorrer(hijo, entorno);
                         }
                         break;
-                    case "ABAJO":
+                    /*case "ABAJO":
                         break;
                     case "ARRIBA":
-                        break;
+                        break;*/
                     case "FUNCION_HEAD":
                         break;
                     case "PROCEDIMIENTO_HEAD":
                         break;
-                    case "OPCION_CASE":
-                        break;
+                    /*case "OPCION_CASE":
+                        break;*/
                     case "DECLARACION_CAMPOS_TYPE":
                         break;
                     case "D_CONSTANTE":
@@ -1986,8 +1987,8 @@ namespace Proyecto1_Compiladores2.Analizador
                             }
                         }
                         break;
-                    case "ESTRUCTURA":
-                        break;
+                    /*case "ESTRUCTURA":
+                        break;*/
                     case "CONTROLADOR":
                         break;
                     case "VALOR":
@@ -2002,9 +2003,9 @@ namespace Proyecto1_Compiladores2.Analizador
                         break;
                     case "PFVR":
                         break;
-                    case "RANGO":
+                    /*case "RANGO":
                         break;
-                    /*case "R_ID":
+                    case "R_ID":
                         break;
                     case "INDICE":
                         break;
@@ -2016,8 +2017,8 @@ namespace Proyecto1_Compiladores2.Analizador
                         break;
                     case "T_ORDINAL":
                         break;
-                    case "VARIABLE":
-                        break;
+                    /*case "VARIABLE":
+                        break;*/
                     default:
                         if (!root.ToString().Contains(" ("))
                             MessageBox.Show("Falto agregar " + root.ToString() + " al switch");
