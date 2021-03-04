@@ -100,7 +100,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         //Es el primer case
                     }
-                    else if(!compararCase(comparativa, root.ChildNodes[2], entorno, false))
+                    else if (!compararCase(comparativa, root.ChildNodes[2], entorno, false))
                     {
                         //No es ningun case
                         if (root.ChildNodes.Count == 4)
@@ -126,7 +126,7 @@ namespace Proyecto1_Compiladores2.Analizador
             {
                 if (condicion.tipo != Simbolo.EnumTipo.error)
                 {
-                    if(condicion.tipo == Simbolo.EnumTipo.boleano)
+                    if (condicion.tipo == Simbolo.EnumTipo.boleano)
                     {
                         if (bool.Parse(condicion.valor.ToString()))
                         {
@@ -143,7 +143,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     //AGREGAR ERROR ver error
                 }
             }
-            else if(root.ChildNodes.Count == 3)//IF sentencia ELSE sentencia
+            else if (root.ChildNodes.Count == 3)//IF sentencia ELSE sentencia
             {
                 if (condicion.tipo != Simbolo.EnumTipo.error)
                 {
@@ -175,7 +175,29 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarRepeat(ParseTreeNode root, Entorno entorno)
         {
-
+            Expresion expresion = resolverExpresion(root.ChildNodes[2], entorno);
+            bool continuar = true;
+            if (expresion.tipo != Simbolo.EnumTipo.error)
+            {
+                if (expresion.tipo == Simbolo.EnumTipo.boleano)
+                {
+                    do
+                    {
+                        recorrer(root.ChildNodes[0], entorno);
+                        recorrer(root.ChildNodes[1], entorno);
+                        expresion = resolverExpresion(root.ChildNodes[2], entorno);
+                        continuar = bool.Parse(expresion.valor.ToString());
+                    } while (!continuar);
+                }
+                else
+                {
+                    //AGREGAR ERROR se esperaba tipo boleano
+                }
+            }
+            else
+            {
+                //AGREGAR ERROR ver error
+            }
         }
         private void ejecutarWhile(ParseTreeNode root, Entorno entorno)
         {
@@ -315,7 +337,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                 obj = (Objeto)tmp.valor; //Se obtiene el objeto
                                 temp = root.ChildNodes[1].ChildNodes[0]; //Se toma el campo
                                 sim = obj.buscar(removerExtras(temp.ToString()), temp.Token.Location.Line, temp.Token.Location.Column); //Se busca si el objeto tiene el campo buscado
-                                if(sim is null)
+                                if (sim is null)
                                 {
                                     //AGREGAR ERROR no se encontro el parametro
                                 }
@@ -412,7 +434,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         {
                                                             //AGREGAR ERROR error de tipos
                                                         }
-                                                    }else
+                                                    }
+                                                    else
                                                     {
                                                         //AGREGAR ERROR ver error
                                                     }
@@ -1142,7 +1165,7 @@ namespace Proyecto1_Compiladores2.Analizador
         private void agregarCamposObjeto(ParseTreeNode root, Objeto objeto, Entorno entorno)
         {
             Simbolo simbolo = null;
-            if(root.ChildNodes.Count == 4)
+            if (root.ChildNodes.Count == 4)
             {
                 if (root.ChildNodes[1].ToString().Contains("real"))
                 {
@@ -1233,7 +1256,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     temp = temp.ChildNodes[1];
                 }
             }
-            else if(root.ChildNodes.Count == 2)
+            else if (root.ChildNodes.Count == 2)
             {
                 agregarCamposObjeto(root.ChildNodes[0], objeto, entorno);
                 agregarCamposObjeto(root.ChildNodes[1], objeto, entorno);
@@ -1346,11 +1369,11 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("break"))
                         {
-                            
+
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("continue"))
                         {
-                            
+
                         }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("graficar_ts"))
                         {
@@ -1366,7 +1389,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         break;
                     case "Z_TIPOS":
-                        if(root.ChildNodes.Count != 0)
+                        if (root.ChildNodes.Count != 0)
                         {
                             string nombreTipo = removerExtras(root.ChildNodes[0].ToString());
                             if (root.ChildNodes[2].ChildNodes[0].ToString().Contains("object"))
@@ -1422,7 +1445,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             {
                                                 nuevoArreglo = new Objeto(nombreTipo);
                                                 nuevoArreglo.arreglo = new Objeto[index];
-                                                for(int i = 0; i < index; i++)
+                                                for (int i = 0; i < index; i++)
                                                 {
                                                     nuevoArreglo.arreglo.SetValue((Objeto)tmp.valor, i);
                                                 }
@@ -1706,7 +1729,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         //AGREGAR ERROR el error se reporta arriba
                                     }
-                                    else if(expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
+                                    else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
                                         simbolo.constante = true;
                                         entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
@@ -1790,7 +1813,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             simbolo.valor = expresion.valor;
                                         }
                                     }
-                                    if(simbolo is null)
+                                    if (simbolo is null)
                                     {
                                         //AGREGAR ERROR el error se reporta arriba
                                     }
