@@ -1549,7 +1549,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                 }
                             }
                             recorrer(root.ChildNodes[3], entorno);
-                            recorrer(root.ChildNodes[4], entorno);
+                            if (root.ChildNodes.Count == 5)
+                            {
+                                recorrer(root.ChildNodes[4], entorno);
+                            }
                         }
                         break;
                     case "ASIGNACION":
