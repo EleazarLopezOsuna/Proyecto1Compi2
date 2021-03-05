@@ -127,7 +127,8 @@ namespace Proyecto1_Compiladores2
 
                     SemanticoInterprete semanticoInterprete = new SemanticoInterprete();
                     semanticoInterprete.iniciarAnalisisSintactico(resultadoAnalisis.Root);
-
+                    Simbolo sim;
+                    String valorTabla = "";
                     foreach (Entorno entorno in semanticoInterprete.entornos)
                     {
                         foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
@@ -139,13 +140,29 @@ namespace Proyecto1_Compiladores2
                                 {
                                     foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
                                     {
-                                        if (valor == "")
+                                        sim = (Simbolo)parametro.Value;
+                                        if (sim.valor.ToString().Contains("Proyecto1_Compiladores2"))
                                         {
-                                            valor = parametro.Key;
+                                            valorTabla = ((Objeto)sim.valor).nombre;
+                                            if (valor == "")
+                                            {
+                                                valor = parametro.Key + ": " + valorTabla;
+                                            }
+                                            else
+                                            {
+                                                valor += ", " + parametro.Key + ": " + valorTabla;
+                                            }
                                         }
                                         else
                                         {
-                                            valor += ", " + parametro.Key;
+                                            if (valor == "")
+                                            {
+                                                valor = parametro.Key + ": " + sim.valor;
+                                            }
+                                            else
+                                            {
+                                                valor += ", " + parametro.Key + ": " + sim.valor;
+                                            }
                                         }
                                     }
                                 }

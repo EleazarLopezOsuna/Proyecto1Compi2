@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Proyecto1_Compiladores2.Modelos
 {
@@ -16,6 +17,18 @@ namespace Proyecto1_Compiladores2.Modelos
         {
             parametros = new Dictionary<string, Simbolo>();
             this.nombre = nombre;
+        }
+
+        public Objeto(Objeto objeto)
+        {
+            this.nombre = objeto.nombre;
+            this.nombreTipo = objeto.nombreTipo;
+            this.parametros = new Dictionary<string, Simbolo>();
+            foreach (KeyValuePair<string, Simbolo> parametro in objeto.parametros)
+            {
+                this.parametros.Add(parametro.Key, parametro.Value);
+            }
+            this.tipo = objeto.tipo;
         }
 
         public Simbolo buscar(String nombre, int linea, int columna)
@@ -34,9 +47,15 @@ namespace Proyecto1_Compiladores2.Modelos
             nombre = nombre.ToLower();
             if (parametros.ContainsKey(nombre))
             {
-                parametros.Remove(nombre);
-                parametros.Add(nombre, simbolo);
-                return true;
+                Simbolo viejo;
+                parametros.TryGetValue(nombre, out viejo);
+                if (viejo.tipo == simbolo.tipo)
+                {
+                    parametros.Remove(nombre);
+                    parametros.Add(nombre, simbolo);
+                    return true;
+                }
+                return false;
             }
             return false;
         }

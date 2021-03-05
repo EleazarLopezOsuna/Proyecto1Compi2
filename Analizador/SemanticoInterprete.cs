@@ -254,17 +254,17 @@ namespace Proyecto1_Compiladores2.Analizador
                         int final = int.Parse(posicionFinal.valor.ToString());
                         if (tipo)
                         {
-                            for (iterador = iterador; iterador <= final; iterador++)
+                            for (int i = iterador; i <= final; i++)
                             {
-                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, iterador));
+                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, i));
                                 recorrer(root.ChildNodes[2], entorno);
                             }
                         }
                         else
                         {
-                            for (iterador = iterador; iterador >= final; iterador--)
+                            for (int i = iterador; i >= final; i--)
                             {
-                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, iterador));
+                                entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, i));
                                 recorrer(root.ChildNodes[2], entorno);
                             }
                         }
@@ -423,7 +423,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                                     {
                                                         obj = (Objeto)sim.valor;
                                                         sim = obj.buscar(removerExtras(temp.ChildNodes[0].ToString()), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column); //busca si el nuevo objeto tiene el siguiente parametro
-                                                        MessageBox.Show(obj.nombre);
                                                         if (sim.tipo == Simbolo.EnumTipo.error)
                                                         {
                                                             //AGREGAR ERROR ver error
@@ -1394,6 +1393,72 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
+        private Simbolo obtenerCampo(ParseTreeNode root, Simbolo simboloPadre, Expresion nuevoSimbolo, Entorno entorno)
+        {
+            Objeto temp = null;
+            if (root.ChildNodes.Count == 2) //Es objeto o parametro
+            {
+                if (root.ChildNodes[1].ChildNodes.Count == 0)
+                {
+                    //Es el ultimo parametro
+                    if (simboloPadre.tipo == Simbolo.EnumTipo.objeto)
+                    {
+                        temp = (Objeto)simboloPadre.valor;
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
+                        {
+                            if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
+                            {
+                                //AGREGAR ERRPOR los tipos no coinciden
+                                return null;
+                            }
+                            simboloPadre.valor = temp;
+                            return simboloPadre;
+                        }
+                        else
+                        {
+                            //AGREGAR ERROR la variable no existe
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR se esperaba tipo objeto
+                    }
+                }
+                else
+                {
+                    //Hay mas parametros
+                    if (typeof(Objeto).IsInstanceOfType(simboloPadre.valor))
+                    {
+                        temp = (Objeto)simboloPadre.valor;
+                        Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                        if (simbolo != null)
+                        {
+                            Expresion nuevoValor = resolverExpresion(root.ChildNodes[1], entorno);
+                            if (nuevoValor.tipo != Simbolo.EnumTipo.error)
+                            {
+                                if (root.ChildNodes.Count == 2)
+                                {
+                                    return obtenerCampo(root.ChildNodes[0].ChildNodes[1], simbolo, nuevoValor, entorno);
+                                }
+                                else
+                                {
+
+                                }
+                            }
+                            else
+                            {
+                                //AGREGAR ERROR ver error
+                            }
+                        }
+                    }
+                }
+            }
+            else //Es arreglo
+            {
+                
+            }
+            return null;
+        }
         private void recorrer(ParseTreeNode root, Entorno entorno)
         {
             if (!parar && !continuar) //Comprueba si existe un break o continue
@@ -1647,59 +1712,51 @@ namespace Proyecto1_Compiladores2.Analizador
                         if (root.ChildNodes[0].ToString().Equals("VARIABLE"))
                         {
                             expresion = resolverExpresion(root.ChildNodes[1], entorno);
-                            MessageBox.Show(expresion.valor.ToString());
                             if (expresion.tipo != Simbolo.EnumTipo.error)
                             {
                                 simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
-                                if (expresion.tipo == simbolo.tipo)
+                                if (simbolo != null)
                                 {
-                                    simbolo = new Simbolo(expresion.tipo, expresion.valor);
-                                    if (entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo))
+                                    if (expresion.tipo == simbolo.tipo)
                                     {
+                                        simbolo = new Simbolo(expresion.tipo, expresion.valor);
+                                        if (entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo))
+                                        {
 
+                                        }
                                     }
-                                }
-                                else
-                                {
-                                    //AGREGAR ERROR error de tipos
+                                    else
+                                    {
+                                        //AGREGAR ERROR error de tipos
+                                    }
                                 }
                             }
                         }
                         else
                         {
-                            Expresion tmp;
-                            ParseTreeNode temp;
-                            Objeto obj;
-                            Simbolo sim;
-                            if (root.ChildNodes.Count > 1000)
+                            simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                            if (simbolo != null)
                             {
-                                //Se hace la primer iteracion para buscar la variable
-                                if (root.ChildNodes.Count == 2) //Es campo de un objeto
+                                Expresion nuevoValor = resolverExpresion(root.ChildNodes[1], entorno);
+                                if (nuevoValor.tipo != Simbolo.EnumTipo.error)
                                 {
-                                    temp = root; //temp es el primer "ESTRUCTURA" que se encuentra
-                                    tmp = buscarVariable(temp.ChildNodes[0], entorno);
-                                    if (tmp.tipo == Simbolo.EnumTipo.objeto) //Confirmamos que la variable es de tipo objeto
+                                    Simbolo nuevoSimbolo = null;
+                                    if (root.ChildNodes.Count == 2)
                                     {
-                                        obj = (Objeto)tmp.valor; //Se obtiene el objeto
-                                        temp = root.ChildNodes[1].ChildNodes[0]; //Se toma el campo
-                                        sim = obj.buscar(removerExtras(temp.ToString()), temp.Token.Location.Line, temp.Token.Location.Column); //Se busca si el objeto tiene el campo buscado
-                                        if (sim.tipo != Simbolo.EnumTipo.error)
-                                        {
-                                            tmp = resolverExpresion(root.ChildNodes[1], entorno);
-                                        }
-                                        else
-                                        {
-                                            //AGREGAR ERROR ver error
-                                        }
+                                        nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[1], simbolo, nuevoValor, entorno);
                                     }
                                     else
                                     {
-                                        //AGREGAR ERROR se esperaba tipo objeto y se encontro tipo arreglo
+
+                                    }
+                                    if (nuevoSimbolo != null)
+                                    {
+                                        entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), nuevoSimbolo);
                                     }
                                 }
-                                else //Es un elemento de un arreglo
+                                else
                                 {
-
+                                    //AGREGAR ERROR ver error
                                 }
                             }
                         }
@@ -1844,7 +1901,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
                                         if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                                         {
-                                            simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                                            Objeto obj = new Objeto((Objeto)tmp.valor);
+                                            simbolo = new Simbolo(tmp.tipo, obj);
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
@@ -1916,7 +1974,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         Expresion tmp = buscarVariable(root.ChildNodes[2].ChildNodes[0], entorno);
                                         if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                                         {
-                                            simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                                            Objeto obj = new Objeto((Objeto)tmp.valor);
+                                            simbolo = new Simbolo(tmp.tipo, obj);
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
@@ -1964,7 +2023,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         Expresion tmp = buscarVariable(root.ChildNodes[1].ChildNodes[0], entorno);
                                         if (tmp.tipo == Simbolo.EnumTipo.arreglo || tmp.tipo == Simbolo.EnumTipo.objeto)
                                         {
-                                            simbolo = new Simbolo(tmp.tipo, tmp.valor);
+                                            Objeto obj = new Objeto((Objeto)tmp.valor);
+                                            simbolo = new Simbolo(tmp.tipo, obj);
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
