@@ -1485,10 +1485,26 @@ namespace Proyecto1_Compiladores2.Analizador
             {
                 if (root.ChildNodes[1].ChildNodes.Count == 0) //Es el ultimo parametro
                 {
-                    if (typeof(Objeto).IsInstanceOfType(((Simbolo)objectPadre).valor))
+                    if (typeof(Objeto).IsInstanceOfType(objectPadre))
                     {
+                        temp = new Objeto((Objeto)objectPadre);
                         //Recibe un object de tipo Objeto
-                        temp = (Objeto)((Simbolo)objectPadre).valor;
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
+                        {
+                            //El parametro que buscamos si existe
+                            if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
+                            {
+                                //AGREGAR ERRPOR los tipos no coinciden
+                                return null;
+                            }
+                            simboloPadre = new Simbolo(temp.tipo, temp);
+                            return simboloPadre;
+                        }
+                    }
+                    else
+                    {
+                        temp = new Objeto((Objeto)((Simbolo)objectPadre).valor);
+                        //Recibe un object de tipo Objeto
                         if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
                         {
                             //El parametro que buscamos si existe
@@ -1508,7 +1524,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     if (typeof(Objeto).IsInstanceOfType(((Simbolo)objectPadre).valor))
                     {
                         //Recibe un object de tipo Objeto
-                        temp = (Objeto)((Simbolo)objectPadre).valor;
+                        temp = new Objeto((Objeto)((Simbolo)objectPadre).valor);
                         Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
                         if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
                         {
@@ -1523,15 +1539,15 @@ namespace Proyecto1_Compiladores2.Analizador
                             }
                             else
                             {
-
+                                return null;
                             }
                         }
                     }
                 }
             }
-            else if (root.ChildNodes[0].ChildNodes.Count == 4) //Es un arreglo de tipo objeto
+            else if (root.ChildNodes.Count == 4) //Es un arreglo de tipo objeto
             {
-
+                return null;
             }
             else //Es un arreglo de tipo primitivo
             {
@@ -1880,15 +1896,18 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             {
                                                                 Objeto tmpObj = (Objeto)simbolo.valor;
                                                                 nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], temp.GetValue(index1), nuevoValor, entorno);
-                                                                if (typeof(Objeto).IsInstanceOfType(nuevoSimbolo.valor))
+                                                                if (nuevoSimbolo.tipo != Simbolo.EnumTipo.error)
                                                                 {
-                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo.valor, index1);
+                                                                    if (typeof(Objeto).IsInstanceOfType(nuevoSimbolo.valor))
+                                                                    {
+                                                                        tmpObj.arreglo.SetValue(nuevoSimbolo.valor, index1);
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        tmpObj.arreglo.SetValue(nuevoSimbolo, index1);
+                                                                    }
+                                                                    nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
                                                                 }
-                                                                else
-                                                                {
-                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo, index1);
-                                                                }
-                                                                nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
                                                             }
                                                             else
                                                             {
@@ -1918,8 +1937,18 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                         {
                                                                             Objeto tmpObj = (Objeto)simbolo.valor;
                                                                             nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], temp.GetValue(index1, index2), nuevoValor, entorno);
-                                                                            tmpObj.arreglo.SetValue(nuevoSimbolo, index1, index2);
-                                                                            nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
+                                                                            if (nuevoSimbolo.tipo != Simbolo.EnumTipo.error)
+                                                                            {
+                                                                                if (typeof(Objeto).IsInstanceOfType(nuevoSimbolo.valor))
+                                                                                {
+                                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo.valor, index1, index2);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo, index1, index2);
+                                                                                }
+                                                                                nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
+                                                                            }
                                                                         }
                                                                         else
                                                                         {
