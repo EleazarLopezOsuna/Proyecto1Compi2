@@ -1477,69 +1477,65 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
-        private Simbolo obtenerCampo(ParseTreeNode root, Simbolo simboloPadre, Expresion nuevoSimbolo, Entorno entorno)
+        private Simbolo obtenerCampo(ParseTreeNode root, Object objectPadre, Expresion nuevoSimbolo, Entorno entorno)
         {
+            Simbolo simboloPadre = null;
             Objeto temp = null;
-            if (root.ChildNodes.Count == 2) //Es objeto o parametro
+            if (root.ChildNodes.Count == 2) //Es un objeto o parametro
             {
-                if (root.ChildNodes[1].ChildNodes.Count == 0)
+                if (root.ChildNodes[1].ChildNodes.Count == 0) //Es el ultimo parametro
                 {
-                    //Es el ultimo parametro
-                    if (simboloPadre.tipo == Simbolo.EnumTipo.objeto)
+                    if (typeof(Objeto).IsInstanceOfType(((Simbolo)objectPadre).valor))
                     {
-                        temp = (Objeto)simboloPadre.valor;
+                        //Recibe un object de tipo Objeto
+                        temp = (Objeto)((Simbolo)objectPadre).valor;
                         if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
                         {
+                            //El parametro que buscamos si existe
                             if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
                             {
                                 //AGREGAR ERRPOR los tipos no coinciden
                                 return null;
                             }
+                            simboloPadre = (Simbolo)objectPadre;
                             simboloPadre.valor = temp;
                             return simboloPadre;
                         }
-                        else
-                        {
-                            //AGREGAR ERROR la variable no existe
-                        }
-                    }
-                    else
-                    {
-                        //AGREGAR ERROR se esperaba tipo objeto
                     }
                 }
-                else
+                else //Hay mas parametros
                 {
-                    //Hay mas parametros
-                    if (typeof(Objeto).IsInstanceOfType(simboloPadre.valor))
+                    if (typeof(Objeto).IsInstanceOfType(((Simbolo)objectPadre).valor))
                     {
-                        temp = (Objeto)simboloPadre.valor;
-                        Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
-                        if (simbolo != null)
+                        //Recibe un object de tipo Objeto
+                        temp = (Objeto)((Simbolo)objectPadre).valor;
+                        Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
                         {
-                            Expresion nuevoValor = resolverExpresion(root.ChildNodes[1], entorno);
-                            if (nuevoValor.tipo != Simbolo.EnumTipo.error)
+                            //El parametro que buscamos si existe
+                            if (root.ChildNodes.Count == 2)
                             {
-                                if (root.ChildNodes.Count == 2)
-                                {
-                                    return obtenerCampo(root.ChildNodes[0].ChildNodes[1], simbolo, nuevoValor, entorno);
-                                }
-                                else
-                                {
-
-                                }
+                                simboloPadre = (Simbolo)objectPadre;
+                                simboloPadre = obtenerCampo(root.ChildNodes[1], simbolo, nuevoSimbolo, entorno);
+                                temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(simbolo.tipo, simbolo.valor));
+                                ((Simbolo)objectPadre).valor = temp;
+                                return (Simbolo)objectPadre;
                             }
                             else
                             {
-                                //AGREGAR ERROR ver error
+
                             }
                         }
                     }
                 }
             }
-            else //Es arreglo
+            else if (root.ChildNodes[0].ChildNodes.Count == 4) //Es un arreglo de tipo objeto
             {
-                
+
+            }
+            else //Es un arreglo de tipo primitivo
+            {
+                return new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor);
             }
             return null;
         }
@@ -1850,14 +1846,16 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         else
                         {
+                            //Es una estructura
                             simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
                             if (simbolo != null)
                             {
+                                //La variable existe
                                 Expresion nuevoValor = resolverExpresion(root.ChildNodes[1], entorno);
                                 if (nuevoValor.tipo != Simbolo.EnumTipo.error)
                                 {
                                     Simbolo nuevoSimbolo = null;
-                                    if (root.ChildNodes.Count == 2)
+                                    if (root.ChildNodes[0].ChildNodes.Count == 2)
                                     {
                                         nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[1], simbolo, nuevoValor, entorno);
                                     }
@@ -1866,22 +1864,31 @@ namespace Proyecto1_Compiladores2.Analizador
                                         //Es un arreglo
                                         if (simbolo.tipo == Simbolo.EnumTipo.arreglo)
                                         {
-                                            Expresion indice = resolverExpresion(root.ChildNodes[1], entorno);
+                                            Expresion indice = resolverExpresion(root.ChildNodes[0].ChildNodes[1], entorno);
                                             if (indice.tipo != Simbolo.EnumTipo.error)
                                             {
-                                                if(indice.tipo == Simbolo.EnumTipo.entero)
+                                                if (indice.tipo == Simbolo.EnumTipo.entero)
                                                 {
                                                     int index1 = int.Parse(indice.valor.ToString());
-                                                    if (root.ChildNodes[2].ChildNodes.Count == 0)
+                                                    if (root.ChildNodes[0].ChildNodes[2].ChildNodes.Count == 0)
                                                     {
                                                         //Se espera que simbolo sea un arreglo de 1 dimension
-                                                        Array temp = (Array)simbolo.valor;
+                                                        Array temp = (Array)((Objeto)simbolo.valor).arreglo;
                                                         if (temp.Rank == 1)
                                                         {
                                                             if (index1 < temp.Length)
                                                             {
-                                                                simbolo = (Simbolo)temp.GetValue(index1);
-                                                                nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], simbolo, nuevoValor, entorno);
+                                                                Objeto tmpObj = (Objeto)simbolo.valor;
+                                                                nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], temp.GetValue(index1), nuevoValor, entorno);
+                                                                if (typeof(Objeto).IsInstanceOfType(nuevoSimbolo.valor))
+                                                                {
+                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo.valor, index1);
+                                                                }
+                                                                else
+                                                                {
+                                                                    tmpObj.arreglo.SetValue(nuevoSimbolo, index1);
+                                                                }
+                                                                nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
                                                             }
                                                             else
                                                             {
@@ -1896,10 +1903,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                                     else
                                                     {
                                                         //Se espera que simbolo sea un arreglo de 2 (podrian ser mas pero solo puedo operar 2 dimensiones)
-                                                        Array temp = (Array)simbolo.valor;
-                                                        if(temp.Rank != 1)
+                                                        Array temp = (Array)((Objeto)simbolo.valor).arreglo;
+                                                        if (temp.Rank != 1)
                                                         {
-                                                            Expresion indice2 = resolverExpresion(root.ChildNodes[2].ChildNodes[0], entorno);
+                                                            Expresion indice2 = resolverExpresion(root.ChildNodes[0].ChildNodes[2].ChildNodes[0], entorno);
                                                             if (indice2.tipo != Simbolo.EnumTipo.error)
                                                             {
                                                                 if (indice2.tipo == Simbolo.EnumTipo.entero)
@@ -1909,8 +1916,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                     {
                                                                         if (index2 < temp.GetLength(1))
                                                                         {
-                                                                            simbolo = (Simbolo)temp.GetValue(index1, index2);
-                                                                            nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], simbolo, nuevoValor, entorno);
+                                                                            Objeto tmpObj = (Objeto)simbolo.valor;
+                                                                            nuevoSimbolo = obtenerCampo(root.ChildNodes[0].ChildNodes[3], temp.GetValue(index1, index2), nuevoValor, entorno);
+                                                                            tmpObj.arreglo.SetValue(nuevoSimbolo, index1, index2);
+                                                                            nuevoSimbolo = new Simbolo(simbolo.tipo, tmpObj);
                                                                         }
                                                                         else
                                                                         {
