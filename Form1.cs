@@ -140,7 +140,7 @@ namespace Proyecto1_Compiladores2
                                 {
                                     foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
                                     {
-                                        sim = (Simbolo)parametro.Value;
+                                        sim = parametro.Value;
                                         if (sim.valor.ToString().Contains("Proyecto1_Compiladores2"))
                                         {
                                             valorTabla = ((Objeto)sim.valor).nombre;

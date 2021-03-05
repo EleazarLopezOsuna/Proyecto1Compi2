@@ -29,6 +29,10 @@ namespace Proyecto1_Compiladores2.Modelos
                 this.parametros.Add(parametro.Key, parametro.Value);
             }
             this.tipo = objeto.tipo;
+            if (!(objeto.arreglo is null))
+            {
+                this.arreglo = objeto.arreglo;
+            }
         }
 
         public Simbolo buscar(String nombre, int linea, int columna)

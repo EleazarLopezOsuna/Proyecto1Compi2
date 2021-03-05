@@ -584,6 +584,10 @@ namespace Proyecto1_Compiladores2.Analizador
                                 //AGREGAR ERROR se esperaba tipo objeto y se encontro tipo arreglo
                             }
                         }
+                        else
+                        {
+                            MessageBox.Show("ES ARREGLO");
+                        }
                     }
                     return resolverEstructura(root.ChildNodes[0], ent);
                 case "LLAMADA":
