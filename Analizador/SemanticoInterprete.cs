@@ -225,13 +225,49 @@ namespace Proyecto1_Compiladores2.Analizador
                 //AGREGAR ERROR ver error
             }
         }
-        private void ejecutarFuncion(ParseTreeNode root, Entorno entorno)
+        private Simbolo agregarFuncion(ParseTreeNode root, Entorno entorno, Entorno nuevoEntorno)
         {
-
+            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString(), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+            if (sim is null)
+            {
+                SubPrograma funcion = new SubPrograma(root);
+                if (root.ChildNodes[0].ChildNodes.Count == 4)
+                {
+                    //Tiene parametros
+                    funcion.buscarTipo(removerExtras(root.ChildNodes[0].ChildNodes[3].ToString()), entorno);
+                }
+                else if (root.ChildNodes[0].ChildNodes.Count == 2)
+                {
+                    //No tiene parametros
+                    funcion.buscarTipo(removerExtras(root.ChildNodes[0].ChildNodes[1].ToString()), entorno);
+                }
+                sim = new Simbolo(Simbolo.EnumTipo.funcion, funcion);
+                //Declaramos las variables de la funcion
+                recorrer(root.ChildNodes[1], nuevoEntorno);
+                return sim;
+            }
+            else
+            {
+                //AGREGAR ERROR el nombre ya existe
+                return new Simbolo(Simbolo.EnumTipo.error, "El nombre ya existe");
+            }
         }
-        private void ejecutarProcedimiento(ParseTreeNode root, Entorno entorno)
+        private Simbolo agregarProcedimiento(ParseTreeNode root, Entorno entorno, Entorno nuevoEntorno)
         {
-
+            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString(), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+            if (sim is null)
+            {
+                SubPrograma procedimiento = new SubPrograma(root);
+                sim = new Simbolo(Simbolo.EnumTipo.procedimiento, procedimiento);
+                //Declaramos las variables de la funcion
+                recorrer(root.ChildNodes[1], nuevoEntorno);
+                return sim;
+            }
+            else
+            {
+                //AGREGAR ERROR el nombre ya existe
+                return new Simbolo(Simbolo.EnumTipo.error, "El nombre ya existe");
+            }
         }
         private void ejecutarLlamada(ParseTreeNode root, Entorno entorno)
         {
@@ -1577,12 +1613,22 @@ namespace Proyecto1_Compiladores2.Analizador
                         ejecutarWhile(root, entorno);
                         break;
                     case "FUNCION":
-                        nuevoEntorno = new Entorno(entorno, "");
-                        ejecutarFuncion(root, nuevoEntorno);
+                        nuevoEntorno = new Entorno(entorno, removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
+                        entornos.Add(nuevoEntorno);
+                        simbolo = agregarFuncion(root, entorno, nuevoEntorno);
+                        if (!(simbolo is null))
+                        {
+                            entorno.insertar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                        }
                         break;
                     case "PROCEDIMIENTO":
-                        nuevoEntorno = new Entorno(entorno, "");
-                        ejecutarProcedimiento(root, nuevoEntorno);
+                        nuevoEntorno = new Entorno(entorno, removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
+                        entornos.Add(nuevoEntorno);
+                        simbolo = agregarProcedimiento(root, entorno, nuevoEntorno);
+                        if (!(simbolo is null))
+                        {
+                            entorno.insertar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                        }
                         break;
                     case "LLAMADA":
                         if (root.ChildNodes[0].ToString().Contains("writeln"))

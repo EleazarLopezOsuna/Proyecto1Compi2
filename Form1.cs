@@ -187,7 +187,15 @@ namespace Proyecto1_Compiladores2
                             }
                             else
                             {
-                                symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
+                                if (variable.Value.tipo == Simbolo.EnumTipo.funcion || variable.Value.tipo == Simbolo.EnumTipo.procedimiento)
+                                {
+                                    SubPrograma sp = (SubPrograma)variable.Value.valor;
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, sp.tipo);
+                                }
+                                else
+                                {
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
+                                }
                             }
                         }
                     }
