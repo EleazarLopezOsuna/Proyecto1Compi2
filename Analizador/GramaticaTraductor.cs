@@ -133,11 +133,8 @@ namespace Proyecto1_Compiladores2.Analizador
             WHILE.Rule = ToTerm("while") + EXPRESION + ToTerm("do") + SENTENCIA
                 ;
 
-            FUNCION_HEAD.Rule = ToTerm("function") + id + ToTerm(":") + id + ToTerm(";")
-                | ToTerm("function") + id + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
-                | ToTerm("function") + id + ToTerm("(") + PFVL + R_PFVL + ToTerm(")") + ToTerm(":") + id + ToTerm(";")
+            FUNCION_HEAD.Rule = ToTerm("function") + id + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
                 | ToTerm("function") + id + ToTerm("(") + PFVL + R_PFVL + ToTerm(")") + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
-                | ToTerm("function") + id + ToTerm("(") + ToTerm(")") + ToTerm(":") + id + ToTerm(";")
                 | ToTerm("function") + id + ToTerm("(") + ToTerm(")") + ToTerm(":") + T_ELEMENTAL + ToTerm(";")
                 ;
 

@@ -2018,9 +2018,9 @@ namespace Proyecto1_Compiladores2.Analizador
                     /*case "ABAJO":
                         break;
                     case "ARRIBA":
-                        break;*/
-                    case "FUNCION_HEAD":
                         break;
+                    case "FUNCION_HEAD":
+                        break;*/
                     case "PROCEDIMIENTO_HEAD":
                         break;
                     /*case "OPCION_CASE":
