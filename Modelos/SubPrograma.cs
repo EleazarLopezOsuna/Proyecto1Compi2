@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Windows.Forms;
@@ -11,11 +12,13 @@ namespace Proyecto1_Compiladores2.Modelos
         public Dictionary<string, Simbolo> parametrosVariable;
         public Dictionary<string, Simbolo> parametrosValor;
         public Dictionary<string, string> correlacionParametros;
+        public ArrayList ordenParametros;
         public ParseTreeNode root;
         public Simbolo.EnumTipo tipo;
         public Simbolo retorno;
+        public Entorno entorno;
 
-        public SubPrograma(ParseTreeNode root)
+        public SubPrograma(ParseTreeNode root, Entorno entorno)
         {
             this.root = root;
             parametrosValor = new Dictionary<string, Simbolo>();
@@ -23,6 +26,8 @@ namespace Proyecto1_Compiladores2.Modelos
             correlacionParametros = new Dictionary<string, string>();
             retorno = new Simbolo(Simbolo.EnumTipo.nulo, "");
             tipo = Simbolo.EnumTipo.nulo;
+            this.entorno = entorno;
+            ordenParametros = new ArrayList();
         }
 
         public void modificarVariables(Entorno entorno)
@@ -55,7 +60,7 @@ namespace Proyecto1_Compiladores2.Modelos
                     tipo = Simbolo.EnumTipo.boleano;
                     break;
                 default:
-                    Simbolo sim = entorno.buscar(cadena, 0, 0);
+                    Simbolo sim = entorno.buscar(cadena);
                     if (sim.tipo == Simbolo.EnumTipo.arreglo || sim.tipo == Simbolo.EnumTipo.objeto)
                     {
                         tipo = sim.tipo;

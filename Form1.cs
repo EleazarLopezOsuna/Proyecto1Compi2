@@ -190,7 +190,23 @@ namespace Proyecto1_Compiladores2
                                 if (variable.Value.tipo == Simbolo.EnumTipo.funcion || variable.Value.tipo == Simbolo.EnumTipo.procedimiento)
                                 {
                                     SubPrograma sp = (SubPrograma)variable.Value.valor;
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, sp.tipo);
+                                    string valor = "";
+                                    if (sp.ordenParametros.Count != 0)
+                                    {
+                                        foreach (string cadena in sp.ordenParametros)
+                                        {
+                                            if (valor == "")
+                                            {
+                                                valor = "; {" + cadena;
+                                            }
+                                            else
+                                            {
+                                                valor += ", " + cadena;
+                                            }
+                                        }
+                                        valor += "}";
+                                    }
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, sp.tipo + valor);
                                 }
                                 else
                                 {

@@ -35,7 +35,7 @@ namespace Proyecto1_Compiladores2.Modelos
             }
         }
 
-        public Simbolo buscar(String nombre, int linea, int columna)
+        public Simbolo buscar(String nombre)
         {
             nombre = nombre.ToLower();
             if (parametros.ContainsKey(nombre))

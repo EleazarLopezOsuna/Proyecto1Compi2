@@ -53,7 +53,7 @@ namespace Proyecto1_Compiladores2.Modelos
             return true;
         }
 
-        public Simbolo buscar(String nombre, int linea, int columna)
+        public Simbolo buscar(String nombre)
         {
             nombre = nombre.ToLower();
             for (Entorno e = this; e != null; e = e.anterior)
@@ -74,8 +74,11 @@ namespace Proyecto1_Compiladores2.Modelos
             {
                 if (e.tabla.ContainsKey(nombre))
                 {
+                    Simbolo nuevo;
+                    e.tabla.TryGetValue(nombre, out nuevo);
+                    nuevo.valor = simbolo.valor;
                     e.tabla.Remove(nombre);
-                    e.tabla.Add(nombre, simbolo);
+                    e.tabla.Add(nombre, nuevo);
                     return true;
                 }
             }

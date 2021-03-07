@@ -33,6 +33,7 @@ namespace Proyecto1_Compiladores2.Analizador
             retornoFuncion = null;
             parar = false;
             continuar = false;
+            retornoFuncion = new Expresion(Simbolo.EnumTipo.nulo, "");
             recorrer(root, entornoGlobal);
         }
         private string removerExtras(string token)
@@ -225,16 +226,89 @@ namespace Proyecto1_Compiladores2.Analizador
                 //AGREGAR ERROR ver error
             }
         }
+        public Simbolo buscarTipo(string cadena, Entorno entorno)
+        {
+            switch (cadena)
+            {
+                case "string":
+                    return new Simbolo(Simbolo.EnumTipo.cadena, "");
+                case "integer":
+                    return new Simbolo(Simbolo.EnumTipo.entero, 0);
+                case "real":
+                    return new Simbolo(Simbolo.EnumTipo.entero, 0.0);
+                case "boolean":
+                    return new Simbolo(Simbolo.EnumTipo.boleano, false);
+                default:
+                    Simbolo sim = entorno.buscar(cadena);
+                    if (sim.tipo == Simbolo.EnumTipo.arreglo || sim.tipo == Simbolo.EnumTipo.objeto)
+                    {
+                        return new Simbolo(sim.tipo, new Objeto((Objeto)sim.valor));
+                    }
+                    return new Simbolo(Simbolo.EnumTipo.error, "Error");
+            }
+        }
+        private void agregarParametros(ParseTreeNode root, SubPrograma subPrograma)
+        {
+            string nombreParametro;
+            Simbolo nuevoSimbolo;
+            ParseTreeNode temp;
+            switch (root.ToString())
+            {
+                case "PF":
+                    if (root.ChildNodes.Count != 0)
+                    {
+                        agregarParametros(root.ChildNodes[0], subPrograma);
+                        agregarParametros(root.ChildNodes[1], subPrograma);
+                    }
+                    break;
+                case "PFVL":
+                case "PFVR":
+                    nuevoSimbolo = buscarTipo(removerExtras(root.ChildNodes[2].ToString()), entornoGlobal);
+                    if(nuevoSimbolo.tipo != Simbolo.EnumTipo.error)
+                    {
+                        //Operamos el primer parametro
+                        temp = root;
+                        while (temp.ChildNodes.Count != 0)
+                        {
+                            nombreParametro = removerExtras(temp.ChildNodes[0].ToString());
+                            if (!subPrograma.ordenParametros.Contains(nombreParametro))
+                            {
+                                if (root.ToString().Equals("PFVL"))
+                                {
+                                    subPrograma.parametrosValor.Add(nombreParametro, nuevoSimbolo);
+                                }
+                                else
+                                {
+                                    subPrograma.parametrosVariable.Add(nombreParametro, nuevoSimbolo);
+                                }
+                                subPrograma.ordenParametros.Add(nombreParametro);
+                            }
+                            else
+                            {
+                                //AGREGAR ERROR el parametro ya existe
+                            }
+                            temp = temp.ChildNodes[1];
+                        }
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR no existe este tipo
+                    }
+                    break;
+            }
+        }
         private Simbolo agregarFuncion(ParseTreeNode root, Entorno entorno, Entorno nuevoEntorno)
         {
-            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString(), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString());
             if (sim is null)
             {
-                SubPrograma funcion = new SubPrograma(root);
+                SubPrograma funcion = new SubPrograma(root, nuevoEntorno);
                 if (root.ChildNodes[0].ChildNodes.Count == 4)
                 {
                     //Tiene parametros
                     funcion.buscarTipo(removerExtras(root.ChildNodes[0].ChildNodes[3].ToString()), entorno);
+                    agregarParametros(root.ChildNodes[0].ChildNodes[1], funcion);
+                    agregarParametros(root.ChildNodes[0].ChildNodes[2], funcion);
                 }
                 else if (root.ChildNodes[0].ChildNodes.Count == 2)
                 {
@@ -254,10 +328,16 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private Simbolo agregarProcedimiento(ParseTreeNode root, Entorno entorno, Entorno nuevoEntorno)
         {
-            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString(), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+            Simbolo sim = entorno.buscar(root.ChildNodes[0].ChildNodes[0].ToString());
             if (sim is null)
             {
-                SubPrograma procedimiento = new SubPrograma(root);
+                SubPrograma procedimiento = new SubPrograma(root, nuevoEntorno);
+                if (root.ChildNodes[0].ChildNodes.Count == 3)
+                {
+                    //Tiene parametros
+                    agregarParametros(root.ChildNodes[0].ChildNodes[1], procedimiento);
+                    agregarParametros(root.ChildNodes[0].ChildNodes[2], procedimiento);
+                }
                 sim = new Simbolo(Simbolo.EnumTipo.procedimiento, procedimiento);
                 //Declaramos las variables de la funcion
                 recorrer(root.ChildNodes[1], nuevoEntorno);
@@ -271,7 +351,24 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarLlamada(ParseTreeNode root, Entorno entorno)
         {
-
+            string nombreSubPrograma = removerExtras(root.ChildNodes[0].ToString());
+            Simbolo sim = entorno.buscar(nombreSubPrograma);
+            if (!(sim is null))
+            {
+                if (sim.tipo == Simbolo.EnumTipo.funcion || sim.tipo == Simbolo.EnumTipo.procedimiento)
+                {
+                    SubPrograma subProg = (SubPrograma)sim.valor;
+                    recorrer(subProg.root.ChildNodes[2], subProg.entorno);
+                }
+                else
+                {
+                    //AGREGAR ERROR se esperaba funcion o procedimiento, se encontro sim.tipo
+                }
+            }
+            else
+            {
+                //AGREGAR ERROR no se encontro el subprograma
+            }
         }
         private void ejecutarFor(ParseTreeNode root, Entorno entorno)
         {
@@ -355,7 +452,7 @@ namespace Proyecto1_Compiladores2.Analizador
             {
                 Objeto obj = (Objeto)objetoPadre;
                 //Se busca el parametro
-                Simbolo sim = obj.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                Simbolo sim = obj.buscar(removerExtras(root.ChildNodes[0].ToString()));
                 if (sim != null) //El parametro si existe
                 {
                     if (sim.tipo == Simbolo.EnumTipo.objeto)
@@ -509,8 +606,6 @@ namespace Proyecto1_Compiladores2.Analizador
         private Expresion resolverExpresion(ParseTreeNode root, Entorno ent)
         {
             Expresion tmp;
-            ParseTreeNode temp;
-            Objeto obj;
             Simbolo sim;
             switch (root.ToString())
             {
@@ -751,11 +846,37 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private Expresion resolverLlamada(ParseTreeNode root, Entorno entorno)
         {
+            if (root.ChildNodes[0].ToString().ToLower().Contains("writeln") || root.ChildNodes[0].ToString().ToLower().Contains("write") || root.ChildNodes[0].ToString().ToLower().Contains("break"))
+            {
+                return new Expresion(Simbolo.EnumTipo.error, "Las funciones nativas no pueden ser llamadas desde expresiones");
+            }
+            else if (root.ChildNodes[0].ToString().ToLower().Contains("continue") || root.ChildNodes[0].ToString().ToLower().Contains("graficar_ts") || root.ChildNodes[0].ToString().ToLower().Contains("exit"))
+            {
+
+            }
+            else
+            {
+                //Buscamos el nombre de la funcion
+                Simbolo sim = entorno.buscar(removerExtras(root.ChildNodes[0].ToString()));
+                if (!(sim is null))
+                {
+                    if (sim.tipo == Simbolo.EnumTipo.funcion)
+                    {
+                        ejecutarLlamada(root, entorno);
+                        return retornoFuncion;
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR se esperaba funcion, se encontro sim.tipo
+                    }
+                }
+                return new Expresion(Simbolo.EnumTipo.error, "No se encontro la funcion");
+            }
             return new Expresion(Simbolo.EnumTipo.error, "Error desconocido");
         }
         private Expresion buscarVariable(ParseTreeNode root, Entorno entorno)
         {
-            Simbolo resultadoBusqueda = entorno.buscar(removerExtras(root.ToString()), root.Token.Location.Line, root.Token.Location.Column);
+            Simbolo resultadoBusqueda = entorno.buscar(removerExtras(root.ToString()));
             if (resultadoBusqueda is null)
             {
                 return new Expresion(Simbolo.EnumTipo.error, "Variable no encontrada");
@@ -1525,7 +1646,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         temp = new Objeto((Objeto)objectPadre);
                         //Recibe un object de tipo Objeto
-                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString())) != null)
                         {
                             //El parametro que buscamos si existe
                             if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
@@ -1541,7 +1662,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         temp = new Objeto((Objeto)((Simbolo)objectPadre).valor);
                         //Recibe un object de tipo Objeto
-                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString())) != null)
                         {
                             //El parametro que buscamos si existe
                             if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
@@ -1561,8 +1682,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     {
                         //Recibe un object de tipo Objeto
                         temp = new Objeto((Objeto)((Simbolo)objectPadre).valor);
-                        Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
-                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString()), root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column) != null)
+                        Simbolo simbolo = temp.buscar(removerExtras(root.ChildNodes[0].ToString()));
+                        if (temp.buscar(removerExtras(root.ChildNodes[0].ToString())) != null)
                         {
                             //El parametro que buscamos si existe
                             if (root.ChildNodes.Count == 2)
@@ -1631,7 +1752,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         break;
                     case "LLAMADA":
-                        if (root.ChildNodes[0].ToString().Contains("writeln"))
+                        if (root.ChildNodes[0].ToString().ToLower().Contains("writeln"))
                         {
                             ejecutarWriteLn(root, entorno);
                         }
@@ -1888,7 +2009,7 @@ namespace Proyecto1_Compiladores2.Analizador
                             expresion = resolverExpresion(root.ChildNodes[1], entorno);
                             if (expresion.tipo != Simbolo.EnumTipo.error)
                             {
-                                simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                                simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
                                 if (simbolo != null)
                                 {
                                     if (expresion.tipo == simbolo.tipo)
@@ -1909,7 +2030,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         else
                         {
                             //Es una estructura
-                            simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column);
+                            simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
                             if (simbolo != null)
                             {
                                 //La variable existe
@@ -2061,16 +2182,8 @@ namespace Proyecto1_Compiladores2.Analizador
                             recorrer(hijo, entorno);
                         }
                         break;
-                    /*case "ABAJO":
-                        break;
-                    case "ARRIBA":
-                        break;
-                    case "FUNCION_HEAD":
-                        break;*/
                     case "PROCEDIMIENTO_HEAD":
                         break;
-                    /*case "OPCION_CASE":
-                        break;*/
                     case "DECLARACION_CAMPOS_TYPE":
                         break;
                     case "D_CONSTANTE":
@@ -2331,38 +2444,20 @@ namespace Proyecto1_Compiladores2.Analizador
                             }
                         }
                         break;
-                    /*case "ESTRUCTURA":
-                        break;*/
                     case "CONTROLADOR":
                         break;
                     case "VALOR":
                         break;
-                    /*case "OPERADOR":
-                        break;
-                    case "PA":
-                        break;*/
                     case "PF":
                         break;
                     case "PFVL":
                         break;
                     case "PFVR":
                         break;
-                    /*case "RANGO":
-                        break;
-                    case "R_ID":
-                        break;
-                    case "INDICE":
-                        break;
-                    case "T_DATO":
-                        break;
-                    case "T_ELEMENTAL":
-                        break;*/
                     case "T_ESTRUCTURADO":
                         break;
                     case "T_ORDINAL":
                         break;
-                    /*case "VARIABLE":
-                        break;*/
                     default:
                         if (!root.ToString().Contains(" ("))
                             MessageBox.Show("Falto agregar " + root.ToString() + " al switch");
