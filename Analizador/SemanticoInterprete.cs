@@ -358,7 +358,18 @@ namespace Proyecto1_Compiladores2.Analizador
                 if (sim.tipo == Simbolo.EnumTipo.funcion || sim.tipo == Simbolo.EnumTipo.procedimiento)
                 {
                     SubPrograma subProg = (SubPrograma)sim.valor;
-                    recorrer(subProg.root.ChildNodes[2], subProg.entorno);
+                    if (enviarParametros(root, entorno, subProg, 0))
+                    {
+                        subProg.agregarEntorno();
+                        sim.valor = subProg;
+                        entorno.modificar(nombreSubPrograma, sim);
+                        recorrer(subProg.root.ChildNodes[2], subProg.entorno);
+                        subProg.modificarVariablesOriginales(entorno);
+                    }
+                    else
+                    {
+                        //AGREGAR ERROR los requerimientos del subprograma no se pudieron completar
+                    }
                 }
                 else
                 {
@@ -678,88 +689,99 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     return resolverExpresion(root.ChildNodes[0], ent);
                 case "ESTRUCTURA":
-                    if (root.ChildNodes.Count != 0)
+                    if (root.ChildNodes[0].ToString().Equals("LLAMADA"))
                     {
-                        //Se busca la variable
-                        tmp = buscarVariable(root.ChildNodes[0], ent);
-                        sim = new Simbolo(tmp.tipo, tmp.valor);
-                        if (sim != null) //La variable si existe
+                        return resolverExpresion(root.ChildNodes[0], ent);
+                    }
+                    else
+                    {
+                        if (root.ChildNodes.Count != 0)
                         {
-                            if (sim.tipo == Simbolo.EnumTipo.objeto)
+                            //Se busca la variable
+                            tmp = buscarVariable(root.ChildNodes[0], ent);
+                            sim = new Simbolo(tmp.tipo, tmp.valor);
+                            if (sim != null) //La variable si existe
                             {
-                                if (root.ChildNodes.Count == 2) //identificador.campo
+                                if (sim.tipo == Simbolo.EnumTipo.objeto)
                                 {
-                                    return resolverEstructura(root.ChildNodes[1], tmp.valor, ent);
-                                }
-                                else //identificador[index].campo o identificador[index]
-                                {
-                                    //AGREGAR ERROR se esperaba objeto, se encontro arreglo
-                                }
-                            }
-                            else if (sim.tipo == Simbolo.EnumTipo.arreglo)
-                            {
-                                if (root.ChildNodes.Count == 2) //identificador.campo
-                                {
-                                    //AGREGAR ERROR se esperaba arreglo, se encontro objeto
-                                }
-                                else //identificador[index{, index}].campo o identificador[index{, index}]
-                                {
-                                    //Se busca el index
-                                    Expresion indice = resolverExpresion(root.ChildNodes[1], ent);
-                                    if (indice.tipo != Simbolo.EnumTipo.error)
+                                    if (root.ChildNodes.Count == 2) //identificador.campo
                                     {
-                                        if (indice.tipo == Simbolo.EnumTipo.entero)
+                                        return resolverEstructura(root.ChildNodes[1], tmp.valor, ent);
+                                    }
+                                    else //identificador[index].campo o identificador[index]
+                                    {
+                                        //AGREGAR ERROR se esperaba objeto, se encontro arreglo
+                                    }
+                                }
+                                else if (sim.tipo == Simbolo.EnumTipo.arreglo)
+                                {
+                                    if (root.ChildNodes.Count == 2) //identificador.campo
+                                    {
+                                        //AGREGAR ERROR se esperaba arreglo, se encontro objeto
+                                    }
+                                    else //identificador[index{, index}].campo o identificador[index{, index}]
+                                    {
+                                        //Se busca el index
+                                        Expresion indice = resolverExpresion(root.ChildNodes[1], ent);
+                                        if (indice.tipo != Simbolo.EnumTipo.error)
                                         {
-                                            int index1 = int.Parse(indice.valor.ToString());
-                                            if (root.ChildNodes[2].ChildNodes.Count == 0)
+                                            if (indice.tipo == Simbolo.EnumTipo.entero)
                                             {
-                                                //Se espera que simbolo sea un arreglo de 1 dimension
-                                                Array tempo = (Array)((Objeto)sim.valor).arreglo;
-                                                if (tempo.Rank == 1)
+                                                int index1 = int.Parse(indice.valor.ToString());
+                                                if (root.ChildNodes[2].ChildNodes.Count == 0)
                                                 {
-                                                    if (index1 < tempo.Length)
+                                                    //Se espera que simbolo sea un arreglo de 1 dimension
+                                                    Array tempo = (Array)((Objeto)sim.valor).arreglo;
+                                                    if (tempo.Rank == 1)
                                                     {
-                                                        //Verificamos si es el ultimo campo
-                                                        if (root.ChildNodes[3].ChildNodes.Count != 0)
+                                                        if (index1 < tempo.Length)
                                                         {
-                                                            return resolverEstructura(root.ChildNodes[3], tempo.GetValue(index1), ent);
+                                                            //Verificamos si es el ultimo campo
+                                                            if (root.ChildNodes[3].ChildNodes.Count != 0)
+                                                            {
+                                                                return resolverEstructura(root.ChildNodes[3], tempo.GetValue(index1), ent);
+                                                            }
+                                                            sim = (Simbolo)tempo.GetValue(index1);
+                                                            return new Expresion(sim.tipo, sim.valor);
                                                         }
-                                                        sim = (Simbolo)tempo.GetValue(index1);
-                                                        return new Expresion(sim.tipo, sim.valor);
+                                                        else
+                                                        {
+                                                            //AGREGAR ERROR indice fuera del limite
+                                                        }
                                                     }
                                                     else
                                                     {
-                                                        //AGREGAR ERROR indice fuera del limite
+                                                        //AGREGAR ERROR se esperaba un arreglo de 1 dimension
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    //AGREGAR ERROR se esperaba un arreglo de 1 dimension
-                                                }
-                                            }
-                                            else
-                                            {
-                                                //Se espera que simbolo sea un arreglo de 2 (podrian ser mas pero solo puedo operar 2 dimensiones)
-                                                Array tempo = (Array)((Objeto)sim.valor).arreglo;
-                                                if (tempo.Rank != 1)
-                                                {
-                                                    Expresion indice2 = resolverExpresion(root.ChildNodes[2].ChildNodes[0], ent);
-                                                    if (indice2.tipo != Simbolo.EnumTipo.error)
+                                                    //Se espera que simbolo sea un arreglo de 2 (podrian ser mas pero solo puedo operar 2 dimensiones)
+                                                    Array tempo = (Array)((Objeto)sim.valor).arreglo;
+                                                    if (tempo.Rank != 1)
                                                     {
-                                                        if (indice2.tipo == Simbolo.EnumTipo.entero)
+                                                        Expresion indice2 = resolverExpresion(root.ChildNodes[2].ChildNodes[0], ent);
+                                                        if (indice2.tipo != Simbolo.EnumTipo.error)
                                                         {
-                                                            int index2 = int.Parse(indice2.valor.ToString());
-                                                            if (index1 < tempo.GetLength(0))
+                                                            if (indice2.tipo == Simbolo.EnumTipo.entero)
                                                             {
-                                                                if (index2 < tempo.GetLength(1))
+                                                                int index2 = int.Parse(indice2.valor.ToString());
+                                                                if (index1 < tempo.GetLength(0))
                                                                 {
-                                                                    //Verificamos si es el ultimo campo
-                                                                    if (root.ChildNodes[3].ChildNodes.Count != 0)
+                                                                    if (index2 < tempo.GetLength(1))
                                                                     {
-                                                                        return resolverEstructura(root.ChildNodes[3], tempo.GetValue(index1, index2), ent);
+                                                                        //Verificamos si es el ultimo campo
+                                                                        if (root.ChildNodes[3].ChildNodes.Count != 0)
+                                                                        {
+                                                                            return resolverEstructura(root.ChildNodes[3], tempo.GetValue(index1, index2), ent);
+                                                                        }
+                                                                        sim = (Simbolo)tempo.GetValue(index1, index2);
+                                                                        return new Expresion(sim.tipo, sim.valor);
                                                                     }
-                                                                    sim = (Simbolo)tempo.GetValue(index1, index2);
-                                                                    return new Expresion(sim.tipo, sim.valor);
+                                                                    else
+                                                                    {
+                                                                        //AGREGAR ERROR indice fuera del limite
+                                                                    }
                                                                 }
                                                                 else
                                                                 {
@@ -768,45 +790,41 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             }
                                                             else
                                                             {
-                                                                //AGREGAR ERROR indice fuera del limite
+                                                                //AGREGAR ERROR error de tipos
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR error de tipos
+                                                            //AGREGAR ERROR ver error
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        //AGREGAR ERROR ver error
+                                                        //AGREGAR ERROR se esperaba un arreglo de 2
                                                     }
                                                 }
-                                                else
-                                                {
-                                                    //AGREGAR ERROR se esperaba un arreglo de 2
-                                                }
+                                            }
+                                            else
+                                            {
+                                                //AGREGAR ERROR error de tipos
                                             }
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR error de tipos
+                                            //AGREGAR ERROR ver error
                                         }
-                                    }
-                                    else
-                                    {
-                                        //AGREGAR ERROR ver error
                                     }
                                 }
                             }
-                        }
-                        else
-                        {
-                            //AGREGAR ERROR la variable no existe
+                            else
+                            {
+                                //AGREGAR ERROR la variable no existe
+                            }
                         }
                     }
                     return new Expresion(Simbolo.EnumTipo.error, "ERROR EN Z_TIPOS");
                 case "LLAMADA":
-                    return resolverLlamada(root.ChildNodes[0], ent);
+                    return resolverLlamada(root, ent);
                 case "VARIABLE":
                     return buscarVariable(root.ChildNodes[0], ent);
                 default:
@@ -1634,6 +1652,151 @@ namespace Proyecto1_Compiladores2.Analizador
         {
 
         }
+        private bool enviarParametros(ParseTreeNode root, Entorno entorno, SubPrograma subPrograma, int contador)
+        {
+            if (contador == 0)
+            {
+                Expresion expresion = resolverExpresion(root.ChildNodes[1], entorno);
+                Simbolo simbolo = null;
+                if (expresion.tipo != Simbolo.EnumTipo.error)
+                {
+                    if (expresion.tipo != Simbolo.EnumTipo.funcion && expresion.tipo != Simbolo.EnumTipo.procedimiento && expresion.tipo != Simbolo.EnumTipo.nulo)
+                    {
+                        if (contador < subPrograma.ordenParametros.Count)
+                        {
+                            string nombreParametro = subPrograma.ordenParametros[contador].ToString();
+                            subPrograma.parametrosValor.TryGetValue(nombreParametro, out simbolo);
+                            if (simbolo != null)
+                            {
+                                //Es un parametro por valor
+                                subPrograma.modificarValor(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                if (root.ChildNodes[2].ChildNodes.Count != 0)
+                                {
+                                    contador++;
+                                    return enviarParametros(root.ChildNodes[2], entorno, subPrograma, contador);
+                                }
+                                else
+                                {
+                                    if (contador == (subPrograma.ordenParametros.Count - 1))
+                                    {
+                                        return true;
+                                    }
+                                    //AGREGAR ERROR faltan parametros
+                                    MessageBox.Show("faltan parametros");
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                //Es un parametro por variable, se espera que el valor sea una variable, no una expresion
+                                if (root.ChildNodes[2].ChildNodes[0].ToString().Equals("VARIABLE"))
+                                {
+                                    subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                    subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[2].ChildNodes[0].ChildNodes[0].ToString()));
+                                    if (root.ChildNodes[2].ChildNodes.Count != 0)
+                                    {
+                                        contador++;
+                                        return enviarParametros(root.ChildNodes[2], entorno, subPrograma, contador);
+                                    }
+                                    else
+                                    {
+                                        if (contador == (subPrograma.ordenParametros.Count - 1))
+                                        {
+                                            return true;
+                                        }
+                                        //AGREGAR ERROR faltan parametros
+                                        MessageBox.Show("faltan parametros");
+                                        return false;
+                                    }
+                                }
+                                //AGREGAR ERROR se esperaba una variable y se obtuvo una expresion
+                                MessageBox.Show("se esperaba una variable y se obtuvo una expresion");
+                                return false;
+                            }
+                        }
+                        //AGREGAR ERROR el numero de parametros el mayor al esperado
+                        MessageBox.Show("el numero de parametros el mayor al esperado");
+                        return false;
+                    }
+                    //AGREGAR ERROR se esperaba un valor primitivo, objeto o arreglo
+                    MessageBox.Show("se esperaba un valor primitivo, objeto o arreglo");
+                    return false;
+                }
+                MessageBox.Show(expresion.valor.ToString());
+                return false;
+            }
+            else
+            {
+                Expresion expresion = resolverExpresion(root.ChildNodes[0], entorno);
+                Simbolo simbolo = null;
+                if (expresion.tipo != Simbolo.EnumTipo.error)
+                {
+                    if (expresion.tipo != Simbolo.EnumTipo.funcion && expresion.tipo != Simbolo.EnumTipo.procedimiento && expresion.tipo != Simbolo.EnumTipo.nulo)
+                    {
+                        if (contador < subPrograma.ordenParametros.Count)
+                        {
+                            string nombreParametro = subPrograma.ordenParametros[contador].ToString();
+                            subPrograma.parametrosValor.TryGetValue(nombreParametro, out simbolo);
+                            if (simbolo != null)
+                            {
+                                //Es un parametro por valor
+                                subPrograma.modificarValor(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                if (root.ChildNodes[1].ChildNodes.Count != 0)
+                                {
+                                    contador++;
+                                    return enviarParametros(root.ChildNodes[1], entorno, subPrograma, contador);
+                                }
+                                else
+                                {
+                                    if (contador == (subPrograma.ordenParametros.Count - 1))
+                                    {
+                                        return true;
+                                    }
+                                    //AGREGAR ERROR faltan parametros
+                                    MessageBox.Show("2    -    faltan parametros");
+                                    return false;
+                                }
+                            }
+                            else
+                            {
+                                //Es un parametro por variable, se espera que el valor sea una variable, no una expresion
+                                if (root.ChildNodes[0].ChildNodes[0].ToString().Equals("VARIABLE"))
+                                {
+                                    subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                    subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()));
+                                    if (root.ChildNodes[1].ChildNodes.Count != 0)
+                                    {
+                                        contador++;
+                                        return enviarParametros(root.ChildNodes[1], entorno, subPrograma, contador);
+                                    }
+                                    else
+                                    {
+                                        if (contador == (subPrograma.ordenParametros.Count - 1))
+                                        {
+                                            return true;
+                                        }
+                                        //AGREGAR ERROR faltan parametros
+                                        MessageBox.Show("2    -    faltan parametros");
+                                        return false;
+                                    }
+                                }
+                                //AGREGAR ERROR se esperaba una variable y se obtuvo una expresion
+                                MessageBox.Show("2    -    se esperaba una variable y se obtuvo una expresion");
+                                return false;
+                            }
+                        }
+                        //AGREGAR ERROR el numero de parametros el mayor al esperado
+                        MessageBox.Show("2    -    el numero de parametros el mayor al esperado");
+                        return false;
+                    }
+                    //AGREGAR ERROR se esperaba un valor primitivo, objeto o arreglo
+                    MessageBox.Show("2    -    se esperaba un valor primitivo, objeto o arreglo");
+                    return false;
+                }
+                MessageBox.Show(expresion.valor.ToString());
+                return false;
+            }
+        }
         private Simbolo obtenerCampo(ParseTreeNode root, Object objectPadre, Expresion nuevoSimbolo, Entorno entorno)
         {
             Simbolo simboloPadre = null;
@@ -2012,17 +2175,24 @@ namespace Proyecto1_Compiladores2.Analizador
                                 simbolo = entorno.buscar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
                                 if (simbolo != null)
                                 {
-                                    if (expresion.tipo == simbolo.tipo)
+                                    if (simbolo.tipo == Simbolo.EnumTipo.funcion)
                                     {
-                                        simbolo = new Simbolo(expresion.tipo, expresion.valor);
-                                        if (entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo))
-                                        {
-
-                                        }
+                                        SubPrograma p = (SubPrograma)simbolo.valor;
+                                        p.retorno = new Simbolo(expresion.tipo, expresion.valor);
+                                        simbolo.valor = p;
+                                        entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo);
                                     }
                                     else
                                     {
-                                        //AGREGAR ERROR error de tipos
+                                        if (expresion.tipo == simbolo.tipo)
+                                        {
+                                            simbolo = new Simbolo(expresion.tipo, expresion.valor);
+                                            entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo);
+                                        }
+                                        else
+                                        {
+                                            //AGREGAR ERROR error de tipos
+                                        }
                                     }
                                 }
                             }

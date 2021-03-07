@@ -29,20 +29,63 @@ namespace Proyecto1_Compiladores2.Modelos
             this.entorno = entorno;
             ordenParametros = new ArrayList();
         }
-
-        public void modificarVariables(Entorno entorno)
+        public void agregarEntorno()
+        {
+            foreach (KeyValuePair<string, Simbolo> parametro in parametrosVariable)
+            {
+                entorno.insertar(parametro.Key, parametro.Value, 0, 0);
+            }
+            foreach (KeyValuePair<string, Simbolo> parametro in parametrosValor)
+            {
+                entorno.insertar(parametro.Key, parametro.Value, 0, 0);
+            }
+        }
+        public bool modificarValor(String nombre, Simbolo simbolo)
+        {
+            nombre = nombre.ToLower();
+            if (parametrosValor.ContainsKey(nombre))
+            {
+                Simbolo viejo;
+                parametrosValor.TryGetValue(nombre, out viejo);
+                if (viejo.tipo == simbolo.tipo)
+                {
+                    parametrosValor.Remove(nombre);
+                    parametrosValor.Add(nombre, simbolo);
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+        public bool modificarVariable(String nombre, Simbolo simbolo)
+        {
+            nombre = nombre.ToLower();
+            if (parametrosVariable.ContainsKey(nombre))
+            {
+                Simbolo viejo;
+                parametrosVariable.TryGetValue(nombre, out viejo);
+                if (viejo.tipo == simbolo.tipo)
+                {
+                    parametrosVariable.Remove(nombre);
+                    parametrosVariable.Add(nombre, simbolo);
+                    return true;
+                }
+                return false;
+            }
+            return false;
+        }
+        public void modificarVariablesOriginales(Entorno entornoPrincipal)
         {
             foreach (KeyValuePair<string, Simbolo> parametro in parametrosVariable)
             {
                 string nombreVariable = "";
                 correlacionParametros.TryGetValue(parametro.Key, out nombreVariable);
-                if (nombreVariable != "")
+                if (nombreVariable != null)
                 {
-                    entorno.modificar(nombreVariable, parametro.Value);
+                    entornoPrincipal.modificar(nombreVariable, parametro.Value);
                 }
             }
         }
-
         public void buscarTipo(string cadena, Entorno entorno)
         {
             switch (cadena)
