@@ -190,7 +190,6 @@ namespace Proyecto1_Compiladores2.Analizador
                 | EU
                 | EB
                 | LLAMADA
-                | id + ToTerm("(") + EXPRESION + ToTerm(")")
                 | ToTerm("(") + EXPRESION + ToTerm(")")
                 ;
 

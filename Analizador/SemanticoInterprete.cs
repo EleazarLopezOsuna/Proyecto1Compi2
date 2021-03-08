@@ -2561,7 +2561,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         while (temp.ChildNodes.Count != 0)
                                         {
-                                            entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), simbolo, temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column);
+                                            entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), new Simbolo(simbolo.tipo, simbolo.valor), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column);
                                             temp = temp.ChildNodes[1];
                                         }
                                     }
