@@ -29,6 +29,17 @@ namespace Proyecto1_Compiladores2.Modelos
             this.entorno = entorno;
             ordenParametros = new ArrayList();
         }
+        public void modificarEntorno()
+        {
+            foreach (KeyValuePair<string, Simbolo> parametro in parametrosVariable)
+            {
+                entorno.modificar(parametro.Key, parametro.Value);
+            }
+            foreach (KeyValuePair<string, Simbolo> parametro in parametrosValor)
+            {
+                entorno.modificar(parametro.Key, parametro.Value);
+            }
+        }
         public void agregarEntorno()
         {
             foreach (KeyValuePair<string, Simbolo> parametro in parametrosVariable)
@@ -112,6 +123,7 @@ namespace Proyecto1_Compiladores2.Modelos
                     tipo = Simbolo.EnumTipo.error;
                     break;
             }
+            retorno.tipo = this.tipo;
         }
     }
 }

@@ -309,6 +309,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     funcion.buscarTipo(removerExtras(root.ChildNodes[0].ChildNodes[3].ToString()), entorno);
                     agregarParametros(root.ChildNodes[0].ChildNodes[1], funcion);
                     agregarParametros(root.ChildNodes[0].ChildNodes[2], funcion);
+                    funcion.agregarEntorno();
                 }
                 else if (root.ChildNodes[0].ChildNodes.Count == 2)
                 {
@@ -360,8 +361,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     SubPrograma subProg = (SubPrograma)sim.valor;
                     if (enviarParametros(root, entorno, subProg, 0))
                     {
-                        subProg.agregarEntorno();
-                        sim.valor = subProg;
+                        subProg.modificarEntorno();
+                        //sim.valor = subProg;
                         entorno.modificar(nombreSubPrograma, sim);
                         recorrer(subProg.root.ChildNodes[2], subProg.entorno);
                         subProg.modificarVariablesOriginales(entorno);
@@ -2178,9 +2179,17 @@ namespace Proyecto1_Compiladores2.Analizador
                                     if (simbolo.tipo == Simbolo.EnumTipo.funcion)
                                     {
                                         SubPrograma p = (SubPrograma)simbolo.valor;
-                                        p.retorno = new Simbolo(expresion.tipo, expresion.valor);
-                                        simbolo.valor = p;
-                                        entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo);
+                                        if (p.retorno.tipo == expresion.tipo)
+                                        {
+                                            p.retorno = new Simbolo(expresion.tipo, expresion.valor);
+                                            simbolo.valor = p;
+                                            entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()), simbolo);
+                                            retornoFuncion = new Expresion(expresion.tipo, expresion.valor);
+                                        }
+                                        else
+                                        {
+                                            //AGREGAR ERROR error de tipos
+                                        }
                                     }
                                     else
                                     {
