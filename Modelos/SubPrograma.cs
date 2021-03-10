@@ -93,7 +93,10 @@ namespace Proyecto1_Compiladores2.Modelos
                 correlacionParametros.TryGetValue(parametro.Key, out nombreVariable);
                 if (nombreVariable != null)
                 {
-                    entornoPrincipal.modificar(nombreVariable, parametro.Value);
+                    Simbolo s = null;
+                    entorno.tabla.TryGetValue(parametro.Key, out s);
+                    MessageBox.Show(((Simbolo)parametro.Value).valor.ToString());
+                    entornoPrincipal.modificar(nombreVariable, s);
                 }
             }
         }

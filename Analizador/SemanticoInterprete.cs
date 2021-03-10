@@ -275,11 +275,11 @@ namespace Proyecto1_Compiladores2.Analizador
                             {
                                 if (root.ToString().Equals("PFVL"))
                                 {
-                                    subPrograma.parametrosValor.Add(nombreParametro, nuevoSimbolo);
+                                    subPrograma.parametrosValor.Add(nombreParametro, new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor));
                                 }
                                 else
                                 {
-                                    subPrograma.parametrosVariable.Add(nombreParametro, nuevoSimbolo);
+                                    subPrograma.parametrosVariable.Add(nombreParametro, new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor));
                                 }
                                 subPrograma.ordenParametros.Add(nombreParametro);
                             }
@@ -338,6 +338,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     //Tiene parametros
                     agregarParametros(root.ChildNodes[0].ChildNodes[1], procedimiento);
                     agregarParametros(root.ChildNodes[0].ChildNodes[2], procedimiento);
+                    procedimiento.agregarEntorno();
                 }
                 sim = new Simbolo(Simbolo.EnumTipo.procedimiento, procedimiento);
                 //Declaramos las variables de la funcion
@@ -359,6 +360,16 @@ namespace Proyecto1_Compiladores2.Analizador
                 if (sim.tipo == Simbolo.EnumTipo.funcion || sim.tipo == Simbolo.EnumTipo.procedimiento)
                 {
                     SubPrograma subProg = (SubPrograma)sim.valor;
+                    Simbolo temp = null;
+                    if (sim.tipo == Simbolo.EnumTipo.funcion)
+                    {
+                        temp = agregarFuncion(subProg.root, entornoGlobal, new Entorno(entornoGlobal, removerExtras(root.ChildNodes[0].ToString())));
+                    }
+                    else
+                    {
+                        temp = agregarProcedimiento(subProg.root, entornoGlobal, new Entorno(entornoGlobal, removerExtras(root.ChildNodes[0].ToString())));
+                    }
+                    subProg = (SubPrograma)temp.valor;
                     if (enviarParametros(root, entorno, subProg, 0))
                     {
                         subProg.modificarEntorno();
@@ -1683,24 +1694,19 @@ namespace Proyecto1_Compiladores2.Analizador
                                         return true;
                                     }
                                     //AGREGAR ERROR faltan parametros
-                                    MessageBox.Show("faltan parametros");
+                                    MessageBox.Show("faltan parametros  ");
                                     return false;
                                 }
                             }
                             else
                             {
                                 //Es un parametro por variable, se espera que el valor sea una variable, no una expresion
-                                if (root.ChildNodes[2].ChildNodes[0].ToString().Equals("VARIABLE"))
+                                if (root.ChildNodes[2].ChildNodes.Count == 0)
                                 {
-                                    subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
-                                    subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[2].ChildNodes[0].ChildNodes[0].ToString()));
-                                    if (root.ChildNodes[2].ChildNodes.Count != 0)
+                                    if (root.ChildNodes[1].ChildNodes[0].ToString().Equals("VARIABLE"))
                                     {
-                                        contador++;
-                                        return enviarParametros(root.ChildNodes[2], entorno, subPrograma, contador);
-                                    }
-                                    else
-                                    {
+                                        subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                        subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[1].ChildNodes[0].ChildNodes[0].ToString()));
                                         if (contador == (subPrograma.ordenParametros.Count - 1))
                                         {
                                             return true;
@@ -1708,6 +1714,29 @@ namespace Proyecto1_Compiladores2.Analizador
                                         //AGREGAR ERROR faltan parametros
                                         MessageBox.Show("faltan parametros");
                                         return false;
+                                    }
+                                }
+                                else
+                                {
+                                    if (root.ChildNodes[1].ChildNodes[0].ToString().Equals("VARIABLE"))
+                                    {
+                                        subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                        subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[1].ChildNodes[0].ChildNodes[0].ToString()));
+                                        if (root.ChildNodes[1].ChildNodes.Count != 0)
+                                        {
+                                            contador++;
+                                            return enviarParametros(root.ChildNodes[2], entorno, subPrograma, contador);
+                                        }
+                                        else
+                                        {
+                                            if (contador == (subPrograma.ordenParametros.Count - 1))
+                                            {
+                                                return true;
+                                            }
+                                            //AGREGAR ERROR faltan parametros
+                                            MessageBox.Show("faltan parametros");
+                                            return false;
+                                        }
                                     }
                                 }
                                 //AGREGAR ERROR se esperaba una variable y se obtuvo una expresion
