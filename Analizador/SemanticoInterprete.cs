@@ -13,7 +13,6 @@ namespace Proyecto1_Compiladores2.Analizador
         public ArrayList consola;
         public ArrayList errores;
         public ArrayList entornos;
-        private ArrayList subProgramas;
         private Entorno entornoGlobal;
         private Expresion retornoFuncion;
         private bool parar;
@@ -27,7 +26,6 @@ namespace Proyecto1_Compiladores2.Analizador
             consola = new ArrayList();
             errores = new ArrayList();
             entornos = new ArrayList();
-            subProgramas = new ArrayList();
             entornoGlobal = new Entorno(null, "programa");
             entornos.Add(entornoGlobal);
             retornoFuncion = null;
@@ -71,18 +69,21 @@ namespace Proyecto1_Compiladores2.Analizador
                                     recorrer(root.ChildNodes[1], entorno);
                                     return true;
                                 }
-                                //AGREGAR ERROR case duplicado
+                                Error error = new Error(0, 0, "Semantico", "Case duplicado");
+                                errores.Add(error);
                             }
                         }
                         else
                         {
-                            //AGREGAR ERROR el tipo del case no coincide con el tipo global
+                            Error error = new Error(0, 0, "Semantico", "Error de tipos");
+                            errores.Add(error);
                             return false;
                         }
                     }
                     else
                     {
-                        //AGREGAR ERROR ver error
+                        Error error = new Error(0, 0, "Semantico", expresion.valor.ToString());
+                        errores.Add(error);
                         return false;
                     }
                 }
@@ -112,12 +113,14 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else
                 {
-                    //AGREGAR ERROR se esperaba tipo primitivo
+                    Error error = new Error(0, 0, "Semantico", "Se esperaba tipo primitivo");
+                    errores.Add(error);
                 }
             }
             else
             {
-                //AGREGAR ERROR ver error
+                Error error = new Error(0, 0, "Semantico", comparativa.valor.ToString());
+                errores.Add(error);
             }
         }
         private void ejecutarIf(ParseTreeNode root, Entorno entorno)
@@ -136,12 +139,14 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR se esperaba tipo boleano
+                        Error error = new Error(0, 0, "Semantico", "Se esperaba tipo boleano");
+                        errores.Add(error);
                     }
                 }
                 else
                 {
-                    //AGREGAR ERROR ver error
+                    Error error = new Error(0, 0, "Semantico", condicion.valor.ToString());
+                    errores.Add(error);
                 }
             }
             else if (root.ChildNodes.Count == 3)//IF sentencia ELSE sentencia
@@ -161,12 +166,14 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR se esperaba tipo boleano
+                        Error error = new Error(0, 0, "Semantico", "Se esperaba tipo boleano");
+                        errores.Add(error);
                     }
                 }
                 else
                 {
-                    //AGREGAR ERROR ver error
+                    Error error = new Error(0, 0, "Semantico", condicion.valor.ToString());
+                    errores.Add(error);
                 }
             }
             else
@@ -192,12 +199,14 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else
                 {
-                    //AGREGAR ERROR se esperaba tipo boleano
+                    Error error = new Error(0, 0, "Semantico", "Se esperaba tipo boleano");
+                    errores.Add(error);
                 }
             }
             else
             {
-                //AGREGAR ERROR ver error
+                Error error = new Error(0, 0, "Semantico", expresion.valor.ToString());
+                errores.Add(error);
             }
         }
         private void ejecutarWhile(ParseTreeNode root, Entorno entorno)
@@ -218,12 +227,14 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else
                 {
-                    //AGREGAR ERROR se esperaba tipo boleano
+                    Error error = new Error(0, 0, "Semantico", "Se esperaba tipo boleano");
+                    errores.Add(error);
                 }
             }
             else
             {
-                //AGREGAR ERROR ver error
+                Error error = new Error(0, 0, "Semantico", expresion.valor.ToString());
+                errores.Add(error);
             }
         }
         public Simbolo buscarTipo(string cadena, Entorno entorno)
@@ -285,14 +296,16 @@ namespace Proyecto1_Compiladores2.Analizador
                             }
                             else
                             {
-                                //AGREGAR ERROR el parametro ya existe
+                                Error error = new Error(temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column, "Semantico", "El parametro ya existe");
+                                errores.Add(error);
                             }
                             temp = temp.ChildNodes[1];
                         }
                     }
                     else
                     {
-                        //AGREGAR ERROR no existe este tipo
+                        Error error = new Error(root.ChildNodes[2].Token.Location.Line, root.ChildNodes[2].Token.Location.Column, "Semantico", nuevoSimbolo.valor.ToString());
+                        errores.Add(error);
                     }
                     break;
             }
@@ -323,7 +336,8 @@ namespace Proyecto1_Compiladores2.Analizador
             }
             else
             {
-                //AGREGAR ERROR el nombre ya existe
+                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "El identificador"+ removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()) +" ya existe");
+                errores.Add(error);
                 return new Simbolo(Simbolo.EnumTipo.error, "El nombre ya existe");
             }
         }
@@ -347,7 +361,8 @@ namespace Proyecto1_Compiladores2.Analizador
             }
             else
             {
-                //AGREGAR ERROR el nombre ya existe
+                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()) + " ya existe");
+                errores.Add(error);
                 return new Simbolo(Simbolo.EnumTipo.error, "El nombre ya existe");
             }
         }
@@ -380,17 +395,20 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR los requerimientos del subprograma no se pudieron completar
+                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Los requerimientos del subprograma" + removerExtras(root.ChildNodes[0].ToString()) + " no se pudieron completar");
+                        errores.Add(error);
                     }
                 }
                 else
                 {
-                    //AGREGAR ERROR se esperaba funcion o procedimiento, se encontro sim.tipo
+                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba funcion o procedimiento, se encontro " + sim.tipo);
+                    errores.Add(error);
                 }
             }
             else
             {
-                //AGREGAR ERROR no se encontro el subprograma
+                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "No se pudo encontrar el subprograma " + removerExtras(root.ChildNodes[0].ToString()));
+                errores.Add(error);
             }
         }
         private void ejecutarFor(ParseTreeNode root, Entorno entorno)
@@ -427,21 +445,25 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR la variable debe ser de tipo entero
+                        Error error = new Error(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo entero");
+                        errores.Add(error);
                     }
                 }
                 else
                 {
-                    //AGREGAR ERROR se esperaba tipo entero
+                    Error error = new Error(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo entero");
+                    errores.Add(error);
                 }
             }
             else
             {
-                //AGREGAR ERROR ver error
+                Error error = new Error(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", posicionFinal.valor.ToString());
+                errores.Add(error);
             }
         }
         private bool verificarRango(Expresion exp1, Expresion exp2)
         {
+            Error error;
             if (exp1.tipo != Simbolo.EnumTipo.error)
             {
                 if (exp2.tipo != Simbolo.EnumTipo.error)
@@ -454,19 +476,24 @@ namespace Proyecto1_Compiladores2.Analizador
                             {
                                 return true;
                             }
-                            //AGREGAR ERROR exp1 debe ser menor a exp2
+                            error = new Error(0, 0, "Semantico", "El operando izquiero debe ser menor al derecho");
+                            errores.Add(error);
                             return false;
                         }
-                        //AGREGAR ERROR exp2 debe ser entero
+                        error = new Error(0, 0, "Semantico", "El segundo operando debe ser de tipo entero");
+                        errores.Add(error);
                         return false;
                     }
-                    //AGREGAR ERROR exp1 debe ser entero
+                    error = new Error(0, 0, "Semantico", "El primer operando debe ser de tipo entero");
+                    errores.Add(error);
                     return false;
                 }
-                //AGREGAR ERROR ver error
+                error = new Error(0, 0, "Semantico", exp2.valor.ToString());
+                errores.Add(error);
                 return false;
             }
-            //AGREGAR ERROR ver error
+            error = new Error(0, 0, "Semantico", exp1.valor.ToString());
+            errores.Add(error);
             return false;
         }
         private Expresion resolverEstructura(ParseTreeNode root, Object objetoPadre, Entorno ent)
@@ -491,14 +518,16 @@ namespace Proyecto1_Compiladores2.Analizador
                         }
                         else
                         {
-                            //AGREGAR ERROR se esperaba objeto, se encontro arreglo
+                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba un objeto, se encontro un arreglo");
+                            errores.Add(error);
                         }
                     }
                     else if (sim.tipo == Simbolo.EnumTipo.arreglo)
                     {
                         if (root.ChildNodes.Count == 2)
                         {
-                            //AGREGAR ERROR se esperaba arreglo, se encontro objeto
+                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba un arreglo, se encontro un objeto");
+                            errores.Add(error);
                         }
                         else //campo[index{, index}].campo o campo[index{, index}]
                         {
@@ -527,14 +556,15 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             else
                                             {
-                                                //AGREGAR ERROR indice fuera del limite
-                                                MessageBox.Show("22");
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "indice fuera del limite");
+                                                errores.Add(error);
                                             }
                                             MessageBox.Show("21");
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR se esperaba un arreglo de 1 dimension
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 1 dimension");
+                                            errores.Add(error);
                                             MessageBox.Show("20");
                                         }
                                         MessageBox.Show("19");
@@ -565,35 +595,40 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR indice fuera del limite
+                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                            errores.Add(error);
                                                             MessageBox.Show("18");
                                                         }
                                                         MessageBox.Show("17");
                                                     }
                                                     else
                                                     {
-                                                        //AGREGAR ERROR indice fuera del limite
+                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                        errores.Add(error);
                                                         MessageBox.Show("16");
                                                     }
                                                     MessageBox.Show("15");
                                                 }
                                                 else
                                                 {
-                                                    //AGREGAR ERROR error de tipos
+                                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                    errores.Add(error);
                                                     MessageBox.Show("14");
                                                 }
                                                 MessageBox.Show("13");
                                             }
                                             else
                                             {
-                                                //AGREGAR ERROR ver error
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice2.valor.ToString());
+                                                errores.Add(error);
                                                 MessageBox.Show("12");
                                             }
                                             MessageBox.Show("11");
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR se esperaba un arreglo de 2
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 2 dimensiones");
+                                            errores.Add(error);
                                             MessageBox.Show("10");
                                         }
                                     }
@@ -601,14 +636,16 @@ namespace Proyecto1_Compiladores2.Analizador
                                 }
                                 else
                                 {
-                                    //AGREGAR ERROR error de tipos
+                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                    errores.Add(error);
                                     MessageBox.Show("8");
                                 }
                                 MessageBox.Show("7");
                             }
                             else
                             {
-                                //AGREGAR ERROR ver error
+                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice.valor.ToString());
+                                errores.Add(error);
                                 MessageBox.Show("6");
                             }
                             MessageBox.Show("5");
@@ -619,7 +656,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 }
                 else
                 {
-                    //AGREGAR ERROR la variable no existe
+                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "La variable no existe");
+                    errores.Add(error);
                     MessageBox.Show("2");
                 }
                 MessageBox.Show("1");
@@ -722,14 +760,16 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     else //identificador[index].campo o identificador[index]
                                     {
-                                        //AGREGAR ERROR se esperaba objeto, se encontro arreglo
+                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba objeto, se encontro arreglo");
+                                        errores.Add(error);
                                     }
                                 }
                                 else if (sim.tipo == Simbolo.EnumTipo.arreglo)
                                 {
                                     if (root.ChildNodes.Count == 2) //identificador.campo
                                     {
-                                        //AGREGAR ERROR se esperaba arreglo, se encontro objeto
+                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo, se encontro objeto");
+                                        errores.Add(error);
                                     }
                                     else //identificador[index{, index}].campo o identificador[index{, index}]
                                     {
@@ -758,12 +798,14 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR indice fuera del limite
+                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                            errores.Add(error);
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        //AGREGAR ERROR se esperaba un arreglo de 1 dimension
+                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 1 dimension");
+                                                        errores.Add(error);
                                                     }
                                                 }
                                                 else
@@ -792,45 +834,53 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                     }
                                                                     else
                                                                     {
-                                                                        //AGREGAR ERROR indice fuera del limite
+                                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                        errores.Add(error);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    //AGREGAR ERROR indice fuera del limite
+                                                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                    errores.Add(error);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                //AGREGAR ERROR error de tipos
+                                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                                errores.Add(error);
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR ver error
+                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice2.valor.ToString());
+                                                            errores.Add(error);
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        //AGREGAR ERROR se esperaba un arreglo de 2
+                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 2 dimensiones");
+                                                        errores.Add(error);
                                                     }
                                                 }
                                             }
                                             else
                                             {
-                                                //AGREGAR ERROR error de tipos
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                errores.Add(error);
                                             }
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR ver error
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice.valor.ToString());
+                                            errores.Add(error);
                                         }
                                     }
                                 }
                             }
                             else
                             {
-                                //AGREGAR ERROR la variable no existe
+                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "La variable " + removerExtras(root.ChildNodes[0].ToString()) + " no existe");
+                                errores.Add(error);
                             }
                         }
                     }
@@ -897,7 +947,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR se esperaba funcion, se encontro sim.tipo
+                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba funcion, se encontro " + sim.tipo);
+                        errores.Add(error);
                     }
                 }
                 return new Expresion(Simbolo.EnumTipo.error, "No se encontro la funcion");
@@ -1527,11 +1578,13 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else if (tmp.tipo == Simbolo.EnumTipo.error)
                     {
-                        //REPORTAR ERROR
+                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", tmp.valor.ToString());
+                        errores.Add(error);
                     }
                     else
                     {
-                        //REPORTAR ERROR el id no es de tipo arreglo o tipo objeto, es una variable normal
+                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo u objeto, se encontro " + removerExtras(root.ChildNodes[1].ChildNodes[0].ToString()));
+                        errores.Add(error);
                     }
                 }
                 Expresion exp = resolverExpresion(root.ChildNodes[3], entorno);
@@ -1545,13 +1598,15 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        //AGREGAR ERROR
+                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo " + simbolo.tipo + " se encontro " + exp.tipo);
+                        errores.Add(error);
                         simbolo.tipo = Simbolo.EnumTipo.error;
                     }
                 }
                 else
                 {
-                    //AGREGAR ERROR
+                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", exp.valor.ToString());
+                    errores.Add(error);
                 }
             }
             else if (root.ChildNodes.Count == 3)
@@ -1657,7 +1712,8 @@ namespace Proyecto1_Compiladores2.Analizador
             }
             else
             {
-                //AGREGAR ERROR exit solo puede tener un parametro
+                Error error = new Error(root.Token.Location.Line, root.Token.Location.Column, "Semantico", "La funcion exit debe tener solo 1 parametro");
+                errores.Add(error);
             }
         }
         private void ejecutarGraficarTS()
@@ -1666,6 +1722,7 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private bool enviarParametros(ParseTreeNode root, Entorno entorno, SubPrograma subPrograma, int contador)
         {
+            Error error;
             if (contador == 0)
             {
                 Expresion expresion = resolverExpresion(root.ChildNodes[1], entorno);
@@ -1693,7 +1750,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         return true;
                                     }
-                                    //AGREGAR ERROR faltan parametros
+                                    error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                    errores.Add(error);
                                     MessageBox.Show("faltan parametros  ");
                                     return false;
                                 }
@@ -1711,7 +1769,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         {
                                             return true;
                                         }
-                                        //AGREGAR ERROR faltan parametros
+                                        error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                        errores.Add(error);
                                         MessageBox.Show("faltan parametros");
                                         return false;
                                     }
@@ -1733,22 +1792,26 @@ namespace Proyecto1_Compiladores2.Analizador
                                             {
                                                 return true;
                                             }
-                                            //AGREGAR ERROR faltan parametros
+                                            error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                            errores.Add(error);
                                             MessageBox.Show("faltan parametros");
                                             return false;
                                         }
                                     }
                                 }
-                                //AGREGAR ERROR se esperaba una variable y se obtuvo una expresion
+                                error = new Error(0, 0, "Semantico", "Se esperaba una variable y se obtuvo una expresion");
+                                errores.Add(error);
                                 MessageBox.Show("se esperaba una variable y se obtuvo una expresion");
                                 return false;
                             }
                         }
-                        //AGREGAR ERROR el numero de parametros el mayor al esperado
+                        error = new Error(0, 0, "Semantico", "El numero de parametros es mayor al esperado");
+                        errores.Add(error);
                         MessageBox.Show("el numero de parametros el mayor al esperado");
                         return false;
                     }
-                    //AGREGAR ERROR se esperaba un valor primitivo, objeto o arreglo
+                    error = new Error(0, 0, "Semantico", "Se esperaba un valor primitivo, objeto o arreglo");
+                    errores.Add(error);
                     MessageBox.Show("se esperaba un valor primitivo, objeto o arreglo");
                     return false;
                 }
@@ -1782,7 +1845,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         return true;
                                     }
-                                    //AGREGAR ERROR faltan parametros
+                                    error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                    errores.Add(error);
                                     MessageBox.Show("2    -    faltan parametros");
                                     return false;
                                 }
@@ -1805,21 +1869,25 @@ namespace Proyecto1_Compiladores2.Analizador
                                         {
                                             return true;
                                         }
-                                        //AGREGAR ERROR faltan parametros
+                                        error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                        errores.Add(error);
                                         MessageBox.Show("2    -    faltan parametros");
                                         return false;
                                     }
                                 }
-                                //AGREGAR ERROR se esperaba una variable y se obtuvo una expresion
+                                error = new Error(0, 0, "Semantico", "Se esperaba una variable y se obtuvo una expresion");
+                                errores.Add(error);
                                 MessageBox.Show("2    -    se esperaba una variable y se obtuvo una expresion");
                                 return false;
                             }
                         }
-                        //AGREGAR ERROR el numero de parametros el mayor al esperado
+                        error = new Error(0, 0, "Semantico", "El numero de parametros es mayor al esperado");
+                        errores.Add(error);
                         MessageBox.Show("2    -    el numero de parametros el mayor al esperado");
                         return false;
                     }
-                    //AGREGAR ERROR se esperaba un valor primitivo, objeto o arreglo
+                    error = new Error(0, 0, "Semantico", "Se esperaba un valor primitivo, objeto o arreglo");
+                    errores.Add(error);
                     MessageBox.Show("2    -    se esperaba un valor primitivo, objeto o arreglo");
                     return false;
                 }
@@ -1844,7 +1912,8 @@ namespace Proyecto1_Compiladores2.Analizador
                             //El parametro que buscamos si existe
                             if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
                             {
-                                //AGREGAR ERRPOR los tipos no coinciden
+                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Los tipos no coinciden");
+                                errores.Add(error);
                                 return null;
                             }
                             simboloPadre = new Simbolo(temp.tipo, temp);
@@ -1860,7 +1929,8 @@ namespace Proyecto1_Compiladores2.Analizador
                             //El parametro que buscamos si existe
                             if (!temp.modificar(removerExtras(root.ChildNodes[0].ToString()), new Simbolo(nuevoSimbolo.tipo, nuevoSimbolo.valor)))
                             {
-                                //AGREGAR ERRPOR los tipos no coinciden
+                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Los tipos no coinciden");
+                                errores.Add(error);
                                 return null;
                             }
                             simboloPadre = (Simbolo)objectPadre;
@@ -1984,7 +2054,11 @@ namespace Proyecto1_Compiladores2.Analizador
                                 Objeto nuevoObjeto = new Objeto(nombreTipo);
                                 agregarCamposObjeto(root.ChildNodes[2].ChildNodes[1], nuevoObjeto, entorno);
                                 agregarCamposObjeto(root.ChildNodes[2].ChildNodes[2], nuevoObjeto, entorno);
-                                entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.objeto, nuevoObjeto), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                if(!entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.objeto, nuevoObjeto), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column))
+                                {
+                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(root.ChildNodes[0].ToString() + " ya existe"));
+                                    errores.Add(error);
+                                }
                             }
                             else
                             {
@@ -2064,16 +2138,22 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             else if (tmp.tipo == Simbolo.EnumTipo.error)
                                             {
-                                                //REPORTAR ERROR ver error
+                                                Error error = new Error(root.ChildNodes[2].ChildNodes[3].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[3].ChildNodes[0].Token.Location.Column, "Semantico", tmp.valor.ToString());
+                                                errores.Add(error);
                                             }
                                             else
                                             {
-                                                //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                                Error error = new Error(root.ChildNodes[2].ChildNodes[3].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[3].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba objeto o arreglo");
+                                                errores.Add(error);
                                             }
                                         }
                                         if (nuevoArreglo.arreglo != null)
                                         {
-                                            entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                            if (!entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column))
+                                            {
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(root.ChildNodes[0].ToString()) + " ya existe");
+                                                errores.Add(error);
+                                            }
                                         }
                                     }
                                 }
@@ -2163,22 +2243,32 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         }
                                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                                         {
-                                                            //REPORTAR ERROR ver error
+                                                            Error error = new Error(0, 0, "Semantico", tmp.valor.ToString());
+                                                            errores.Add(error);
                                                         }
                                                         else
                                                         {
-                                                            //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                                            Error error = new Error(0, 0, "Semantico", "Se esperaba tipo objeto o arreglo");
+                                                            errores.Add(error);
                                                         }
                                                     }
                                                     if (nuevoArreglo != null)
                                                     {
-                                                        entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                                        if(!entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column))
+                                                        {
+                                                            Error error = new Error(root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column, "Semantico", "El identificador" + nombreTipo + " ya existe");
+                                                            errores.Add(error);
+                                                        }
                                                     }
                                                 }
                                             }
                                             if (nuevoArreglo != null)
                                             {
-                                                entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column);
+                                                if (!entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column))
+                                                {
+                                                    Error error = new Error(root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + nombreTipo + " ya existe");
+                                                    errores.Add(error);
+                                                }
                                             }
                                         }
                                     }
@@ -2217,7 +2307,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR error de tipos
+                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo " + expresion.tipo + " se encontro tipo " + p.retorno.tipo);
+                                            errores.Add(error);
                                         }
                                     }
                                     else
@@ -2229,7 +2320,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         else
                                         {
-                                            //AGREGAR ERROR error de tipos
+                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo " + simbolo.tipo + " se encontro tipo " + expresion.tipo);
+                                            errores.Add(error);
                                         }
                                     }
                                 }
@@ -2286,12 +2378,14 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             }
                                                             else
                                                             {
-                                                                //AGREGAR ERROR indice fuera del limite
+                                                                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                errores.Add(error);
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR se esperaba un arreglo de 1 dimension
+                                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 1 dimension");
+                                                            errores.Add(error);
                                                         }
                                                     }
                                                     else
@@ -2327,38 +2421,45 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                         }
                                                                         else
                                                                         {
-                                                                            //AGREGAR ERROR indice fuera del limite
+                                                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                            errores.Add(error);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
-                                                                        //AGREGAR ERROR indice fuera del limite
+                                                                        Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                        errores.Add(error);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    //AGREGAR ERROR error de tipos
+                                                                    Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                                    errores.Add(error);
                                                                 }
                                                             }
                                                             else
                                                             {
-                                                                //AGREGAR ERROR ver error
+                                                                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", indice2.valor.ToString());
+                                                                errores.Add(error);
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            //AGREGAR ERROR se esperaba un arreglo de 2
+                                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba un arreglo de 2 dimensiones");
+                                                            errores.Add(error);
                                                         }
                                                     }
                                                 }
                                                 else
                                                 {
-                                                    //AGREGAR ERROR error de tipos
+                                                    Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                    errores.Add(error);
                                                 }
                                             }
                                             else
                                             {
-                                                //AGREGAR ERROR ver error
+                                                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", indice.valor.ToString());
+                                                errores.Add(error);
                                             }
                                         }
                                     }
@@ -2369,7 +2470,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                 }
                                 else
                                 {
-                                    //AGREGAR ERROR ver error
+                                    Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", nuevoValor.valor.ToString());
+                                    errores.Add(error);
                                 }
                             }
                         }
@@ -2427,12 +2529,14 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     else if (root.ChildNodes[1].ChildNodes[0].ToString().Contains("id"))
                                     {
-                                        //REPORTAR ERROR las constantes solo pueden ser de datos primitivos
+                                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", "Las constantes solo pueden ser datos primitivos");
+                                        errores.Add(error);
                                     }
                                     expresion = resolverExpresion(root.ChildNodes[3], entorno);
                                     if (expresion.tipo == Simbolo.EnumTipo.error)
                                     {
-                                        //AGREGAR ERROR
+                                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", expresion.valor.ToString());
+                                        errores.Add(error);
                                     }
                                     else
                                     {
@@ -2445,7 +2549,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                             else
                                             {
                                                 simbolo.tipo = Simbolo.EnumTipo.error;
-                                                //AGREGAR ERROR
+                                                Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
+                                                errores.Add(error);
                                             }
                                         }
                                         else
@@ -2460,11 +2565,16 @@ namespace Proyecto1_Compiladores2.Analizador
                                     else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
                                         simbolo.constante = true;
-                                        entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                                        if(!entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column))
+                                        {
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + root.ChildNodes[0].ToString() + " ya existe");
+                                            errores.Add(error);
+                                        }
                                     }
                                     else
                                     {
-                                        //AGREGAR ERROR ver error en simbolo
+                                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", simbolo.valor.ToString());
+                                        errores.Add(error);
                                     }
                                 }
                             }
@@ -2511,17 +2621,20 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
-                                            //REPORTAR ERROR ver error
+                                            Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", tmp.valor.ToString());
+                                            errores.Add(error);
                                         }
                                         else
                                         {
-                                            //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                            Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo objeto o arreglo");
+                                            errores.Add(error);
                                         }
                                     }
                                     expresion = resolverExpresion(root.ChildNodes[3], entorno);
                                     if (expresion.tipo == Simbolo.EnumTipo.error)
                                     {
-                                        //AGREGAR ERROR
+                                        Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", expresion.valor.ToString());
+                                        errores.Add(error);
                                     }
                                     else
                                     {
@@ -2534,7 +2647,8 @@ namespace Proyecto1_Compiladores2.Analizador
                                             else
                                             {
                                                 simbolo.tipo = Simbolo.EnumTipo.error;
-                                                //AGREGAR ERROR
+                                                Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", simbolo.valor.ToString());
+                                                errores.Add(error);
                                             }
                                         }
                                         else
@@ -2548,11 +2662,16 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
-                                        entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column);
+                                        if (!entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column))
+                                        {
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(root.ChildNodes[0].ToString()) + " ya existe");
+                                            errores.Add(error);
+                                        }
                                     }
                                     else
                                     {
-                                        //AGREGAR ERROR ver error en simbolo
+                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", simbolo.valor.ToString());
+                                        errores.Add(error);
                                     }
                                 }
                                 else if (root.ChildNodes.Count == 3)
@@ -2584,22 +2703,27 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
-                                            //REPORTAR ERROR ver error
+                                            Error error = new Error(root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column, "Semantico", tmp.valor.ToString());
+                                            errores.Add(error);
                                         }
                                         else
                                         {
-                                            //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                            Error error = new Error(root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo objeto o arreglo");
+                                            errores.Add(error);
                                         }
                                     }
                                     if (simbolo is null)
                                     {
-                                        //AGREGAR ERROR el error se reporta arriba
                                     }
                                     else
                                     {
                                         while (temp.ChildNodes.Count != 0)
                                         {
-                                            entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), new Simbolo(simbolo.tipo, simbolo.valor), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column);
+                                            if (!entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), new Simbolo(simbolo.tipo, simbolo.valor), temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column))
+                                            {
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(temp.ChildNodes[0].ToString()) + " ya existe");
+                                                errores.Add(error);
+                                            }
                                             temp = temp.ChildNodes[1];
                                         }
                                     }
@@ -2633,20 +2757,26 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         else if (tmp.tipo == Simbolo.EnumTipo.error)
                                         {
-                                            //REPORTAR ERROR ver error
+                                            Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", tmp.valor.ToString());
+                                            errores.Add(error);
                                         }
                                         else
                                         {
                                             //REPORTAR ERROR el id no es de tipo arreglo o de tipo objeto
+                                            Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba tipo objeto o arreglo");
+                                            errores.Add(error);
                                         }
                                     }
                                     if (simbolo is null)
                                     {
-                                        //AGREGAR ERROR el error se reporta arriba
                                     }
                                     else
                                     {
-                                        entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), simbolo, temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column);
+                                        if(!entorno.insertar(removerExtras(temp.ChildNodes[0].ToString()), simbolo, temp.ChildNodes[0].Token.Location.Line, temp.ChildNodes[0].Token.Location.Column))
+                                        {
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + removerExtras(temp.ChildNodes[0].ToString()) + " ya existe");
+                                            errores.Add(error);
+                                        }
                                     }
                                 }
                             }

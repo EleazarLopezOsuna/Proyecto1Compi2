@@ -6,15 +6,13 @@ namespace Proyecto1_Compiladores2.Modelos
 {
     class Error
     {
-        public String archivo;
-        public String fila;
-        public String columna;
+        public int fila;
+        public int columna;
         public String tipo;
         public String error;
 
-        public Error(String archivo, String fila, String columna, String tipo, String error)
+        public Error(int fila, int columna, String tipo, String error)
         {
-            this.archivo = archivo;
             this.fila = fila;
             this.columna = columna;
             this.tipo = tipo;
