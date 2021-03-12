@@ -77,18 +77,18 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             Error error = new Error(0, 0, "Semantico", "Error de tipos");
                             errores.Add(error);
-                            return false;
+                            return ejecutado;
                         }
                     }
                     else
                     {
                         Error error = new Error(0, 0, "Semantico", expresion.valor.ToString());
                         errores.Add(error);
-                        return false;
+                        return ejecutado;
                     }
                 }
             }
-            return false;
+            return ejecutado;
         }
         private void ejecutarCase(ParseTreeNode root, Entorno entorno)
         {
