@@ -582,15 +582,12 @@ namespace Proyecto1_Compiladores2.Analizador
                                                 Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "indice fuera del limite");
                                                 errores.Add(error);
                                             }
-                                            MessageBox.Show("21");
                                         }
                                         else
                                         {
                                             Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 1 dimension");
                                             errores.Add(error);
-                                            MessageBox.Show("20");
                                         }
-                                        MessageBox.Show("19");
                                     }
                                     else
                                     {
@@ -620,60 +617,45 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         {
                                                             Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
                                                             errores.Add(error);
-                                                            MessageBox.Show("18");
                                                         }
-                                                        MessageBox.Show("17");
                                                     }
                                                     else
                                                     {
                                                         Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
                                                         errores.Add(error);
-                                                        MessageBox.Show("16");
                                                     }
-                                                    MessageBox.Show("15");
                                                 }
                                                 else
                                                 {
                                                     Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
                                                     errores.Add(error);
-                                                    MessageBox.Show("14");
                                                 }
-                                                MessageBox.Show("13");
                                             }
                                             else
                                             {
                                                 Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice2.valor.ToString());
                                                 errores.Add(error);
-                                                MessageBox.Show("12");
                                             }
-                                            MessageBox.Show("11");
                                         }
                                         else
                                         {
                                             Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba arreglo de 2 dimensiones");
                                             errores.Add(error);
-                                            MessageBox.Show("10");
                                         }
                                     }
-                                    MessageBox.Show("9");
                                 }
                                 else
                                 {
                                     Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Error de tipos");
                                     errores.Add(error);
-                                    MessageBox.Show("8");
                                 }
-                                MessageBox.Show("7");
                             }
                             else
                             {
                                 Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", indice.valor.ToString());
                                 errores.Add(error);
-                                MessageBox.Show("6");
                             }
-                            MessageBox.Show("5");
                         }
-                        MessageBox.Show("4");
                     }
                     return new Expresion(sim.tipo, sim.valor);
                 }
@@ -681,9 +663,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 {
                     Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "La variable no existe");
                     errores.Add(error);
-                    MessageBox.Show("2");
                 }
-                MessageBox.Show("1");
             }
             return new Expresion(Simbolo.EnumTipo.entero, "ERROR DESCONOCIDO EN resolverEstructura");
         }
@@ -2111,7 +2091,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                 {
                                     if (verificarRango(exp1, exp2))
                                     {
-                                        int index = int.Parse(exp2.valor.ToString());
+                                        int index = int.Parse(exp2.valor.ToString()) + 1;
                                         nuevoArreglo = new Objeto(nombreTipo);
                                         nuevoArreglo.arreglo = new Simbolo[index];
                                         if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
@@ -2206,7 +2186,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         if (verificarRango(exp1, exp2))
                                         {
-                                            int index1 = int.Parse(exp2.valor.ToString());
+                                            int index1 = int.Parse(exp2.valor.ToString()) + 1;
                                             t_ordinal = root.ChildNodes[2].ChildNodes[2].ChildNodes[0];
                                             indice = root.ChildNodes[2].ChildNodes[2].ChildNodes[1];
                                             exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
@@ -2215,7 +2195,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             {
                                                 if (verificarRango(exp1, exp2))
                                                 {
-                                                    int index2 = int.Parse(exp2.valor.ToString());
+                                                    int index2 = int.Parse(exp2.valor.ToString()) + 1;
                                                     nuevoArreglo = new Objeto(nombreTipo);
                                                     nuevoArreglo.arreglo = new Simbolo[index1, index2];
                                                     if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
