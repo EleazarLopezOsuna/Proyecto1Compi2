@@ -17,6 +17,7 @@ namespace Proyecto1_Compiladores2.Analizador
         private Expresion retornoFuncion;
         private bool parar;
         private bool continuar;
+        private bool salir;
         public SemanticoInterprete()
         {
 
@@ -31,6 +32,7 @@ namespace Proyecto1_Compiladores2.Analizador
             retornoFuncion = null;
             parar = false;
             continuar = false;
+            salir = false;
             retornoFuncion = new Expresion(Simbolo.EnumTipo.nulo, "");
             recorrer(root, entornoGlobal);
         }
@@ -191,6 +193,8 @@ namespace Proyecto1_Compiladores2.Analizador
                 {
                     do
                     {
+                        parar = false;
+                        continuar = false;
                         recorrer(root.ChildNodes[0], entorno);
                         recorrer(root.ChildNodes[1], entorno);
                         expresion = resolverExpresion(root.ChildNodes[2], entorno);
@@ -220,6 +224,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     continuar = bool.Parse(expresion.valor.ToString());
                     while (continuar)
                     {
+                        parar = false;
+                        continuar = false;
                         recorrer(root.ChildNodes[1], entorno);
                         expresion = resolverExpresion(root.ChildNodes[0], entorno);
                         continuar = bool.Parse(expresion.valor.ToString());
@@ -442,6 +448,8 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             for (int i = iterador; i <= final; i++)
                             {
+                                parar = false;
+                                continuar = false;
                                 entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, i));
                                 recorrer(root.ChildNodes[2], entorno);
                             }
@@ -450,6 +458,9 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             for (int i = iterador; i >= final; i--)
                             {
+                                parar = false;
+                                continuar = false;
+                                salir = false;
                                 entorno.modificar(removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()), new Simbolo(Simbolo.EnumTipo.entero, i));
                                 recorrer(root.ChildNodes[2], entorno);
                             }
@@ -955,6 +966,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     if (sim.tipo == Simbolo.EnumTipo.funcion)
                     {
                         ejecutarLlamada(root, entorno);
+                        salir = false;
                         return retornoFuncion;
                     }
                     else
@@ -1715,6 +1727,7 @@ namespace Proyecto1_Compiladores2.Analizador
             if (root.ChildNodes[2].ChildNodes.Count == 0)
             {
                 retornoFuncion = resolverExpresion(root.ChildNodes[1], entorno);
+                salir = true;
             }
             else
             {
@@ -1983,24 +1996,36 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void recorrer(ParseTreeNode root, Entorno entorno)
         {
-            if (!parar && !continuar) //Comprueba si existe un break o continue
+            if (!parar && !continuar && !salir) //Comprueba si existe un break o continue
             {
                 Entorno nuevoEntorno;
                 Simbolo simbolo = null;
                 Expresion expresion;
                 switch (root.ToString())
                 {
+                    case "BREAK":
+                        parar = true;
+                        break;
+                    case "CONTINUE":
+                        continuar = true;
+                        break;
                     case "CASE":
                         ejecutarCase(root, entorno);
+                        parar = false;
+                        continuar = false;
                         break;
                     case "IF":
                         ejecutarIf(root, entorno);
                         break;
                     case "REPEAT":
                         ejecutarRepeat(root, entorno);
+                        parar = false;
+                        continuar = false;
                         break;
                     case "WHILE":
                         ejecutarWhile(root, entorno);
+                        parar = false;
+                        continuar = false;
                         break;
                     case "FUNCION":
                         nuevoEntorno = new Entorno(entorno, removerExtras(root.ChildNodes[0].ChildNodes[0].ToString()));
@@ -2029,14 +2054,6 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             ejecutarWrite(root, entorno);
                         }
-                        else if (root.ChildNodes[0].ToString().ToLower().Contains("break"))
-                        {
-
-                        }
-                        else if (root.ChildNodes[0].ToString().ToLower().Contains("continue"))
-                        {
-
-                        }
                         else if (root.ChildNodes[0].ToString().ToLower().Contains("graficar_ts"))
                         {
                             ejecutarGraficarTS();
@@ -2048,6 +2065,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         else
                         {
                             ejecutarLlamada(root, entorno);
+                            salir = false;
                         }
                         break;
                     case "Z_TIPOS":
@@ -2484,6 +2502,8 @@ namespace Proyecto1_Compiladores2.Analizador
                         break;
                     case "FOR":
                         ejecutarFor(root, entorno);
+                        parar = false;
+                        continuar = false;
                         break;
                     case "SUBPROGRAMA":
                     case "PROGRAMA":
@@ -2805,6 +2825,11 @@ namespace Proyecto1_Compiladores2.Analizador
                             MessageBox.Show("Falto agregar " + root.ToString() + " al switch");
                         break;
                 }
+            }
+            else
+            {
+                        parar = false;
+                        continuar = false;
             }
         }
     }
