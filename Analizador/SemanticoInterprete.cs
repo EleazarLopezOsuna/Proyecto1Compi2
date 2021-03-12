@@ -1765,7 +1765,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     error = new Error(0, 0, "Semantico", "Faltan parametros");
                                     errores.Add(error);
-                                    MessageBox.Show("faltan parametros  ");
                                     return false;
                                 }
                             }
@@ -1784,7 +1783,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         error = new Error(0, 0, "Semantico", "Faltan parametros");
                                         errores.Add(error);
-                                        MessageBox.Show("faltan parametros");
                                         return false;
                                     }
                                 }
@@ -1807,25 +1805,21 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             error = new Error(0, 0, "Semantico", "Faltan parametros");
                                             errores.Add(error);
-                                            MessageBox.Show("faltan parametros");
                                             return false;
                                         }
                                     }
                                 }
                                 error = new Error(0, 0, "Semantico", "Se esperaba una variable y se obtuvo una expresion");
                                 errores.Add(error);
-                                MessageBox.Show("se esperaba una variable y se obtuvo una expresion");
                                 return false;
                             }
                         }
                         error = new Error(0, 0, "Semantico", "El numero de parametros es mayor al esperado");
                         errores.Add(error);
-                        MessageBox.Show("el numero de parametros el mayor al esperado");
                         return false;
                     }
                     error = new Error(0, 0, "Semantico", "Se esperaba un valor primitivo, objeto o arreglo");
                     errores.Add(error);
-                    MessageBox.Show("se esperaba un valor primitivo, objeto o arreglo");
                     return false;
                 }
                 MessageBox.Show(expresion.valor.ToString() + root.ChildNodes[1].ToString());
@@ -1860,7 +1854,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     error = new Error(0, 0, "Semantico", "Faltan parametros");
                                     errores.Add(error);
-                                    MessageBox.Show("2    -    faltan parametros");
                                     return false;
                                 }
                             }
@@ -1884,27 +1877,22 @@ namespace Proyecto1_Compiladores2.Analizador
                                         }
                                         error = new Error(0, 0, "Semantico", "Faltan parametros");
                                         errores.Add(error);
-                                        MessageBox.Show("2    -    faltan parametros");
                                         return false;
                                     }
                                 }
                                 error = new Error(0, 0, "Semantico", "Se esperaba una variable y se obtuvo una expresion");
                                 errores.Add(error);
-                                MessageBox.Show("2    -    se esperaba una variable y se obtuvo una expresion");
                                 return false;
                             }
                         }
                         error = new Error(0, 0, "Semantico", "El numero de parametros es mayor al esperado");
                         errores.Add(error);
-                        MessageBox.Show("2    -    el numero de parametros el mayor al esperado");
                         return false;
                     }
                     error = new Error(0, 0, "Semantico", "Se esperaba un valor primitivo, objeto o arreglo");
                     errores.Add(error);
-                    MessageBox.Show("2    -    se esperaba un valor primitivo, objeto o arreglo");
                     return false;
                 }
-                MessageBox.Show(expresion.valor.ToString());
                 return false;
             }
         }

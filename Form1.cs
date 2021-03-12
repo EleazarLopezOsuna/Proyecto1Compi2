@@ -121,96 +121,108 @@ namespace Proyecto1_Compiladores2
             {
                 if (resultadoAnalisis.ParserMessages.Count == 0)
                 {
-                    table_label.Text = "Symbol Table";
-                    symbol_table.Visible = true;
-                    error_table.Visible = false;
-
                     SemanticoInterprete semanticoInterprete = new SemanticoInterprete();
                     semanticoInterprete.iniciarAnalisisSintactico(resultadoAnalisis.Root);
                     Simbolo sim;
                     String valorTabla = "";
-                    foreach (Entorno entorno in semanticoInterprete.entornos)
+                    if (semanticoInterprete.errores.Count != 0)
                     {
-                        foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
+                        table_label.Text = "Error Table";
+                        symbol_table.Visible = false;
+                        error_table.Visible = true;
+                        foreach (Error error in semanticoInterprete.errores)
                         {
-                            if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
+                            error_table.Rows.Add("Semantico", error.error, error.fila, error.columna);
+                        }
+                    }
+                    else
+                    {
+                        table_label.Text = "Symbol Table";
+                        symbol_table.Visible = true;
+                        error_table.Visible = false;
+                        foreach (Entorno entorno in semanticoInterprete.entornos)
+                        {
+                            foreach (KeyValuePair<string, Simbolo> variable in entorno.tabla)
                             {
-                                string valor = "";
-                                if (((Objeto)variable.Value.valor).arreglo is null)
+                                if (typeof(Objeto).IsInstanceOfType(variable.Value.valor))
                                 {
-                                    foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
+                                    string valor = "";
+                                    if (((Objeto)variable.Value.valor).arreglo is null)
                                     {
-                                        sim = parametro.Value;
-                                        if (sim.valor.ToString().Contains("Proyecto1_Compiladores2"))
+                                        foreach (KeyValuePair<string, Simbolo> parametro in ((Objeto)variable.Value.valor).parametros)
                                         {
-                                            valorTabla = ((Objeto)sim.valor).nombre;
-                                            if (valor == "")
+                                            sim = parametro.Value;
+                                            if (sim.valor.ToString().Contains("Proyecto1_Compiladores2"))
                                             {
-                                                valor = parametro.Key + ": " + valorTabla;
+                                                valorTabla = ((Objeto)sim.valor).nombre;
+                                                if (valor == "")
+                                                {
+                                                    valor = parametro.Key + ": " + valorTabla;
+                                                }
+                                                else
+                                                {
+                                                    valor += ", " + parametro.Key + ": " + valorTabla;
+                                                }
                                             }
                                             else
                                             {
-                                                valor += ", " + parametro.Key + ": " + valorTabla;
+                                                if (valor == "")
+                                                {
+                                                    valor = parametro.Key + ": " + sim.valor;
+                                                }
+                                                else
+                                                {
+                                                    valor += ", " + parametro.Key + ": " + sim.valor;
+                                                }
                                             }
                                         }
-                                        else
-                                        {
-                                            if (valor == "")
-                                            {
-                                                valor = parametro.Key + ": " + sim.valor;
-                                            }
-                                            else
-                                            {
-                                                valor += ", " + parametro.Key + ": " + sim.valor;
-                                            }
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    Objeto tmp = (Objeto)variable.Value.valor;
-                                    if (tmp.tipo != Simbolo.EnumTipo.objeto)
-                                    {
-                                        valor = tmp.tipo + "[" + tmp.arreglo.GetLength(0);
                                     }
                                     else
                                     {
-                                        valor = tmp.nombreTipo + "[" + tmp.arreglo.GetLength(0);
-                                    }
-                                    for (int i = 1; i < tmp.arreglo.Rank; i++)
-                                    {
-                                        valor += ", " + tmp.arreglo.GetLength(i);
-                                    }
-                                    valor += "]";
-                                }
-                                symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
-                            }
-                            else
-                            {
-                                if (variable.Value.tipo == Simbolo.EnumTipo.funcion || variable.Value.tipo == Simbolo.EnumTipo.procedimiento)
-                                {
-                                    SubPrograma sp = (SubPrograma)variable.Value.valor;
-                                    string valor = "";
-                                    if (sp.ordenParametros.Count != 0)
-                                    {
-                                        foreach (string cadena in sp.ordenParametros)
+                                        Objeto tmp = (Objeto)variable.Value.valor;
+                                        if (tmp.tipo != Simbolo.EnumTipo.objeto)
                                         {
-                                            if (valor == "")
-                                            {
-                                                valor = "; {" + cadena;
-                                            }
-                                            else
-                                            {
-                                                valor += ", " + cadena;
-                                            }
+                                            valor = tmp.tipo + "[" + tmp.arreglo.GetLength(0);
                                         }
-                                        valor += "}";
+                                        else
+                                        {
+                                            valor = tmp.nombreTipo + "[" + tmp.arreglo.GetLength(0);
+                                        }
+                                        for (int i = 1; i < tmp.arreglo.Rank; i++)
+                                        {
+                                            valor += ", " + tmp.arreglo.GetLength(i);
+                                        }
+                                        valor += "]";
                                     }
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, sp.tipo + valor);
+                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, valor);
                                 }
                                 else
                                 {
-                                    symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
+                                    if (variable.Value.tipo == Simbolo.EnumTipo.funcion || variable.Value.tipo == Simbolo.EnumTipo.procedimiento)
+                                    {
+                                        SubPrograma sp = (SubPrograma)variable.Value.valor;
+                                        string valor = "";
+                                        if (sp.ordenParametros.Count != 0)
+                                        {
+                                            foreach (string cadena in sp.ordenParametros)
+                                            {
+                                                if (valor == "")
+                                                {
+                                                    valor = "; {" + cadena;
+                                                }
+                                                else
+                                                {
+                                                    valor += ", " + cadena;
+                                                }
+                                            }
+                                            valor += "}";
+                                        }
+                                        symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, sp.tipo + valor);
+                                    }
+                                    else
+                                    {
+                                        symbol_table.Rows.Add(variable.Key, variable.Value.tipo, entorno.nombreEntorno, variable.Value.fila, variable.Value.columna, variable.Value.valor.ToString());
+                                    }
                                 }
                             }
                         }

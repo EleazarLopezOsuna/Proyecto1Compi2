@@ -95,7 +95,6 @@ namespace Proyecto1_Compiladores2.Modelos
                 {
                     Simbolo s = null;
                     entorno.tabla.TryGetValue(parametro.Key, out s);
-                    MessageBox.Show(((Simbolo)parametro.Value).valor.ToString());
                     entornoPrincipal.modificar(nombreVariable, s);
                 }
             }
