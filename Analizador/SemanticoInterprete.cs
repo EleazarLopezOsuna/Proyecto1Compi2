@@ -816,7 +816,14 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             {
                                                                 return resolverEstructura(root.ChildNodes[3], tempo.GetValue(index1), ent);
                                                             }
-                                                            sim = (Simbolo)tempo.GetValue(index1);
+                                                            if (typeof(Objeto).IsInstanceOfType(tempo.GetValue(index1)))
+                                                            {
+                                                                sim = new Simbolo(Simbolo.EnumTipo.objeto, tempo.GetValue(index1));
+                                                            }
+                                                            else
+                                                            {
+                                                                sim = (Simbolo)tempo.GetValue(index1);
+                                                            }
                                                             return new Expresion(sim.tipo, sim.valor);
                                                         }
                                                         else
@@ -1724,15 +1731,22 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         private void ejecutarExit(ParseTreeNode root, Entorno entorno)
         {
-            if (root.ChildNodes[2].ChildNodes.Count == 0)
+            if (root.ChildNodes.Count == 1)
             {
-                retornoFuncion = resolverExpresion(root.ChildNodes[1], entorno);
                 salir = true;
             }
             else
             {
-                Error error = new Error(root.Token.Location.Line, root.Token.Location.Column, "Semantico", "La funcion exit debe tener solo 1 parametro");
-                errores.Add(error);
+                if (root.ChildNodes[2].ChildNodes.Count == 0)
+                {
+                    retornoFuncion = resolverExpresion(root.ChildNodes[1], entorno);
+                    salir = true;
+                }
+                else
+                {
+                    Error error = new Error(root.Token.Location.Line, root.Token.Location.Column, "Semantico", "La funcion exit debe tener solo 1 parametro");
+                    errores.Add(error);
+                }
             }
         }
         private void ejecutarGraficarTS()
@@ -2599,6 +2613,25 @@ namespace Proyecto1_Compiladores2.Analizador
                                     else
                                     {
                                         Error error = new Error(root.ChildNodes[1].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].Token.Location.Column, "Semantico", simbolo.valor.ToString());
+                                        errores.Add(error);
+                                    }
+                                }
+                                else if (root.ChildNodes.Count == 3)
+                                {
+                                    expresion = resolverExpresion(root.ChildNodes[2], entorno);
+                                    if(expresion.tipo != Simbolo.EnumTipo.error)
+                                    {
+                                        simbolo = new Simbolo(expresion.tipo, expresion.valor);
+                                        simbolo.constante = true;
+                                        if (!entorno.insertar(removerExtras(root.ChildNodes[0].ToString()), simbolo, root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column))
+                                        {
+                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "El identificador " + root.ChildNodes[0].ToString() + " ya existe");
+                                            errores.Add(error);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", expresion.valor.ToString());
                                         errores.Add(error);
                                     }
                                 }
