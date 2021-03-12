@@ -43,7 +43,7 @@ namespace Proyecto1_Compiladores2
             //Parametros para el File Dialog
             openFileDialog1.InitialDirectory = @"C:\compiladores2\";
             openFileDialog1.FileName = "";
-            openFileDialog1.Filter = "Text files (*.txt)|*.txt";
+            openFileDialog1.Filter = "Pascal files (*.pas)|*.pas";
 
 
             openFileDialog1.ShowDialog();

@@ -106,6 +106,8 @@ namespace Proyecto1_Compiladores2.Analizador
             NonTerminal Z_VARIABLES_P = new NonTerminal("Z_VARIABLES");
             NonTerminal Z_DECLARACIONES_P = new NonTerminal("Z_DECLARACIONES");
             NonTerminal Z_TIPOS_P = new NonTerminal("Z_TIPOS");
+            NonTerminal BREAK = new NonTerminal("BREAK");
+            NonTerminal CONTINUE = new NonTerminal("CONTINUE");
             #endregion
 
             #region Gramatica
@@ -318,11 +320,19 @@ namespace Proyecto1_Compiladores2.Analizador
                 | Empty
                 ;
 
-            SENTENCIA.Rule = ASIGNACION
+            SENTENCIA.Rule = BREAK
+                | CONTINUE
+                | ASIGNACION
                 | BEGIN_END
                 | LLAMADA
                 | CONTROLADOR
                 | Empty
+                ;
+
+            BREAK.Rule = ToTerm("break")
+                ;
+
+            CONTINUE.Rule = ToTerm("continue")
                 ;
 
             BEGIN_END.Rule = ToTerm("begin") + SENTENCIA + R_SENTENCIA + ToTerm("end")

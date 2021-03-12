@@ -386,7 +386,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         temp = agregarProcedimiento(subProg.root, entornoGlobal, new Entorno(entornoGlobal, removerExtras(root.ChildNodes[0].ToString())));
                     }
                     subProg = (SubPrograma)temp.valor;
-                    if (enviarParametros(root, entorno, subProg, 0))
+                    if (root.ChildNodes.Count == 1 && subProg.ordenParametros.Count == 0)
                     {
                         subProg.modificarEntorno();
                         //sim.valor = subProg;
@@ -396,8 +396,19 @@ namespace Proyecto1_Compiladores2.Analizador
                     }
                     else
                     {
-                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Los requerimientos del subprograma" + removerExtras(root.ChildNodes[0].ToString()) + " no se pudieron completar");
-                        errores.Add(error);
+                        if (enviarParametros(root, entorno, subProg, 0))
+                        {
+                            subProg.modificarEntorno();
+                            //sim.valor = subProg;
+                            entorno.modificar(nombreSubPrograma, sim);
+                            recorrer(subProg.root.ChildNodes[2], subProg.entorno);
+                            subProg.modificarVariablesOriginales(entorno);
+                        }
+                        else
+                        {
+                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Los requerimientos del subprograma" + removerExtras(root.ChildNodes[0].ToString()) + " no se pudieron completar");
+                            errores.Add(error);
+                        }
                     }
                 }
                 else
