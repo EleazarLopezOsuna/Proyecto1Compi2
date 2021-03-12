@@ -114,6 +114,7 @@ namespace Proyecto1_Compiladores2.Analizador
                 ;
 
             CASE.Rule = ToTerm("case") + EXPRESION + ToTerm("of") + OPCION_CASE + R_OPCION_CASE + ToTerm("else") + SENTENCIA + ToTerm("end")
+                | ToTerm("case") + EXPRESION + ToTerm("of") + OPCION_CASE + R_OPCION_CASE + ToTerm("else") + SENTENCIA + ToTerm(";") + ToTerm("end")
                 | ToTerm("case") + EXPRESION + ToTerm("of") + OPCION_CASE + R_OPCION_CASE + ToTerm("end")
                 ;
 

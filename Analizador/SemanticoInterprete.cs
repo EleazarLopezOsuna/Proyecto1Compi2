@@ -239,6 +239,7 @@ namespace Proyecto1_Compiladores2.Analizador
         }
         public Simbolo buscarTipo(string cadena, Entorno entorno)
         {
+            cadena = cadena.ToLower();
             switch (cadena)
             {
                 case "string":
@@ -677,6 +678,14 @@ namespace Proyecto1_Compiladores2.Analizador
                         {
                             return operarAnd(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
                         }
+                        else if (root.ChildNodes[1].ToString().Contains(">") && root.ChildNodes[1].ToString().Contains("="))
+                        {
+                            return operarMayorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
+                        else if (root.ChildNodes[1].ToString().Contains("<") && root.ChildNodes[1].ToString().Contains("="))
+                        {
+                            return operarMenorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
+                        }
                         else if (root.ChildNodes[1].ToString().Contains("="))
                         {
                             return operarIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
@@ -684,14 +693,6 @@ namespace Proyecto1_Compiladores2.Analizador
                         else if (root.ChildNodes[1].ToString().Contains("<>"))
                         {
                             return operarDesigual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
-                        }
-                        else if (root.ChildNodes[1].ToString().Contains(">="))
-                        {
-                            return operarMayorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
-                        }
-                        else if (root.ChildNodes[1].ToString().Contains("<="))
-                        {
-                            return operarMenorIgual(resolverExpresion(root.ChildNodes[0], ent), resolverExpresion(root.ChildNodes[2], ent));
                         }
                         else if (root.ChildNodes[1].ToString().Contains(">"))
                         {
@@ -1344,9 +1345,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     switch (expresion2.tipo)
                     {
                         case Simbolo.EnumTipo.entero:
-                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) >= int.Parse(expresion2.valor.ToString()));
+                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) >= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.real:
-                            //real Entero
                             return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) >= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.error:
                             return expresion2;
@@ -1357,11 +1357,9 @@ namespace Proyecto1_Compiladores2.Analizador
                     switch (expresion2.tipo)
                     {
                         case Simbolo.EnumTipo.entero:
-                            //Entero Entero
                             return new Expresion(Simbolo.EnumTipo.boleano, int.Parse(expresion1.valor.ToString()) >= int.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.real:
-                            //Entero real
-                            return new Expresion(Simbolo.EnumTipo.boleano, int.Parse(expresion1.valor.ToString()) >= Double.Parse(expresion2.valor.ToString()));
+                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) >= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.error:
                             return expresion2;
                         default:
@@ -1381,9 +1379,8 @@ namespace Proyecto1_Compiladores2.Analizador
                     switch (expresion2.tipo)
                     {
                         case Simbolo.EnumTipo.entero:
-                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) <= int.Parse(expresion2.valor.ToString()));
+                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) <= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.real:
-                            //real Entero
                             return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) <= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.error:
                             return expresion2;
@@ -1394,11 +1391,9 @@ namespace Proyecto1_Compiladores2.Analizador
                     switch (expresion2.tipo)
                     {
                         case Simbolo.EnumTipo.entero:
-                            //Entero Entero
                             return new Expresion(Simbolo.EnumTipo.boleano, int.Parse(expresion1.valor.ToString()) <= int.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.real:
-                            //Entero real
-                            return new Expresion(Simbolo.EnumTipo.boleano, int.Parse(expresion1.valor.ToString()) <= Double.Parse(expresion2.valor.ToString()));
+                            return new Expresion(Simbolo.EnumTipo.boleano, Double.Parse(expresion1.valor.ToString()) <= Double.Parse(expresion2.valor.ToString()));
                         case Simbolo.EnumTipo.error:
                             return expresion2;
                         default:
@@ -1815,7 +1810,7 @@ namespace Proyecto1_Compiladores2.Analizador
                     MessageBox.Show("se esperaba un valor primitivo, objeto o arreglo");
                     return false;
                 }
-                MessageBox.Show(expresion.valor.ToString());
+                MessageBox.Show(expresion.valor.ToString() + root.ChildNodes[1].ToString());
                 return false;
             }
             else
@@ -2560,7 +2555,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     if (simbolo is null)
                                     {
-                                        //AGREGAR ERROR el error se reporta arriba
                                     }
                                     else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
@@ -2658,7 +2652,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                     }
                                     if (simbolo is null)
                                     {
-                                        //AGREGAR ERROR el error se reporta arriba
                                     }
                                     else if (expresion.tipo != Simbolo.EnumTipo.error && simbolo.tipo != Simbolo.EnumTipo.error)
                                     {
