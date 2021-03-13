@@ -76,6 +76,8 @@ namespace Proyecto1_Compiladores2.Modelos
                 {
                     Simbolo nuevo;
                     e.tabla.TryGetValue(nombre, out nuevo);
+                    if (simbolo is null)
+                        return false;
                     nuevo.valor = simbolo.valor;
                     e.tabla.Remove(nombre);
                     e.tabla.Add(nombre, nuevo);

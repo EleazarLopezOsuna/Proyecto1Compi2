@@ -550,7 +550,7 @@ namespace Proyecto1_Compiladores2.Analizador
                         if (root.ChildNodes.Count == 2)
                         {
                             Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba un arreglo, se encontro un objeto");
-                            errores.Add(error);
+                            //errores.Add(error);
                         }
                         else //campo[index{, index}].campo o campo[index{, index}]
                         {
@@ -579,7 +579,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             }
                                             else
                                             {
-                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "indice fuera del limite");
+                                                Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "indice fuera del limite 1");
                                                 errores.Add(error);
                                             }
                                         }
@@ -615,13 +615,13 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         }
                                                         else
                                                         {
-                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 2");
                                                             errores.Add(error);
                                                         }
                                                     }
                                                     else
                                                     {
-                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 3");
                                                         errores.Add(error);
                                                     }
                                                 }
@@ -808,7 +808,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         }
                                                         else
                                                         {
-                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                            Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 4");
                                                             errores.Add(error);
                                                         }
                                                     }
@@ -844,13 +844,13 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                     }
                                                                     else
                                                                     {
-                                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                        Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 5");
                                                                         errores.Add(error);
                                                                     }
                                                                 }
                                                                 else
                                                                 {
-                                                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                    Error error = new Error(root.ChildNodes[0].Token.Location.Line, root.ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 6");
                                                                     errores.Add(error);
                                                                 }
                                                             }
@@ -2254,7 +2254,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         if (verificarRango(exp1, exp2))
                                         {
-                                            int index1 = Convert.ToInt32(Double.Parse(exp1.valor.ToString())) + 1;
+                                            int index1 = Convert.ToInt32(Double.Parse(exp2.valor.ToString())) + 1;
                                             t_ordinal = root.ChildNodes[2].ChildNodes[2].ChildNodes[0];
                                             indice = root.ChildNodes[2].ChildNodes[2].ChildNodes[1];
                                             exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
@@ -2317,11 +2317,13 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         {
                                                             nuevoArreglo = new Objeto(nombreTipo);
                                                             nuevoArreglo.arreglo = new Objeto[index1, index2];
+                                                            Objeto obj;
                                                             for (int i = 0; i < index1; i++)
                                                             {
                                                                 for (int j = 0; j < index2; j++)
                                                                 {
-                                                                    nuevoArreglo.arreglo.SetValue((Objeto)tmp.valor, i, j);
+                                                                    obj = new Objeto((Objeto)tmp.valor);
+                                                                    nuevoArreglo.arreglo.SetValue(obj, i, j);
                                                                 }
                                                             }
                                                             nuevoArreglo.nombreTipo = removerExtras(root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString());
@@ -2335,14 +2337,6 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         else
                                                         {
                                                             Error error = new Error(0, 0, "Semantico", "Se esperaba tipo objeto o arreglo");
-                                                            errores.Add(error);
-                                                        }
-                                                    }
-                                                    if (nuevoArreglo != null)
-                                                    {
-                                                        if(!entorno.insertar(nombreTipo, new Simbolo(Simbolo.EnumTipo.arreglo, nuevoArreglo), root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column))
-                                                        {
-                                                            Error error = new Error(root.ChildNodes[2].ChildNodes[0].Token.Location.Line, root.ChildNodes[2].ChildNodes[0].Token.Location.Column, "Semantico", "El identificador" + nombreTipo + " ya existe");
                                                             errores.Add(error);
                                                         }
                                                     }
@@ -2464,7 +2458,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             }
                                                             else
                                                             {
-                                                                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 7");
                                                                 errores.Add(error);
                                                             }
                                                         }
@@ -2485,7 +2479,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             {
                                                                 if (indice2.tipo == Simbolo.EnumTipo.entero || indice2.tipo == Simbolo.EnumTipo.real)
                                                                 {
-                                                                    int index2 = Convert.ToInt32(Double.Parse(indice.valor.ToString()));
+                                                                    int index2 = Convert.ToInt32(Double.Parse(indice2.valor.ToString()));
                                                                     if (index1 < temp.GetLength(0))
                                                                     {
                                                                         if (index2 < temp.GetLength(1))
@@ -2507,13 +2501,13 @@ namespace Proyecto1_Compiladores2.Analizador
                                                                         }
                                                                         else
                                                                         {
-                                                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                            Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 8");
                                                                             errores.Add(error);
                                                                         }
                                                                     }
                                                                     else
                                                                     {
-                                                                        Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite");
+                                                                        Error error = new Error(root.ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Indice fuera del limite 9");
                                                                         errores.Add(error);
                                                                     }
                                                                 }
