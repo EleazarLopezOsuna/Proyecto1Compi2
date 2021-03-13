@@ -435,15 +435,15 @@ namespace Proyecto1_Compiladores2.Analizador
             bool tipo = root.ChildNodes[1].ToString().Equals("ARRIBA") ? true : false;
             if (posicionFinal.tipo != Simbolo.EnumTipo.error)
             {
-                if (posicionFinal.tipo == Simbolo.EnumTipo.entero)
+                if (posicionFinal.tipo == Simbolo.EnumTipo.entero || posicionFinal.tipo == Simbolo.EnumTipo.real)
                 {
                     Expresion expresion = buscarVariable(root.ChildNodes[0].ChildNodes[0].ChildNodes[0], entorno);
-                    if (expresion.tipo == Simbolo.EnumTipo.entero)
+                    if (expresion.tipo == Simbolo.EnumTipo.entero || expresion.tipo == Simbolo.EnumTipo.real)
                     {
                         recorrer(root.ChildNodes[0], entorno);
                         expresion = buscarVariable(root.ChildNodes[0].ChildNodes[0].ChildNodes[0], entorno);
-                        int iterador = int.Parse(expresion.valor.ToString());
-                        int final = int.Parse(posicionFinal.valor.ToString());
+                        int iterador = Convert.ToInt32(Double.Parse(expresion.valor.ToString()));
+                        int final = Convert.ToInt32(Double.Parse(posicionFinal.valor.ToString()));
                         if (tipo)
                         {
                             for (int i = iterador; i <= final; i++)
@@ -491,11 +491,11 @@ namespace Proyecto1_Compiladores2.Analizador
             {
                 if (exp2.tipo != Simbolo.EnumTipo.error)
                 {
-                    if (exp1.tipo == Simbolo.EnumTipo.entero)
+                    if (exp1.tipo == Simbolo.EnumTipo.entero || exp1.tipo == Simbolo.EnumTipo.real)
                     {
-                        if (exp2.tipo == Simbolo.EnumTipo.entero)
+                        if (exp2.tipo == Simbolo.EnumTipo.entero || exp2.tipo == Simbolo.EnumTipo.real)
                         {
-                            if (int.Parse(exp1.valor.ToString()) < int.Parse(exp2.valor.ToString()))
+                            if (Convert.ToInt32(Double.Parse(exp1.valor.ToString())) < Convert.ToInt32(Double.Parse(exp2.valor.ToString())))
                             {
                                 return true;
                             }
@@ -558,9 +558,9 @@ namespace Proyecto1_Compiladores2.Analizador
                             Expresion indice = resolverExpresion(root.ChildNodes[1], ent);
                             if (indice.tipo != Simbolo.EnumTipo.error)
                             {
-                                if (indice.tipo == Simbolo.EnumTipo.entero)
+                                if (indice.tipo == Simbolo.EnumTipo.entero || indice.tipo == Simbolo.EnumTipo.real)
                                 {
-                                    int index1 = int.Parse(indice.valor.ToString());
+                                    int index1 = Convert.ToInt32(Double.Parse(indice.valor.ToString()));
                                     if (root.ChildNodes[2].ChildNodes.Count == 0)
                                     {
                                         //Se espera que simbolo sea un arreglo de 1 dimension
@@ -598,9 +598,9 @@ namespace Proyecto1_Compiladores2.Analizador
                                             Expresion indice2 = resolverExpresion(root.ChildNodes[2].ChildNodes[0], ent);
                                             if (indice2.tipo != Simbolo.EnumTipo.error)
                                             {
-                                                if (indice2.tipo == Simbolo.EnumTipo.entero)
+                                                if (indice2.tipo == Simbolo.EnumTipo.entero || indice2.tipo == Simbolo.EnumTipo.real)
                                                 {
-                                                    int index2 = int.Parse(indice2.valor.ToString());
+                                                    int index2 = Convert.ToInt32(Double.Parse(indice2.valor.ToString()));
                                                     if (index1 < tempo.GetLength(0))
                                                     {
                                                         if (index2 < tempo.GetLength(1))
@@ -780,9 +780,9 @@ namespace Proyecto1_Compiladores2.Analizador
                                         Expresion indice = resolverExpresion(root.ChildNodes[1], ent);
                                         if (indice.tipo != Simbolo.EnumTipo.error)
                                         {
-                                            if (indice.tipo == Simbolo.EnumTipo.entero)
+                                            if (indice.tipo == Simbolo.EnumTipo.entero || indice.tipo == Simbolo.EnumTipo.real)
                                             {
-                                                int index1 = int.Parse(indice.valor.ToString());
+                                                int index1 = Convert.ToInt32(Double.Parse(indice.valor.ToString()));
                                                 if (root.ChildNodes[2].ChildNodes.Count == 0)
                                                 {
                                                     //Se espera que simbolo sea un arreglo de 1 dimension
@@ -827,9 +827,9 @@ namespace Proyecto1_Compiladores2.Analizador
                                                         Expresion indice2 = resolverExpresion(root.ChildNodes[2].ChildNodes[0], ent);
                                                         if (indice2.tipo != Simbolo.EnumTipo.error)
                                                         {
-                                                            if (indice2.tipo == Simbolo.EnumTipo.entero)
+                                                            if (indice2.tipo == Simbolo.EnumTipo.entero || indice2.tipo == Simbolo.EnumTipo.real)
                                                             {
-                                                                int index2 = int.Parse(indice2.valor.ToString());
+                                                                int index2 = Convert.ToInt32(Double.Parse(indice2.valor.ToString()));
                                                                 if (index1 < tempo.GetLength(0))
                                                                 {
                                                                     if (index2 < tempo.GetLength(1))
@@ -1808,6 +1808,46 @@ namespace Proyecto1_Compiladores2.Analizador
                                             return false;
                                         }
                                     }
+                                    else if (root.ChildNodes[1].ChildNodes[0].ToString().Equals("ESTRUCTURA"))
+                                    {
+                                        subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                        subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[1].ChildNodes[0].ChildNodes[0].ToString()));
+                                        Expresion exp = resolverExpresion(root.ChildNodes[1].ChildNodes[0].ChildNodes[1], entorno);
+                                        if (exp.tipo != Simbolo.EnumTipo.error)
+                                        {
+                                            if (exp.tipo == Simbolo.EnumTipo.entero || exp.tipo == Simbolo.EnumTipo.real)
+                                            {
+                                                subPrograma.correlacionIndices.Add(nombreParametro, Convert.ToInt32(Double.Parse(exp.valor.ToString())));
+                                            }
+                                            else
+                                            {
+                                                error = new Error(root.ChildNodes[1].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba entero");
+                                                errores.Add(error);
+                                                return false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            error = new Error(root.ChildNodes[1].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[1].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", exp.valor.ToString());
+                                            errores.Add(error);
+                                            return false;
+                                        }
+                                        if (root.ChildNodes[1].ChildNodes.Count != 0)
+                                        {
+                                            contador++;
+                                            return enviarParametros(root.ChildNodes[2], entorno, subPrograma, contador);
+                                        }
+                                        else
+                                        {
+                                            if (contador == (subPrograma.ordenParametros.Count - 1))
+                                            {
+                                                return true;
+                                            }
+                                            error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                            errores.Add(error);
+                                            return false;
+                                        }
+                                    }
                                 }
                                 error = new Error(0, 0, "Semantico", "Se esperaba una variable y se obtuvo una expresion");
                                 errores.Add(error);
@@ -1864,6 +1904,46 @@ namespace Proyecto1_Compiladores2.Analizador
                                 {
                                     subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
                                     subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()));
+                                    if (root.ChildNodes[1].ChildNodes.Count != 0)
+                                    {
+                                        contador++;
+                                        return enviarParametros(root.ChildNodes[1], entorno, subPrograma, contador);
+                                    }
+                                    else
+                                    {
+                                        if (contador == (subPrograma.ordenParametros.Count - 1))
+                                        {
+                                            return true;
+                                        }
+                                        error = new Error(0, 0, "Semantico", "Faltan parametros");
+                                        errores.Add(error);
+                                        return false;
+                                    }
+                                }
+                                else if (root.ChildNodes[0].ChildNodes[0].ToString().Equals("ESTRUCTURA"))
+                                {
+                                    subPrograma.modificarVariable(nombreParametro, new Simbolo(expresion.tipo, expresion.valor));
+                                    subPrograma.correlacionParametros.Add(nombreParametro, removerExtras(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].ToString()));
+                                    Expresion exp = resolverExpresion(root.ChildNodes[0].ChildNodes[0].ChildNodes[1], entorno);
+                                    if (exp.tipo != Simbolo.EnumTipo.error)
+                                    {
+                                        if (exp.tipo == Simbolo.EnumTipo.entero || exp.tipo == Simbolo.EnumTipo.real)
+                                        {
+                                            subPrograma.correlacionIndices.Add(nombreParametro, Convert.ToInt32(Double.Parse(exp.valor.ToString())));
+                                        }
+                                        else
+                                        {
+                                            error = new Error(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", "Se esperaba entero");
+                                            errores.Add(error);
+                                            return false;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        error = new Error(root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Line, root.ChildNodes[0].ChildNodes[0].ChildNodes[0].Token.Location.Column, "Semantico", exp.valor.ToString());
+                                        errores.Add(error);
+                                        return false;
+                                    }
                                     if (root.ChildNodes[1].ChildNodes.Count != 0)
                                     {
                                         contador++;
@@ -2079,7 +2159,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                 {
                                     if (verificarRango(exp1, exp2))
                                     {
-                                        int index = int.Parse(exp2.valor.ToString()) + 1;
+                                        int index = Convert.ToInt32(Double.Parse(exp2.valor.ToString())) + 1;
                                         nuevoArreglo = new Objeto(nombreTipo);
                                         nuevoArreglo.arreglo = new Simbolo[index];
                                         if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
@@ -2174,7 +2254,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                     {
                                         if (verificarRango(exp1, exp2))
                                         {
-                                            int index1 = int.Parse(exp2.valor.ToString()) + 1;
+                                            int index1 = Convert.ToInt32(Double.Parse(exp1.valor.ToString())) + 1;
                                             t_ordinal = root.ChildNodes[2].ChildNodes[2].ChildNodes[0];
                                             indice = root.ChildNodes[2].ChildNodes[2].ChildNodes[1];
                                             exp1 = resolverExpresion(t_ordinal.ChildNodes[0], entorno);
@@ -2183,7 +2263,7 @@ namespace Proyecto1_Compiladores2.Analizador
                                             {
                                                 if (verificarRango(exp1, exp2))
                                                 {
-                                                    int index2 = int.Parse(exp2.valor.ToString()) + 1;
+                                                    int index2 = Convert.ToInt32(Double.Parse(exp2.valor.ToString())) + 1;
                                                     nuevoArreglo = new Objeto(nombreTipo);
                                                     nuevoArreglo.arreglo = new Simbolo[index1, index2];
                                                     if (root.ChildNodes[2].ChildNodes[3].ChildNodes[0].ToString().Contains("real"))
@@ -2356,9 +2436,9 @@ namespace Proyecto1_Compiladores2.Analizador
                                             Expresion indice = resolverExpresion(root.ChildNodes[0].ChildNodes[1], entorno);
                                             if (indice.tipo != Simbolo.EnumTipo.error)
                                             {
-                                                if (indice.tipo == Simbolo.EnumTipo.entero)
+                                                if (indice.tipo == Simbolo.EnumTipo.entero || indice.tipo == Simbolo.EnumTipo.real)
                                                 {
-                                                    int index1 = int.Parse(indice.valor.ToString());
+                                                    int index1 = Convert.ToInt32(Double.Parse(indice.valor.ToString()));
                                                     if (root.ChildNodes[0].ChildNodes[2].ChildNodes.Count == 0)
                                                     {
                                                         //Se espera que simbolo sea un arreglo de 1 dimension
@@ -2403,9 +2483,9 @@ namespace Proyecto1_Compiladores2.Analizador
                                                             Expresion indice2 = resolverExpresion(root.ChildNodes[0].ChildNodes[2].ChildNodes[0], entorno);
                                                             if (indice2.tipo != Simbolo.EnumTipo.error)
                                                             {
-                                                                if (indice2.tipo == Simbolo.EnumTipo.entero)
+                                                                if (indice2.tipo == Simbolo.EnumTipo.entero || indice2.tipo == Simbolo.EnumTipo.real)
                                                                 {
-                                                                    int index2 = int.Parse(indice2.valor.ToString());
+                                                                    int index2 = Convert.ToInt32(Double.Parse(indice.valor.ToString()));
                                                                     if (index1 < temp.GetLength(0))
                                                                     {
                                                                         if (index2 < temp.GetLength(1))

@@ -132,7 +132,7 @@ namespace Proyecto1_Compiladores2
                         error_table.Visible = true;
                         foreach (Error error in semanticoInterprete.errores)
                         {
-                            error_table.Rows.Add("Semantico", error.error, error.fila, error.columna);
+                            error_table.Rows.Add("Semantico", error.error, error.fila + 1, error.columna + 1);
                         }
                     }
                     else

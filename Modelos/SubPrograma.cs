@@ -12,6 +12,7 @@ namespace Proyecto1_Compiladores2.Modelos
         public Dictionary<string, Simbolo> parametrosVariable;
         public Dictionary<string, Simbolo> parametrosValor;
         public Dictionary<string, string> correlacionParametros;
+        public Dictionary<string, int> correlacionIndices;
         public ArrayList ordenParametros;
         public ParseTreeNode root;
         public Simbolo.EnumTipo tipo;
@@ -28,6 +29,7 @@ namespace Proyecto1_Compiladores2.Modelos
             tipo = Simbolo.EnumTipo.nulo;
             this.entorno = entorno;
             ordenParametros = new ArrayList();
+            correlacionIndices = new Dictionary<string, int>();
         }
         public void modificarEntorno()
         {
@@ -93,9 +95,26 @@ namespace Proyecto1_Compiladores2.Modelos
                 correlacionParametros.TryGetValue(parametro.Key, out nombreVariable);
                 if (nombreVariable != null)
                 {
-                    Simbolo s = null;
-                    entorno.tabla.TryGetValue(parametro.Key, out s);
-                    entornoPrincipal.modificar(nombreVariable, s);
+                    if (correlacionIndices.ContainsKey(parametro.Key))
+                    {
+                        int indice = 0;
+                        correlacionIndices.TryGetValue(parametro.Key, out indice);
+                        Simbolo s = null;
+                        entorno.tabla.TryGetValue(parametro.Key, out s);
+                        //El simbolo 's' es un arreglo y se debe acceder a la posicion indice
+                        Simbolo tmp = entornoPrincipal.buscar(nombreVariable);
+                        //El simbolo 'tmp' es el simbolo almacenado en el entorno principal, es un arreglo
+                        Objeto obj = (Objeto)tmp.valor;
+                        obj.arreglo.SetValue(s, indice);
+                        tmp = new Simbolo(tmp.tipo, obj);
+                        entornoPrincipal.modificar(nombreVariable, tmp);
+                    }
+                    else
+                    {
+                        Simbolo s = null;
+                        entorno.tabla.TryGetValue(parametro.Key, out s);
+                        entornoPrincipal.modificar(nombreVariable, s);
+                    }
                 }
             }
         }
