@@ -30,28 +30,9 @@ namespace Proyecto1_Compiladores2.Modelos
                 this.parametros.Add(parametro.Key, parametro.Value);
             }
             this.tipo = objeto.tipo;
-            this.arreglo = objeto.arreglo;
             if (!(objeto.arreglo is null))
             {
-                if (objeto.arreglo.Rank == 1)
-                {
-                    for (int i = 0; i < objeto.arreglo.GetLength(0); i ++)
-                    {
-                        sim = (Simbolo)objeto.arreglo.GetValue(i);
-                        this.arreglo.SetValue(new Simbolo(sim.tipo, sim.valor), i);
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < objeto.arreglo.GetLength(0); i++)
-                    {
-                        for (int j = 0; j < objeto.arreglo.GetLength(1); j++)
-                        {
-                            sim = (Simbolo)objeto.arreglo.GetValue(i, j);
-                            this.arreglo.SetValue(new Simbolo(sim.tipo, sim.valor), i, j);
-                        }
-                    }
-                }
+                this.arreglo = objeto.arreglo;
             }
         }
 
